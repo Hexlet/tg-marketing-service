@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% load widget_tweaks %}
+
+<div class="container wrapper flex-grow-1">
+    <h1 class="my-4">Вход</h1>
+    <form action="{% url 'users:login' %}" method="post">
+        {% csrf_token %}
+        {% comment %} {% for item in form %}
+        <div class="mb-3">
+            <label class="form-label" for="{{ item.id_for_label }}">{{ item.label }}</label>
+            {{ item }}
+        </div>
+        {% endfor %} {% endcomment %}
+
+        {% if form.non_field_errors %}
+        <ul class="list-unstyled text-danger">
+            <li>Пожалуйста, введите правильные имя пользователя и пароль. Оба поля могут быть чувствительны к регистру.</li>
+        </ul>
+        {% endif %}
+
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.username.id_for_label }}">Имя пользователя</label>
+            {% if form.non_field_errors %}
+            {{ form.username|add_class:"is-invalid" }}
+            {% else %}
+            {{ form.username }}
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.password.id_for_label }}">Пароль</label>
+            {% if form.non_field_errors %}
+            {{ form.password|add_class:"is-invalid" }}
+            {% else %}
+            {{ form.password }}
+            {% endif %}
+        </div>
+        <div class="d-grid">
+            <input class="btn btn-primary" type="submit" value="Войти">
+        </div>
+    </form>
+    <div class="container d-flex justify-content-center align-items-center wrapper mt-3">
+        <div>
+            <span class="fw-bolder">или </span>
+            <a href="{% url "users:user_create" %}" class="fw-bolder">зарегистрируйтесь</a>
+        </div>
+    </div>
+    <div class="container d-flex justify-content-center align-items-center wrapper mt-2">
+        <a href="#" class="nav-link">Забыли пароль?</a>
+    </div>
+</div>
+
+{% endblock  %}

@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %} 
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="text-center mb-0">Регистрация</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'users:user_create' %}">
+                        {% csrf_token %}
+                        
+                        <!-- Аватар -->
+                        <div class="text-center mb-4">
+                            <img src="data:image/png;base64,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" alt="Аватар" 
+                                 class="profile-avatar rounded-circle mb-3" id="avatarPreview">
+                            <div class="form-floating">
+                                {{ form.avatar_image }}
+                                <label for="{{ form.avatar_image.id_for_label }}">URL аватара</label>
+                            </div>
+                            <small class="text-muted">Введите URL изображения</small>
+                        </div>
+                        
+                        <!-- Основные поля формы -->
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    {{ form.first_name }}
+                                    <label for="{{ form.first_name.id_for_label }}">Имя</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    {{ form.last_name }}
+                                    <label for="{{ form.last_name.id_for_label }}">Фамилия</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    {% if form.username.errors %}
+                                    {{ form.username|add_class:"is-invalid" }}
+                                    <div class="invalid-feedback">
+                                        {{ form.username.errors }}
+                                    </div>
+                                    {% else %}
+                                    {{ form.username }}
+                                    {% endif %}
+                                    <label for="{{ form.username.id_for_label }}">Имя пользователя</label>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    {% if form.email.errors %}
+                                    {{ form.email|add_class:"is-invalid" }}
+                                    <div class="invalid-feedback">
+                                        {{ form.email.errors }}
+                                    </div>
+                                    {% else %}
+                                    {{ form.email }}
+                                    {% endif %}
+                                    <label for="{{ form.email.id_for_label }}">Email</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    {% if form.password1.errors %}
+                                    {{ form.password1|add_class:"is-invalid" }}
+                                    <div class="invalid-feedback">
+                                        {{ form.password1.errors }}
+                                    </div>
+                                    {% else %}
+                                    {{ form.password1 }}
+                                    {% endif %}
+                                    <label for="{{ form.password1.id_for_label }}">Пароль</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    {% if form.password2.errors %}
+                                    {{ form.password2|add_class:"is-invalid" }}
+                                    <div class="invalid-feedback">
+                                        {{ form.password2.errors }}
+                                    </div>
+                                    {% else %}
+                                    {{ form.password2 }}
+                                    {% endif %}
+                                    <label for="{{ form.password2.id_for_label }}">Подтверждение пароля</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    {% if form.bio.errors %}
+                                    {{ form.bio|add_class:"is-invalid" }}
+                                    <div class="invalid-feedback">
+                                        {{ form.bio.errors }}
+                                    </div>
+                                    {% else %}
+                                    {{ form.bio }}
+                                    {% endif %}
+                                    <label for="{{ form.bio.id_for_label }}">О себе</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="form-check">
+                                    {{ form.terms }}
+                                    <label class="form-check-label" for="{{ form.terms.id_for_label }}">
+                                        Я согласен с <a href="#">условиями использования</a>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
+                            </button>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <p class="fw-bolder mb-0">Уже есть аккаунт? <a class="fw-bolder" href="{% url 'users:login' %}">Войти</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border: 5px solid white;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .form-floating label {
+        color: #6c757d;
+    }
+    
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        padding: 1.5rem;
+    }
+</style>
+
+<script>
+    // Превью аватара
+    document.getElementById('id_avatar_image').addEventListener('input', function(e) {
+    const url = e.target.value;
+    if (url) {
+        document.getElementById('avatarPreview').src = url;
+    } else {
+        document.getElementById('avatarPreview').src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAMFBMVEXQ3uP////1+PnX4+ft8vT7/P3U4eXM2+Hk7O/d5+vu8/XW4ubc5ur4+vvl7e/p7/KylbazAAAIGUlEQVR4nO2d2bqrIAyF2U6IQ33/tz11arVFBbISldN1tS92W/4PSBiSoP5ilzq7Aez6Ed5fUoR50pVNWqinirQxjyoR+mERwjwzhdJqJa1VXVa5wK+zE7aPWn/QLTDTjh2SlzDvii26F2WasTaBlTBpjvBGRlW2jK3gI6xqJ74RsuEzPFyEiQffyMjVjzyEufHjGxhLlqbwEHbeeKNYbA4DYes5QBfdmDL4DjxhFso3MHbw9sAJA2bgCrFBNwhMmBckvl4FeKRiCVsyXy+sb4QSJrQROktDbSqSEAQItjdAQhggthdxhJg5OCNWsHbBCHMk4BMRZm5ghFjAp1BOA0XYwAkLUMtAhA+clXnJYJqGIQSa0bdAUxFDyMDXC9M2xJeUTISQcYogZBmjvSBeEUFYMwEqyDgFfAdpy3sgwNkNgJCPTyH8Pp2Qy8yMohsbOiHjGH1Kk49RyYS8XQjoRDIhMyC9E6mEHe8gVXRzSiWkn60dSZ9LyLacWRASTzSIhIYdUKn0VEIBQKVpXp9GWPEP0qdoZ4s0QolBSh2mNEIRQKI1JREKWNKBkHScQSJ8iAASnT6JMBUiJN0pkgiFAGlbfcqHW5lpSPSIFEIZb6iIpoZCGBpU4i/K0pRCKOPvez1OIpQypbSNPoWQf284i+IuKIRigKqOnpByl3gPQlIrwz8Kvrn/Ef4If4RBn/0R/ggvTyi3ajtrTSO38j5rXSq3ezprb8F9OfoW5bCNQpiJEZ61xxc6ED7xnCaP/qwt/vNSMXdBunwiEUoZ0/PuLYSOhGk3+SRCIVNDC6m5ww0psY2kT8us22gJezRCztDSt2gBNTRCkYlIjGwjxtNIeERiagmRUOImnxi6RyQUuAamJpZcPzaR2kJyfCk74NnxpezDlJz9RI6C5ram5CQ9MiG30ycnPdOzEXgBicGlEML4M0pYV26ALEtA3hPnBoMY4w0iZHQYiARERIYfPo97FuVGZtYvh9RJXJ2I6EIMIdNMxKSrYzLCecwpwJD+oQhZwjLoyZWDQFUjOJL0QBXqUJU/GHbCoJahvgfuMWA1eGD1adALcIyZ+UNWUQKPU1jVNhwhdJxesU4UtgoPqPpOL2S9NtyRDaqCUi9ozT0YIbJ04iWrCuIm4R+6MiTk4E1TMmS+Ba7uWdIRNdDK9EJXaKUjwlz9pKvVoIUDMtQRpm34Idv6lRhqQVMQ8YAs9bzDByoDIE/F8kBzg68D3Yun6nzQlh/tJiYxvRyQBAAyvXPB9TZC7l16/l5vI/TymoxMI7QXhrAylt1A4rHrt6y1W4NZgCPunsr+ISDbhsexG60d2A7PswBOven3+POEszWmTY8ZdWr75GSqdEF+TIhGmJj3O072XV118FiQLqwfW9hi6mNCBMJxdC6aYp831U4/6nTjM+sv1oYwWoMJLQ3fKoffloXlUSu9/QrS90b6OVpDGxpG+Nl9czs2rxryqjR10WP1UkVtymrTAdoNlDZhHjOEcHvcQR6K2fn2EP/hT9hZu+8lqn3fXe/pgBApT8L28C6U+GzT0Zpdq4fnMPEidHpITRfhK8zcwX8q5TchPQidH1IL7kbXTZfXM23OhMfv/C0VYhISj1/wYHQkPDAv3y2ofS2OywJv9QvWxV4ooS+fVwtGPrenEkN+wYEwC+DzY3R8CjLsFw4Jq0C+oQUuay2HlzxJjAeEvg81fjfBZHv+K888p9/3Dxw9DblLmFB/fmiCLsossWDmSbn9zKzPD9gOGNwIqVcQi0b0z/82pnx0gx6laWqFoJu+fs8BbxPK1QxEaHvCbxGSJ6CwdLFlcjYIATed0tKNfTpaCX3OAa8k64GOjfCGHTjKugH/Jmxv2oGjvmfjF6FYYVkefTuOT8LbjtBZX5eQH4SBS+BLKd0jlKttxal6m5Av+UVWzRYhbh16slZxYwvCm1vRpZa5KAvCs5uFVGEj5H/XSFCLsAcVZReqRbbG66+IZmGv92XmizAWTzEr/SQUqy4npVde2Ex4rzMLF5UfhIxviZ6lNWF0g/Tt9VWsg/Q1TCfCODYVaxVLwggH6cuaqhjd/aRuQShX81hS6YLw7LbwaKxtMxCKFQSW1bg2HQilXoiTlnkRRrigGTUTRukreg3+QkXrK3p1E6Fc9XhpNRPhra9i9jUSSr4XI6zeI6povWGv3iMqqWLA56gbCOM1NMMeUcW67B5lBsLYzhGXav6TPox/HsbvLSLd/w6Kfl1qJkKx16el9do9RWtN33v8WNfesZ+XThcX06l+hONUr+8t4ru4eCWIv265I0N8Z8C/YxaiOlJcpPgvIoZiiEuctIwyXca13T62dNYqb34Vm1id3TSMilW09zq+1C1L9dr6jIP+jIK++4X+d2bJVyR7fusoU0tZB0u+xd0Sgt6yZrFZc2YyQs7jedrIRNzIe7of42am5WZ2nnP2/SW0UxZkJ8MyNP9YXFqVO1mku1my+YOQ5iyloxpER7ncVYNLZmXQdhUfZ8KnsqtCauVS8MyppkKeNZcbrlo1bsU3nCt/VOZCkG6950n4VFLWF6Ds8/t9Sm541hjKK2vdLjk8tV+jgU44qHqkJ/Tls+9MFlC+KLReW9IZSMkHRziVllVgGTFSVcEkK1Ng8Qc7XNEEw9EJB+VJN3CCQfsvbOwlQ6QJR+XP/jRpQScdi4SU3XZJPk+ha9DmSdWVpinGtrrSTv+amjKDkc3iq7Kbt0mV9YVaTJOmdfEdPFcUdZo2xpRdViVJi3zTYik+wqvoR3h/xU/4DwzAeQMogZYGAAAAAElFTkSuQmCC";
+    }
+});
+    
+    // Добавляем классы к полям формы Django
+    document.querySelectorAll('input, textarea').forEach(input => {
+        if (!input.classList.contains('form-check-input')) {
+            input.classList.add('form-control');
+        }
+    });
+    
+    // Особые стили для чекбокса
+    document.getElementById('{{ form.terms.id_for_label }}').classList.add('form-check-input');
+</script>
+{% endblock %}

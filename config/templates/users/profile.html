@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block head %}
+
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border: 5px solid white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .interest-card {
+            cursor: pointer;
+            transition: all 0.3s;
+            height: 100%;
+        }
+        .interest-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .add-interest {
+            border: 2px dashed #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+            cursor: pointer;
+        }
+        .add-interest:hover {
+            border-color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        .badge-close {
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .interest-card img {
+            height: 150px; /* Фиксированная высота */
+            width: 100%; /* Ширина на всю карточку */
+            object-fit: cover; /* Обрезает изображение, сохраняя пропорции */
+            object-position: center; /* Центрирует изображение при обрезке */
+        }
+    </style>
+
+{% endblock  %}
+
+{% block content %}
+
+    <div class="container py-5">
+        <!-- Шапка профиля -->
+        <div class="row mb-5">
+            <div class="col-md-2 text-center">
+                <img src="{{ user.avatar_image }}" alt="Аватар" class="profile-avatar rounded-circle mb-3">
+                <button class="btn btn-sm btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#avatarModal">
+                    <i class="fas fa-camera me-1"></i> Изменить фото
+                </button>
+            </div>
+            <div class="col-md-10">
+                <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+                <p class="text-muted">{{ user.username }}</p>
+                <p>{{ user.bio }}</p>
+                
+                
+                
+                <div class="d-flex gap-3">
+                    <a href="{% url 'users:user_update' user.username %}" class="btn btn-primary">Редактировать профиль</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Блок интересов -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="mb-4">Мои группы каналов</h2>
+                
+                <div class="row g-4">
+                    <!-- Примеры карточек интересов -->
+                     {% for group in groups %}
+                     
+                     <div class="col-md-4 col-sm-6">
+                        <div class="card interest-card">
+                            <a class=" text-decoration-none" href="/"><img src="{{ group.image_url }}" class="card-img-top" alt="{{ group.name }}"></a>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ group.name }}</h5>
+                                <p class="card-text">{{ group.description }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted"></small>
+                                    <div>
+                                         <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteInterestModal" data-interest="{{ group.name }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editInterestModal" 
+                                                data-name="{{ group.name }}" 
+                                                data-desc="{{ group.description }}" 
+                                                data-img="{{ group.image_url }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     
+                     {% endfor %}
+                    
+                    <!-- Блок для добавления нового интереса -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card add-interest" data-bs-toggle="modal" data-bs-target="#addInterestModal">
+                            <div class="text-center p-4">
+                                <i class="fas fa-plus fa-3x text-muted mb-3"></i>
+                                <h5>Добавить группу</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для добавления интереса -->
+    <div class="modal fade" id="addInterestModal" tabindex="-1" aria-labelledby="addInterestModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addInterestModalLabel">Добавить новую группу</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'group_channels:group_create' %}" method="post" id="interestForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="groupName" class="form-label">Название группы</label>
+                            {{ create_form.name }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="groupDescription" class="form-label">Описание</label>
+                            {{ create_form.description }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="groupImage" class="form-label">Изображение (URL)</label>
+                            {{ create_form.image_url }}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                            <input type="submit" class="btn btn-primary" id="saveInterest" value="Сохранить">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Модальное окно для редактирования интереса -->
+    <div class="modal fade" id="editInterestModal" tabindex="-1" aria-labelledby="editInterestModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editInterestModalLabel">Редактировать группу</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editInterestForm" method="post" action="">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="editGroupName" class="form-label">Название группы</label>
+                            {{ update_form.name }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="editGroupDescription" class="form-label">Описание</label>
+                            {{ update_form.description }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="editGroupImage" class="form-label">Изображение (URL)</label>
+                            {{ update_form.image_url }}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                            <input type="submit" class="btn btn-primary" id="updateInterest" value="Обновить">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для удаления интереса -->
+    <div class="modal fade" id="deleteInterestModal" tabindex="-1" aria-labelledby="deleteInterestModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteInterestModalLabel">Удаление группы</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы действительно хотите удалить группу "<span id="interestToDelete"></span>"?</p>
+                    <p class="text-danger">Это действие нельзя будет отменить.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <form id="deleteInterestForm" method="post" action="">
+                        {% csrf_token %}
+                        <input type="submit" class="btn btn-danger" id="confirmDelete" value="Удалить">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно изменения аватара -->
+<div class="modal fade" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="avatarModalLabel">Изменение аватара</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="avatarForm" method="post" action="{% url 'users:avatar_update' user.username %}">
+                    {% csrf_token %}
+                    <div class="text-center mb-4">
+                        <img id="avatarPreview" 
+                             src="{{ user.avatar_image }}" 
+                             alt="Предпросмотр" class="profile-avatar rounded-circle mb-3">
+                    </div>
+                    <div class="mb-3">
+                        <label for="avatarUrl" class="form-label">URL нового аватара</label>
+                        {{ avatar_form.avatar_image }}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i> Отмена
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Сохранить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Bootstrap JS и зависимости -->
+    <script>
+        // Превью аватара при вводе URL
+        document.getElementById('avatarUrl').addEventListener('input', function(e) {
+            const url = e.target.value;
+            const preview = document.getElementById('avatarPreview');
+            
+            if (url) {
+                preview.src = url;
+            } else {
+                preview.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAMFBMVEXQ3uP////1+PnX4+ft8vT7/P3U4eXM2+Hk7O/d5+vu8/XW4ubc5ur4+vvl7e/p7/KylbazAAAIGUlEQVR4nO2d2bqrIAyF2U6IQ33/tz11arVFBbISldN1tS92W/4PSBiSoP5ilzq7Aez6Ed5fUoR50pVNWqinirQxjyoR+mERwjwzhdJqJa1VXVa5wK+zE7aPWn/QLTDTjh2SlzDvii26F2WasTaBlTBpjvBGRlW2jK3gI6xqJ74RsuEzPFyEiQffyMjVjzyEufHjGxhLlqbwEHbeeKNYbA4DYes5QBfdmDL4DjxhFso3MHbw9sAJA2bgCrFBNwhMmBckvl4FeKRiCVsyXy+sb4QSJrQROktDbSqSEAQItjdAQhggthdxhJg5OCNWsHbBCHMk4BMRZm5ghFjAp1BOA0XYwAkLUMtAhA+clXnJYJqGIQSa0bdAUxFDyMDXC9M2xJeUTISQcYogZBmjvSBeEUFYMwEqyDgFfAdpy3sgwNkNgJCPTyH8Pp2Qy8yMohsbOiHjGH1Kk49RyYS8XQjoRDIhMyC9E6mEHe8gVXRzSiWkn60dSZ9LyLacWRASTzSIhIYdUKn0VEIBQKVpXp9GWPEP0qdoZ4s0QolBSh2mNEIRQKI1JREKWNKBkHScQSJ8iAASnT6JMBUiJN0pkgiFAGlbfcqHW5lpSPSIFEIZb6iIpoZCGBpU4i/K0pRCKOPvez1OIpQypbSNPoWQf284i+IuKIRigKqOnpByl3gPQlIrwz8Kvrn/Ef4If4RBn/0R/ggvTyi3ajtrTSO38j5rXSq3ezprb8F9OfoW5bCNQpiJEZ61xxc6ED7xnCaP/qwt/vNSMXdBunwiEUoZ0/PuLYSOhGk3+SRCIVNDC6m5ww0psY2kT8us22gJezRCztDSt2gBNTRCkYlIjGwjxtNIeERiagmRUOImnxi6RyQUuAamJpZcPzaR2kJyfCk74NnxpezDlJz9RI6C5ram5CQ9MiG30ycnPdOzEXgBicGlEML4M0pYV26ALEtA3hPnBoMY4w0iZHQYiARERIYfPo97FuVGZtYvh9RJXJ2I6EIMIdNMxKSrYzLCecwpwJD+oQhZwjLoyZWDQFUjOJL0QBXqUJU/GHbCoJahvgfuMWA1eGD1adALcIyZ+UNWUQKPU1jVNhwhdJxesU4UtgoPqPpOL2S9NtyRDaqCUi9ozT0YIbJ04iWrCuIm4R+6MiTk4E1TMmS+Ba7uWdIRNdDK9EJXaKUjwlz9pKvVoIUDMtQRpm34Idv6lRhqQVMQ8YAs9bzDByoDIE/F8kBzg68D3Yun6nzQlh/tJiYxvRyQBAAyvXPB9TZC7l16/l5vI/TymoxMI7QXhrAylt1A4rHrt6y1W4NZgCPunsr+ISDbhsexG60d2A7PswBOven3+POEszWmTY8ZdWr75GSqdEF+TIhGmJj3O072XV118FiQLqwfW9hi6mNCBMJxdC6aYp831U4/6nTjM+sv1oYwWoMJLQ3fKoffloXlUSu9/QrS90b6OVpDGxpG+Nl9czs2rxryqjR10WP1UkVtymrTAdoNlDZhHjOEcHvcQR6K2fn2EP/hT9hZu+8lqn3fXe/pgBApT8L28C6U+GzT0Zpdq4fnMPEidHpITRfhK8zcwX8q5TchPQidH1IL7kbXTZfXM23OhMfv/C0VYhISj1/wYHQkPDAv3y2ofS2OywJv9QvWxV4ooS+fVwtGPrenEkN+wYEwC+DzY3R8CjLsFw4Jq0C+oQUuay2HlzxJjAeEvg81fjfBZHv+K888p9/3Dxw9DblLmFB/fmiCLsossWDmSbn9zKzPD9gOGNwIqVcQi0b0z/82pnx0gx6laWqFoJu+fs8BbxPK1QxEaHvCbxGSJ6CwdLFlcjYIATed0tKNfTpaCX3OAa8k64GOjfCGHTjKugH/Jmxv2oGjvmfjF6FYYVkefTuOT8LbjtBZX5eQH4SBS+BLKd0jlKttxal6m5Av+UVWzRYhbh16slZxYwvCm1vRpZa5KAvCs5uFVGEj5H/XSFCLsAcVZReqRbbG66+IZmGv92XmizAWTzEr/SQUqy4npVde2Ex4rzMLF5UfhIxviZ6lNWF0g/Tt9VWsg/Q1TCfCODYVaxVLwggH6cuaqhjd/aRuQShX81hS6YLw7LbwaKxtMxCKFQSW1bg2HQilXoiTlnkRRrigGTUTRukreg3+QkXrK3p1E6Fc9XhpNRPhra9i9jUSSr4XI6zeI6povWGv3iMqqWLA56gbCOM1NMMeUcW67B5lBsLYzhGXav6TPox/HsbvLSLd/w6Kfl1qJkKx16el9do9RWtN33v8WNfesZ+XThcX06l+hONUr+8t4ru4eCWIv265I0N8Z8C/YxaiOlJcpPgvIoZiiEuctIwyXca13T62dNYqb34Vm1id3TSMilW09zq+1C1L9dr6jIP+jIK++4X+d2bJVyR7fusoU0tZB0u+xd0Sgt6yZrFZc2YyQs7jedrIRNzIe7of42am5WZ2nnP2/SW0UxZkJ8MyNP9YXFqVO1mku1my+YOQ5iyloxpER7ncVYNLZmXQdhUfZ8KnsqtCauVS8MyppkKeNZcbrlo1bsU3nCt/VOZCkG6950n4VFLWF6Ds8/t9Sm541hjKK2vdLjk8tV+jgU44qHqkJ/Tls+9MFlC+KLReW9IZSMkHRziVllVgGTFSVcEkK1Ng8Qc7XNEEw9EJB+VJN3CCQfsvbOwlQ6QJR+XP/jRpQScdi4SU3XZJPk+ha9DmSdWVpinGtrrSTv+amjKDkc3iq7Kbt0mV9YVaTJOmdfEdPFcUdZo2xpRdViVJi3zTYik+wqvoR3h/xU/4DwzAeQMogZYGAAAAAElFTkSuQmCC";
+            }
+        });
+        // Обработчик для кнопки редактирования интереса
+            const editModal = document.getElementById('editInterestModal');
+        editModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const name = button.getAttribute('data-name');
+            const desc = button.getAttribute('data-desc');
+            const img = button.getAttribute('data-img');
+            
+            document.getElementById('editGroupName').value = name;
+            document.getElementById('editGroupDescription').value = desc;
+            document.getElementById('editGroupImage').value = img;
+            
+            // Устанавливаем action формы
+            const form = document.getElementById('editInterestForm');
+            form.action = "{% url 'group_channels:group_update' 'PLACEHOLDER' %}".replace('PLACEHOLDER', encodeURIComponent(name));
+        });
+
+             // Обработчик для модального окна удаления
+            const deleteModal = document.getElementById('deleteInterestModal');
+        deleteModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const interestName = button.getAttribute('data-interest');
+            document.getElementById('interestToDelete').textContent = interestName;
+
+            // Устанавливаем action формы
+            const form = document.getElementById('deleteInterestForm');
+            form.action = "{% url 'group_channels:group_delete' 'PLACEHOLDER' %}".replace('PLACEHOLDER', encodeURIComponent(interestName));
+        });
+        // Пример JavaScript для добавления нового интереса
+        document.getElementById('saveInterest').addEventListener('click', function() {
+            const name = document.getElementById('interestName').value;
+            const description = document.getElementById('interestDescription').value;
+            const imageUrl = document.getElementById('interestImage').value || 'https://via.placeholder.com/300x150?text=' + encodeURIComponent(name);
+        });
+    </script>
+
+
+
+{% endblock  %}
