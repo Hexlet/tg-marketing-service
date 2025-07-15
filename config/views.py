@@ -1,6 +1,4 @@
-from django.contrib import messages
-from django.shortcuts import redirect, render
-from django.urls import reverse
+from django.shortcuts import render
 from django.views.generic.base import View
 
 

@@ -67,11 +67,11 @@ class UserRegForm(UserCreationForm):
                                       'class': 'form-control',
                                       'placeholder': 'Подтверждение пароля'})
     )
-    email =  forms.CharField(
+    email = forms.CharField(
         label='Email',
         widget=forms.EmailInput(attrs={'class': 'form-control',
                                       'placeholder': 'Email'}))
-    bio =  forms.CharField(
+    bio = forms.CharField(
         required=False,
         label='Email',
         widget=forms.Textarea(attrs={'class': 'form-control',
@@ -92,6 +92,7 @@ class UserRegForm(UserCreationForm):
                                       'class': 'form-control'})
     )
     
+
 class UserUpdateForm(UserChangeForm):
     class Meta:
         model = User
@@ -132,11 +133,11 @@ class UserUpdateForm(UserChangeForm):
                                       'class': 'form-control',
                                       'placeholder': 'Подтверждение пароля'})
     )
-    email =  forms.CharField(
+    email = forms.CharField(
         label='Email',
         widget=forms.EmailInput(attrs={'class': 'form-control',
                                       'placeholder': 'Email'}))
-    bio =  forms.CharField(
+    bio = forms.CharField(
         required=False,
         label='Email',
         widget=forms.Textarea(attrs={'class': 'form-control',
@@ -157,7 +158,7 @@ class AvatarChange(UserChangeForm):
     avatar_image = forms.CharField(
         required=False,
         label='URL аватара',
-        widget=forms.TextInput(attrs={'id':'avatarUrl',
+        widget=forms.TextInput(attrs={'id': 'avatarUrl',
                                       'name': 'avatar_image',
                                       'class': 'form-control',
                                       'placeholder': 'https://example.com/avatar.jpg'})

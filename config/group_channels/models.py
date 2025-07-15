@@ -1,5 +1,8 @@
 from django.db import models
+
 from config.users.models import User
+
+
 # from config.channel.models import Channel
 # Create your models here.
 class Group(models.Model):

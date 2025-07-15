@@ -1,10 +1,10 @@
 from django.urls import path
 
 from config.group_channels.views import (
-    GroupProfileView,
     CreateGroupView,
-    UpdateGruopView,
     DeleteGroupView,
+    GroupProfileView,
+    UpdateGruopView,
 )
 
 app_name = 'group_channels'

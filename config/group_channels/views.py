@@ -1,7 +1,8 @@
-from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic.base import View
+
 # Create your views here.
 from .forms import CreateGroupForm, UpdateGroupForm
 from .models import Group
@@ -50,8 +51,7 @@ class UpdateGruopView(View):
             messages.add_message(request,
                                  messages.ERROR,
                                  name_err[1:])
-        if form.errors.get('description'):        
-            desc_err = form.errors.get('description').as_text()    
+        if form.errors.get('description'):            
             messages.add_message(request,
                                 messages.ERROR,
                                 'Слишком длинное описание. Должно быть не более 200 символов.')

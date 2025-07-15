@@ -1,17 +1,17 @@
-from django.contrib import messages, auth
+from django.contrib import auth, messages
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic.base import View
 
-from .models import User
+from config.group_channels.forms import CreateGroupForm, UpdateGroupForm
+
 from .forms import (
+    AvatarChange,
     UserLoginForm,
     UserRegForm,
     UserUpdateForm,
-    AvatarChange,
 )
-
-from config.group_channels.forms import CreateGroupForm, UpdateGroupForm
+from .models import User
 
 
 class LogoutView(View):
@@ -20,7 +20,7 @@ class LogoutView(View):
             messages.add_message(request,
                                  messages.ERROR,
                             'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return redirect(reverse('login'))
+            return redirect(reverse('users:login'))
         return redirect(reverse('main_index'))
 
     def post(self, request, *args, **kwargs):
@@ -57,7 +57,7 @@ class UserProfileView(View):
             messages.add_message(request,
                                  messages.ERROR,
                             'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return redirect(reverse('login'))
+            return redirect(reverse('users:login'))
         create_form = CreateGroupForm()
         update_form = UpdateGroupForm()
         avatar_form = AvatarChange()
@@ -145,7 +145,7 @@ rK3p1E6Fc9XhpNRPhra9i9jUSSr4XI6zeI6povWGv3iMqqWLA56gbCOM1NMMeUcW67B5lB\
     VllVgGTFSVcEkK1Ng8Qc7XNEEw9EJB+VJN3CCQfsvbOwlQ6QJR+XP/jRpQScdi4SU3\
         XZJPk+ha9DmSdWVpinGtrrSTv+amjKDkc3iq7Kbt0mV9YVaTJOmdfEdPFcUdZo\
             2xpRdViVJi3zTYik+wqvoR3h/xU/4DwzAeQMogZYGAAAAAElFTkSuQmCC'
-
+            form.save()
             messages.add_message(request,
                                  messages.SUCCESS,
                                  'Пользователь успешно зарегистрирован')
@@ -167,7 +167,7 @@ class UserUpdate(View):
             messages.add_message(request,
                                  messages.ERROR,
                             'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return redirect(reverse('login'))
+            return redirect(reverse('users:login'))
         if request.user.username == kwargs.get('username'):
             form = UserUpdateForm(initial={
                 'username': request.user.username,

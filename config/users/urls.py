@@ -1,12 +1,12 @@
 from django.urls import path
 
 from config.users.views import (
-    LogoutView,
+    AvatarChangeView,
     LoginView,
+    LogoutView,
     UserProfileView,
     UserRegister,
     UserUpdate,
-    AvatarChangeView,
 )
 
 app_name = 'users'

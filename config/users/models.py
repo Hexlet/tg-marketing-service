@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 
 # Create your models here.
@@ -8,6 +8,7 @@ class User(AbstractUser):
     role = models.CharField(verbose_name='роль',
                             max_length=150)
     bio = models.CharField(max_length=200, verbose_name='о себе', blank=True)
+    email = models.EmailField(verbose_name="email адрес", blank=True, unique=True)
     class Meta:
         db_table = 'users'
         verbose_name = 'Пользователя'

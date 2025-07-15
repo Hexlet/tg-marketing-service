@@ -1,6 +1,5 @@
 from django import forms
 
-from config.users.models import User
 # from config.channel.models import Channel
 from .models import Group
 
@@ -37,7 +36,7 @@ class CreateGroupForm(forms.ModelForm):
         widget=forms.URLInput(
             attrs={
                 'id': 'groupImage',
-                'placeholder':'https://example.com/image.jpg',
+                'placeholder': 'https://example.com/image.jpg',
                 'class': 'form-control',
                 'name': 'image_url',
             }
@@ -81,7 +80,7 @@ class UpdateGroupForm(forms.ModelForm):
         widget=forms.URLInput(
             attrs={
                 'id': 'editGroupImage',
-                'placeholder':'https://example.com/image.jpg',
+                'placeholder': 'https://example.com/image.jpg',
                 'class': 'form-control',
                 'name': 'image_url',
             }
