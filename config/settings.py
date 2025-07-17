@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 import dj_database_url
 
@@ -20,6 +22,17 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Настройки приложения Telegram
+TELEGRAM_API_ID = os.getenv('TELEGRAM_API_ID')
+TELEGRAM_API_HASH = os.getenv('TELEGRAM_API_HASH')
+TELEGRAM_SESSION_STRING = os.getenv('TELEGRAM_SESSION_STRING')
+
+# Проверка наличия обязательных настроек Telegram
+if not TELEGRAM_API_ID or not TELEGRAM_API_HASH or not TELEGRAM_SESSION_STRING:
+    raise ImproperlyConfigured(
+        "Нет конфигурации для Telegram API. "
+        "Установи TELEGRAM_API_ID, TELEGRAM_API_HASH, TELEGRAM_SESSION_STRING"
+    )
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -53,6 +66,7 @@ INSTALLED_APPS = [
     'config',
     'config.users',
     'config.group_channels',
+    'config.parser',
 ]
 
 AUTHENTICATION_BACKENDS = [

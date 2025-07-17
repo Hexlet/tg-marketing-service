@@ -22,11 +22,13 @@ SPA веб-приложение. Единый портал для сравнен
 
 - Python
 - Django
-- Docker GitHub Actions
+- PostgreSQL
+- Docker 
 - GitHub Actions
 - см. другие зависимости в [`package.json`](package.json)
 
 ## Требования
+
 
 - NodeJS, NPM
 - IDE

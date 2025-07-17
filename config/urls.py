@@ -24,5 +24,6 @@ urlpatterns = [
     path('auth/', include('config.users.urls')),
     path('group/', include('config.group_channels.urls')),
     path('accounts/', include('allauth.urls')),
+    path('parser/', include('config.parser.urls')),
     path('admin/', admin.site.urls),
 ]

@@ -9,6 +9,4 @@ COPY . .
 
 RUN uv sync
 
-RUN make migrate
-
-CMD ["make", "prod-run"]
+CMD ["sh", "-c", "make migrate && make prod-run"]
