@@ -1,10 +1,10 @@
 import React from "react";
-import FormRegistration from "../ui/FormRegistration";
+import FormAuth from "../ui/FormAuth";
 
 const Auth: React.FC = () => {
   return (
     <>
-      <FormRegistration />
+      <FormAuth />
     </>
   )
 }
