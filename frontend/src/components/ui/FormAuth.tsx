@@ -4,6 +4,7 @@ import PasswordRecovery from '../modals/PasswordRecovery';
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { SocialIcon } from "react-social-icons";
+import { CHECK_ICON_BASE64 } from "../../constants/icons";
 
 const FormAuth: React.FC = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -74,7 +75,7 @@ const FormAuth: React.FC = () => {
         <label className='flex gap-2 items-center cursor-pointer'>
           <input
             type="checkbox"
-            className="appearance-none w-5 h-5 border border-gray-300 cursor-pointer rounded-sm checked:bg-blue-500 checked:border-blue-600 checked:bg-[url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cGF0aCBkPSJNOSAxNi4xN0w0LjgzIDEybC0xLjQyIDEuNDFMOSAxOSAyMSA3bC0xLjQxLTEuNDFMOSAxNi4xN3oiIGZpbGw9IndoaXRlIi8+PC9zdmc+)] checked:bg-[length:14px_14px] checked:bg-center checked:bg-no-repeat"
+            className={`appearance-none w-5 h-5 border border-gray-300 cursor-pointer rounded-sm checked:bg-blue-500 checked:border-blue-600 ${CHECK_ICON_BASE64} checked:bg-[length:14px_14px] checked:bg-center checked:bg-no-repeat`}
           />
           Запомнить меня
         </label>
