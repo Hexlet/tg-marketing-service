@@ -1,25 +1,10 @@
-import { useState } from 'react';
-import PasswordRecovery from '../modals/PasswordRecovery';
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { SocialIcon } from "react-social-icons";
 import { CHECK_ICON_BASE64 } from "../../constants/icons";
 
-const FormAuth: React.FC = () => {
+const FormReg: React.FC = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
-
-  console.log(errors);
-
-
-  const [showModal, setShowModal] = useState(false);
-
-  const openModal = () => {
-    setShowModal(true);
-  }
-
-  const closeModal = () => {
-    setShowModal(false);
-  }
 
   const onSubmit = async (data: any) => {
     try {
@@ -35,7 +20,7 @@ const FormAuth: React.FC = () => {
       <form onSubmit={handleSubmit(onSubmit)} className='max-w-sm flex flex-col justify-center m-auto h-screen gap-3 p-5'>
         <div>
           <h2 className='font-bold text-center text-2xl mb-2'>
-            Войти в систему
+            Регистрация
           </h2>
           <p className='text-center'>
             Используйте привычный способ входа
@@ -85,27 +70,42 @@ const FormAuth: React.FC = () => {
             {typeof errors.password.message === 'string' ? errors.password.message : "Неверный пароль"}
           </span>
         )}
+        <input
+          {...register("password", {
+            required: 'Это поле обязательно',
+          })}
+          type="password"
+          placeholder='Повторите пароль'
+          className='border-1 rounded-sm pl-3 pt-2 pb-2'
+        />
+        {errors.password && (
+          <span className='text-red-500'>
+            {typeof errors.password.message === 'string' ? errors.password.message : "Неверный пароль"}
+          </span>
+        )}
         <label className='flex gap-2 items-center cursor-pointer'>
           <input
             type="checkbox"
             className={`appearance-none w-5 h-5 border border-gray-300 cursor-pointer rounded-sm checked:bg-blue-500 checked:border-blue-600 ${CHECK_ICON_BASE64} checked:bg-[length:14px_14px] checked:bg-center checked:bg-no-repeat`}
           />
-          Запомнить меня
+          Я принимаю условия
         </label>
         <div
           className='flex flex-col gap-2.5 items-center'
         >
           <button type='submit' className='!bg-blue-600 text-white w-full'>
-            Войти
+            Зарегистрироваться
           </button>
-          <button type='button' onClick={openModal} className='!bg-white w-max'>
-            Забыли пароль?
-          </button>
+          <p>
+            Уже есть аккаунт?
+            <a href="#">
+              Войти
+            </a>
+          </p>
         </div>
       </form>
-      <PasswordRecovery isVisible={showModal} onClose={closeModal} />
     </>
   )
-}
+};
 
-export default FormAuth;
+export default FormReg;
