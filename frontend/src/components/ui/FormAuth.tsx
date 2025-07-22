@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { SocialIcon } from "react-social-icons";
 
-const FormRegistration: React.FC = () => {
+const FormAuth: React.FC = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   console.log(errors);
@@ -94,4 +94,4 @@ const FormRegistration: React.FC = () => {
   )
 }
 
-export default FormRegistration;
+export default FormAuth;
