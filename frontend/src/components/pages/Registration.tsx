@@ -1,5 +1,5 @@
 import React from "react";
-import FormReg from "../ui/FormReg";
+import FormReg from "../../features/auth/FormReg";
 
 const Registration: React.FC = () => {
   return (
