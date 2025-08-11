@@ -4,14 +4,16 @@ import Home from '../components/pages/Home';
 import ComparePages from '../components/pages/ComparePages';
 import CompareProducts from '../components/pages/CompareProducts';
 import MassParsing from '../components/pages/MassParsing';
-import Auth from '@/components/pages/Auth';
+import Login from '@/components/pages/Login';
+import Registration from '@/components/pages/Registration';
 
 const routes = [
   { path: '/', element: <Home /> },
   { path: '/compare-pages', element: <ComparePages /> },
   { path: '/compare-products', element: <CompareProducts /> },
   { path: '/mass-parsing', element: <MassParsing /> },
-  { path: '/auth', element: <Auth /> },
+  { path: '/login', element: <Login /> },
+  { path: '/reg', element: <Registration /> }
 ];
 
 export const renderRoutes = (): React.ReactNode => {
