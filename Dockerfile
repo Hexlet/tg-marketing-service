@@ -9,4 +9,4 @@ COPY . .
 
 RUN uv sync
 
-CMD ["sh", "-c", "make migrate && make prod-run"]
+CMD ["sh", "-c", "make migrate && make collectstatic && make prod-run"]

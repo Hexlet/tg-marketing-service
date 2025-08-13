@@ -2,6 +2,7 @@
 
 {% block content %}
 {% load widget_tweaks %}
+{% load socialaccount %}
 
 <div class="container wrapper flex-grow-1">
     <h1 class="my-4">Вход</h1>
@@ -46,6 +47,12 @@
             <a href="{% url "users:user_create" %}" class="fw-bolder">зарегистрируйтесь</a>
         </div>
     </div>
+        {% comment %} <div class="social-login">
+  <a href="{% provider_login_url 'yandex' %}" class="social-btn yandex-btn">
+  <span class="icon"></span>
+  Войти через Яндекс
+</a> {% endcomment %}
+</div>
     <div class="container d-flex justify-content-center align-items-center wrapper mt-2">
         <a href="{% url 'users:restore_password_request' %}" class="nav-link">Забыли пароль?</a>
     </div>
