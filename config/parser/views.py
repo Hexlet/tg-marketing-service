@@ -46,14 +46,17 @@ class ParserView(FormView):
         channel, created = TelegramChannel.objects.update_or_create(
             channel_id=data["channel_id"],
             defaults={
-                "title": data["title"],
-                "username": data["username"],
-                "description": data["description"],
-                "participants_count": data["participants_count"],
-                "pinned_messages": data["pinned_messages"],
-                "last_messages": data["last_messages"],
-                "average_views": data["average_views"],
-            },
+                'title': data['title'],
+                'username': data['username'],
+                'description': data['description'],
+                'participants_count': data['participants_count'],
+                'pinned_messages': data['pinned_messages'],
+                'last_messages': data['last_messages'],
+                'average_views': data['average_views'],
+                'language': data['language'],
+                'country': data['country'],
+                'category': data['category'],
+            }
         )
 
         if created:
@@ -95,19 +98,24 @@ class ParserView(FormView):
 
 
     def form_valid(self, form):
-        """Form validation"""
-        identifier = form.cleaned_data["channel_identifier"]
-        limit = form.cleaned_data["limit"]
-        log.info(f"Start processing channel data; - {identifier} limit - {limit}")
-
+        """ Обработка формы """
+        identifier = form.cleaned_data['channel_identifier']
+        limit = form.cleaned_data['limit']
+        language = form.cleaned_data['language']
+        country = form.cleaned_data['country']
+        category = form.cleaned_data['category']
+        log.info(f'Начинаем обработку данных для канала; '
+                 f'- {identifier} лимит - {limit}')
         try:
             # Start async parsing function
             async_parser = async_to_sync(self.async_tg_parser)
             parsed_data = async_parser(identifier, limit)
-            log.info(
-                f"Parsing completed for channel;"
-                f"- {parsed_data['title']} ({parsed_data['channel_id']}"
-            )
+            parsed_data.update({'language': language,
+                                'country': country,
+                                'category': category})
+            
+            log.info(f'Парсинг завершен для канала;'
+                     f'- {parsed_data['title']} ({parsed_data['channel_id']}')
 
             # Saving data
             channel, created = self.save_channel(parsed_data)

@@ -34,7 +34,7 @@
             <!-- Шапка канала -->
             <div class="card bg-primary text-white p-3 mb-4 title-card">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h3 class="mb-0">{{ channel.title }}</h3>
+                    <h3 class="mb-0">{{ channel.title }} | {{ channel.category|default:"" }}</h3>
                     <a href="https://t.me/{{ channel.username }}" class="btn btn-light btn-sm telegram-btn">
                         <i class="bi bi-telegram"></i> Открыть в Telegram
                     </a>
