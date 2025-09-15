@@ -39,14 +39,19 @@ const Header: React.FC = () => {
   return (
     <header className="flex flex-col md:flex-row justify-between items-center p-4 bg-white shadow-md">
       <div className="flex items-center justify-between w-full md:w-auto">
-        <Link to="/" className="text-xl font-bold">PriceAggregator — B2B Сравнение</Link>
+        <Link to="/" className="text-xl font-bold">
+          PriceAggregator — B2B Сравнение
+        </Link>
         <Tooltip text="Меню">
           <button onClick={toggleMenu} className="md:hidden">
             <Bars3Icon className="h-6 w-6" />
           </button>
         </Tooltip>
         <Tooltip text="Профиль">
-          <button onClick={toggleProfileMenu} className="flex items-center md:hidden">
+          <button
+            onClick={toggleProfileMenu}
+            className="flex items-center md:hidden"
+          >
             Профиль ▾
           </button>
         </Tooltip>
@@ -62,14 +67,31 @@ const Header: React.FC = () => {
           <Link to="/mass-parsing" className="block" onClick={closeMenu}>
             Массовый парсинг каталога
           </Link>
+          <Tooltip text="Профиль">
+            <button
+              onClick={toggleProfileMenu}
+              className="hidden md:flex items-center"
+            >
+              Профиль ▾
+            </button>
+          </Tooltip>
         </nav>
       </div>
       {isProfileOpen && (
-        <div id="profile-menu" className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg">
+        <div
+          id="profile-menu"
+          className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg"
+        >
           <ul>
-            <li onClick={closeProfileMenu}><Link to="/profile">Профиль</Link></li>
-            <li onClick={closeProfileMenu}><Link to="/settings">Настройки</Link></li>
-            <li onClick={closeProfileMenu}><Link to="/logout">Выход</Link></li>
+            <li onClick={closeProfileMenu}>
+              <Link to="/profile">Профиль</Link>
+            </li>
+            <li onClick={closeProfileMenu}>
+              <Link to="/settings">Настройки</Link>
+            </li>
+            <li onClick={closeProfileMenu}>
+              <Link to="/logout">Выход</Link>
+            </li>
           </ul>
         </div>
       )}
