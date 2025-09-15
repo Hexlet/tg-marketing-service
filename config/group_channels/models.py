@@ -65,3 +65,30 @@ class Group(models.Model):
         if not self.slug or not self.slug.strip():
             self.slug = slugify(unidecode(self.name))
         super().save(*args, **kwargs)
+
+class AutoGroupRule(models.Model):
+    group = models.OneToOneField(
+        Group,
+        on_delete=models.CASCADE,
+        related_name='auto_rule',
+        verbose_name='Группа'
+    )
+
+    category = models.CharField(
+        max_length=255,
+        verbose_name='Категория'
+    )
+
+    materialize = models.BooleanField(
+        default=True,
+        verbose_name='Материализовать в M2M',
+    )
+
+
+    class Meta:
+        db_table = 'auto_group_rules'
+        verbose_name = 'Правило автоподборки'
+        verbose_name_plural = 'Правила автоподборок'
+
+    def __str__(self):
+        return f'AutoRule[{self.group.name}] category="{self.category}"'

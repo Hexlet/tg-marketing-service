@@ -16,7 +16,7 @@ class TelegramChannel(models.Model):
     creation_date = models.DateTimeField(null=True, blank=True, verbose_name='Дата создания')
     last_messages = models.JSONField(blank=True, null=True, default=list, verbose_name='Последние сообщения')
     average_views = models.IntegerField(default=0, verbose_name='Среднее количество просмотров')
-    category = models.CharField(blank=True, null=True, verbose_name='Категория канала')
+    category = models.CharField(blank=True, null=True, db_index=True, verbose_name='Категория канала')
     country = models.CharField(blank=True, null=True, verbose_name='Страна канала')
     language = models.CharField(blank=True, null=True, verbose_name='Язык канала')
 

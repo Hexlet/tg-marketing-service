@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "asyncio>=4.0.0",
     "celery>=5.5.3",
     "dj-database-url>=3.0.1",
     "django>=5.2.4",

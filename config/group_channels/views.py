@@ -60,15 +60,23 @@ class GroupDetailView(View):
         slug = kwargs['slug']
         group = get_object_or_404(Group, slug=slug)
 
+        channels = group.channels.all()
+
+        auto_category = None
+        if hasattr(group, 'auto_rule'):
+            auto_category = group.auto_rule.category
+            channels = TelegramChannel.objects.filter(category=auto_category) 
+
         is_owner = request.user.is_authenticated and (group.owner == request.user)
         add_form = None
-        if is_owner:
+        if is_owner and not hasattr(group, 'auto_rule'):
             free_qs = TelegramChannel.objects.exclude(groups=group)
             add_form = AddChannelForm(channel_qs=free_qs)
 
         return render(request, 'group_channels/detail.html', {
             'group': group,
-            'channels': group.channels.all(),
+            'channels': channels,
+            'auto_category': auto_category,
             'add_form': add_form,
             'is_owner': is_owner,
         })
