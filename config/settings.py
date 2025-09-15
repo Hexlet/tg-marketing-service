@@ -30,10 +30,11 @@ TELEGRAM_API_HASH = os.getenv('TELEGRAM_API_HASH')
 TELEGRAM_SESSION_STRING = os.getenv('TELEGRAM_SESSION_STRING')
 
 # Telegram settings check
-if not TELEGRAM_API_ID or not TELEGRAM_API_HASH or not TELEGRAM_SESSION_STRING:
+# SESSIONS_STRING is not necessary, because working with sole db can be too
+if not TELEGRAM_API_ID or not TELEGRAM_API_HASH:
     raise ImproperlyConfigured(
         "Нет конфигурации для Telegram API. "
-        "Установи TELEGRAM_API_ID, TELEGRAM_API_HASH, TELEGRAM_SESSION_STRING"
+        "Установи TELEGRAM_API_ID, TELEGRAM_API_HASH"
     )
 
 # Celery settings

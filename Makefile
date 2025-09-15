@@ -31,8 +31,5 @@ celery-beat:
 flower:
 	uv run celery -A config flower
 
-
-
-
-
-
+s:
+	uv run python manage.py set_telegram_session

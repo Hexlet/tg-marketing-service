@@ -209,9 +209,10 @@ Footer
 
 # Telegram API
 test_session.*
+*.session
 
 # Temporary files
-tmp.*
+# tmp.*
 
 celerybeat-schedule*
 celerybeat-schedule.*
