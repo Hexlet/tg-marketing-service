@@ -73,6 +73,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    'inertia',
 
     'widget_tweaks',
     'django_bootstrap5',
@@ -110,6 +112,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'inertia.middleware.InertiaMiddleware',
 ]
 
 
@@ -231,4 +234,14 @@ else:
     ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
     # Email settings for development - emails will be printed to console
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    
+
+# Inertia settings    
+    
+INERTIA_LAYOUT = "base.html"
+CSRF_HEADER_NAME = 'HTTP_X_XSRF_TOKEN'
+CSRF_COOKIE_NAME = 'XSRF-TOKEN'
+STATICFILES_DIRS = [
+    BASE_DIR / "frontend" / "public",
+]
 
