@@ -33,3 +33,5 @@ SPA веб-приложение. Единый портал для сравнен
 - NodeJS, NPM
 - IDE
 - Терминал для использования Git
+
+-Fork and Pull Request 
