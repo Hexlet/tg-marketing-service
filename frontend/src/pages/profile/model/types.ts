@@ -4,6 +4,7 @@ export interface User {
   email: string;
   joined_at: string;
   bio?: string;
+  avatar?: string;
 }
 
 export interface Subscription {
