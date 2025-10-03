@@ -15,6 +15,8 @@ from config.parser.forms import ChannelParseForm
 from config.parser.models import ChannelStats, TelegramChannel
 from config.parser.parser import tg_parser
 
+from inertia import render as inertia_render
+
 log = logging.getLogger(__name__)
 
 
@@ -146,9 +148,19 @@ class ParserView(FormView):
 
 class ParserListView(ListView):
     model = TelegramChannel
-    template_name = 'parser/channels_list.html'
-    context_object_name = "channels"
-    ordering = ["-parsed_at"]
+    token = 'TEMP_TOKEN'
+
+    def get(self, request, *args, **kwargs):
+        channels = self.get_queryset()
+    
+        return inertia_render(
+            request,
+            'ChannelAnalytics',
+            props={
+                "channels": channels,
+                "csrfToken": self.token,   
+            }
+        )
 
 
 class ParserDetailView(DetailView):
