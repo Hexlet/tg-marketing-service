@@ -7,16 +7,25 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import DetailView, FormView, ListView
+from rest_framework.generics import ListAPIView
 from telethon import TelegramClient
 from telethon.sessions import StringSession
 
 from config.parser.forms import ChannelParseForm
 from config.parser.models import TelegramChannel, Category, Country, Language
 from config.parser.parser import tg_parser
+from .serializers import TelegramChannelSerializer
 
 log = logging.getLogger(__name__)
 
 
+class ChannelSearchView(ListAPIView):
+    """
+    API view для поиска и фильтрации каналов.
+    Пока что просто возвращает все каналы.
+    """
+    queryset = TelegramChannel.objects.all().order_by('-subscribers_count')
+    serializer_class = TelegramChannelSerializer
 
 
 class ParserView(FormView):
