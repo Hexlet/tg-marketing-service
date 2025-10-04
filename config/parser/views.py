@@ -29,23 +29,60 @@ class ChannelSearchView(ListAPIView):
 
     def get_queryset(self):
         """
-        Фильтрует каналы по поисковому запросу 'q' в URL.
+        Фильтрует каналы по поисковому запросу 'q' и другим параметрам в URL.
         """
         queryset = TelegramChannel.objects.all()
+        
+        # Полнотекстовый поиск
         query_param = self.request.query_params.get('q', None)
-
         if query_param:
-            # Обновляем search_vector для всех каналов. В идеале это должно происходить в фоновой задаче при обновлении канала.
-            # Для демонстрации делаем это здесь.
+            # В реальном приложении этот update должен происходить в фоновой задаче
             TelegramChannel.objects.update(search_vector=(SearchVector('title', weight='A') + SearchVector('description', weight='B')))
 
             query = SearchQuery(query_param, search_type='websearch')
             queryset = queryset.annotate(
                 rank=SearchRank(F('search_vector'), query)
             ).filter(search_vector=query).order_by('-rank')
-        else:
-            queryset = queryset.order_by('-subscribers_count')
 
+        # Фильтры по ID (справочники)
+        category_id = self.request.query_params.get('category', None)
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
+
+        country_id = self.request.query_params.get('country', None)
+        if country_id:
+            queryset = queryset.filter(country_id=country_id)
+
+        language_id = self.request.query_params.get('language', None)
+        if language_id:
+            queryset = queryset.filter(language_id=language_id)
+
+        # Фильтры по булевым флагам
+        boolean_filters = {
+            'is_verified': 'verified',
+            'is_rkn_registered': 'rkn',
+            'has_stories': 'stories',
+            'has_red_label': 'no_red_label', # инвертированная логика
+            'is_scam': 'no_scam', # инвертированная логика
+            'is_dead': 'hide_dead' # инвертированная логика
+        }
+
+        for db_field, url_param in boolean_filters.items():
+            param_value = self.request.query_params.get(url_param, None)
+            if param_value is not None:
+                # Преобразуем 'true'/'false' из URL в булево значение
+                is_true = param_value.lower() in ('true', '1')
+                
+                # Для некоторых фильтров логика инвертирована (например, no_scam=true означает is_scam=false)
+                if url_param in ['no_red_label', 'no_scam', 'hide_dead']:
+                    queryset = queryset.filter(**{db_field: not is_true})
+                else:
+                    queryset = queryset.filter(**{db_field: is_true})
+
+        # Сортировка по умолчанию, если не было поиска
+        if not query_param:
+            queryset = queryset.order_by('-subscribers_count')
+            
         return queryset
 
 
