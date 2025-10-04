@@ -1,95 +1,87 @@
 from django.db import models
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
 from config.users.models import User
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name='Название категории')
+
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+
+    def __str__(self):
+        return self.name
+
+
+class Country(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name='Название страны')
+    code = models.CharField(max_length=2, unique=True, verbose_name='Код страны (ISO 3166-1 alpha-2)')
+
+    class Meta:
+        verbose_name = 'Страна'
+        verbose_name_plural = 'Страны'
+
+    def __str__(self):
+        return self.name
+
+
+class Language(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name='Язык')
+
+    class Meta:
+        verbose_name = 'Язык'
+        verbose_name_plural = 'Языки'
+
+    def __str__(self):
+        return self.name
+
+
 class TelegramChannel(models.Model):
+    # Основная информация
     channel_id = models.BigIntegerField(unique=True, verbose_name='ID канала')
-    # invite_link = models.URLField(max_length=255, blank=True, null=True, verbose_name='Инвайт ссылка')
     username = models.CharField(max_length=255, blank=True, null=True, verbose_name='Username')
     title = models.CharField(max_length=255, verbose_name='Название канала')
     description = models.TextField(blank=True, null=True, verbose_name='Описание канала')
-    # linked_chat_id = models.BigIntegerField(blank=True, null=True, verbose_name='ID чата канала')
-    participants_count = models.IntegerField(default=0, verbose_name='Количество подписчиков')
-    # photo_url = models.URLField(max_length=512, blank=True, null=True, verbose_name='Ссылка на фото')
-    parsed_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата парсинга')
-    pinned_messages = models.JSONField(blank=True, null=True, default=list, verbose_name='Закрепленное сообщение')
+    photo_url = models.URLField(max_length=2048, blank=True, null=True, verbose_name='Аватар')
     creation_date = models.DateTimeField(null=True, blank=True, verbose_name='Дата создания')
-    last_messages = models.JSONField(blank=True, null=True, default=list, verbose_name='Последние сообщения')
-    average_views = models.IntegerField(default=0, verbose_name='Среднее количество просмотров')
-    category = models.CharField(blank=True, null=True, verbose_name='Категория канала')
-    country = models.CharField(blank=True, null=True, verbose_name='Страна канала')
-    language = models.CharField(blank=True, null=True, verbose_name='Язык канала')
+
+    # Справочники
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Категория')
+    country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Страна')
+    language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Язык')
+
+    # Статистика
+    subscribers_count = models.IntegerField(default=0, verbose_name='Подписчики')
+    avg_post_reach = models.IntegerField(default=0, verbose_name='Средний охват поста')
+    avg_post_reach_24h = models.IntegerField(default=0, verbose_name='Средний охват поста (24ч)')
+    err = models.FloatField(default=0.0, verbose_name='ERR')
+    er = models.FloatField(default=0.0, verbose_name='ER')
+    male_audience_percentage = models.FloatField(default=0.0, verbose_name='Мужская аудитория (%)')
+    female_audience_percentage = models.FloatField(default=0.0, verbose_name='Женская аудитория (%)')
+
+    # Флаги
+    is_verified = models.BooleanField(default=False, verbose_name='Верифицирован')
+    is_rkn_registered = models.BooleanField(default=False, verbose_name='Зарегистрирован в РКН')
+    has_stories = models.BooleanField(default=False, verbose_name='Есть сторис')
+    has_red_label = models.BooleanField(default=False, verbose_name='Красная метка')
+    is_scam = models.BooleanField(default=False, verbose_name='SCAM/FAKE')
+    is_dead = models.BooleanField(default=False, verbose_name='"Мертвый"')
+
+    # Технические поля
+    parsed_at = models.DateTimeField(auto_now=True, verbose_name='Дата последнего парсинга')
+    search_vector = SearchVectorField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Telegram канал'
         verbose_name_plural = 'Telegram каналы'
-
-    def last_stat(self):
-        """Получение последней статистики канала"""
-        return self.channelstats_set.order_by('-parsed_at').first()
-
-    def __str__(self):
-        return f"{self.channel_id} канал {self.title}"
-
-
-class ChannelModerator(models.Model):
-    """Модель для связи пользователей с каналами в качестве модераторов"""
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='moderated_channels',
-        verbose_name='Модератор'
-    )
-    channel = models.ForeignKey(
-        TelegramChannel,
-        on_delete=models.CASCADE,
-        related_name='moderators',
-        verbose_name='Канал'
-    )
-    is_owner = models.BooleanField(
-        default=False,
-        verbose_name='Владелец канала'
-    )
-    can_edit = models.BooleanField(
-        default=True,
-        verbose_name='Может редактировать'
-    )
-    can_delete = models.BooleanField(
-        default=False,
-        verbose_name='Может удалять'
-    )
-    can_manage_moderators = models.BooleanField(
-        default=False,
-        verbose_name='Может управлять модераторами'
-    )
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата назначения')
-
-    class Meta:
-        verbose_name = 'Модератор канала'
-        verbose_name_plural = 'Модераторы каналов'
-        unique_together = ['user', 'channel']
-        db_table = 'channel_moderators'
+        indexes = [
+            GinIndex(fields=['search_vector']),
+            models.Index(fields=['subscribers_count']),
+            models.Index(fields=['avg_post_reach']),
+            models.Index(fields=['err']),
+        ]
 
     def __str__(self):
-        role = 'Владелец' if self.is_owner else 'Модератор'
-        return f"{self.user} - {role} канала {self.channel.title}"
-
-
-class ChannelStats(models.Model):
-    channel = models.ForeignKey(TelegramChannel, on_delete=models.CASCADE, verbose_name="Канал")
-    participants_count = models.IntegerField(verbose_name="Количество участников")
-    daily_growth = models.IntegerField(default=0, verbose_name="Прирост за день")
-    parsed_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = "Статистика канала"
-        verbose_name_plural = "Статистика каналов"
-        get_latest_by = 'parsed_at'
-        ordering = ['-parsed_at']
-
-    def __str__(self):
-        return f"{self.channel} - {self.parsed_at}"
-
-
-# Create your models here.
-
+        return self.title
