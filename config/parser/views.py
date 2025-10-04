@@ -10,6 +10,8 @@ from django.views.generic import DetailView, FormView, ListView
 from rest_framework.generics import ListAPIView
 from telethon import TelegramClient
 from telethon.sessions import StringSession
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+from django.db.models import F
 
 from config.parser.forms import ChannelParseForm
 from config.parser.models import TelegramChannel, Category, Country, Language
@@ -22,10 +24,29 @@ log = logging.getLogger(__name__)
 class ChannelSearchView(ListAPIView):
     """
     API view для поиска и фильтрации каналов.
-    Пока что просто возвращает все каналы.
     """
-    queryset = TelegramChannel.objects.all().order_by('-subscribers_count')
     serializer_class = TelegramChannelSerializer
+
+    def get_queryset(self):
+        """
+        Фильтрует каналы по поисковому запросу 'q' в URL.
+        """
+        queryset = TelegramChannel.objects.all()
+        query_param = self.request.query_params.get('q', None)
+
+        if query_param:
+            # Обновляем search_vector для всех каналов. В идеале это должно происходить в фоновой задаче при обновлении канала.
+            # Для демонстрации делаем это здесь.
+            TelegramChannel.objects.update(search_vector=(SearchVector('title', weight='A') + SearchVector('description', weight='B')))
+
+            query = SearchQuery(query_param, search_type='websearch')
+            queryset = queryset.annotate(
+                rank=SearchRank(F('search_vector'), query)
+            ).filter(search_vector=query).order_by('-rank')
+        else:
+            queryset = queryset.order_by('-subscribers_count')
+
+        return queryset
 
 
 class ParserView(FormView):
