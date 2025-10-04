@@ -73,7 +73,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'rest_framework',
     'widget_tweaks',
     'django_bootstrap5',
     'django.contrib.sites',
@@ -160,23 +160,33 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if os.getenv('PROD') == 't':
+# Для локальной разработки优先적으로 используем PostgreSQL, если заданы переменные
+if os.getenv('USERDB'):
     DATABASES = {
-        'default':{
+        'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': os.getenv('NAMEDB'),
             'USER': os.getenv('USERDB'),
             'PASSWORD': os.getenv('PASSWORDDB'),
-            'HOST': os.getenv('HOSTDB'),
-            'PORT': os.getenv('PORTDB'),
+            'HOST': os.getenv('HOSTDB', 'localhost'),
+            'PORT': os.getenv('PORTDB', '5432'),
         }
     }
+# Для продакшена на Render
+elif os.getenv('PROD') == 't':
+     DATABASES = {
+        'default': dj_database_url.config(
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+# В качестве запасного варианта оставляем SQLite
 else:
     DATABASES = {
-        'default': dj_database_url.config(
-            default=os.getenv('DATABASE_URL', 'sqlite:///db.sqlite3'),
-            conn_max_age=600
-        )
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
 
 
