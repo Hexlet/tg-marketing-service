@@ -11,7 +11,7 @@ from telethon import TelegramClient
 from telethon.sessions import StringSession
 
 from config.parser.forms import ChannelParseForm
-from config.parser.models import ChannelStats, TelegramChannel
+from config.parser.models import TelegramChannel, Category, Country, Language
 from config.parser.parser import tg_parser
 
 log = logging.getLogger(__name__)
@@ -43,19 +43,25 @@ class ParserView(FormView):
 
     def save_channel(self, data):
         """Create or update channel"""
+        # Преобразуем строковые данные в объекты моделей
+        category_obj, _ = Category.objects.get_or_create(name=data.get('category', 'Без категории'))
+        country_obj, _ = Country.objects.get_or_create(name=data.get('country', 'Неизвестно'), defaults={'code': 'XX'})
+        language_obj, _ = Language.objects.get_or_create(name=data.get('language', 'Неизвестно'))
+
         channel, created = TelegramChannel.objects.update_or_create(
             channel_id=data["channel_id"],
             defaults={
-                'title': data['title'],
-                'username': data['username'],
-                'description': data['description'],
-                'participants_count': data['participants_count'],
-                'pinned_messages': data['pinned_messages'],
-                'last_messages': data['last_messages'],
-                'average_views': data['average_views'],
-                'language': data['language'],
-                'country': data['country'],
-                'category': data['category'],
+                'title': data.get('title'),
+                'username': data.get('username'),
+                'description': data.get('description'),
+                'subscribers_count': data.get('participants_count', 0),
+                'photo_url': data.get('photo_url'),
+                # Ниже - примерные данные, их нужно будет получать при парсинге
+                'avg_post_reach': data.get('average_views', 0),
+                'language': language_obj,
+                'country': country_obj,
+                'category': category_obj,
+                'parsed_at': timezone.now(),
             }
         )
 
@@ -65,37 +71,6 @@ class ParserView(FormView):
             log.info(f"Channel updated: {channel.title}")
 
         return channel, created
-
-    def save_stats(self, channel, data):
-        """Create stats record with growth calculation"""
-        last_stats = (
-            ChannelStats.objects.filter(channel=channel).order_by("-parsed_at").first()
-        )
-        current_date = timezone.now()
-        current_count = data["participants_count"]
-
-        if last_stats and last_stats.parsed_at.date() != current_date.date():
-            daily_growth = current_count - last_stats.participants_count
-        else:
-            daily_growth = last_stats.daily_growth if last_stats else 0
-
-        # Create new statistics
-        ChannelStats.objects.create(
-            channel=channel,
-            participants_count=current_count,
-            daily_growth=daily_growth,
-            parsed_at=current_date,
-        )
-
-        # Update parsing date for Telegram channel
-        channel.parsed_at = current_date
-
-        channel.save(update_fields=["parsed_at"])
-        log.info(
-            f"For channel: {channel.title} parsed stat; "
-            f"- participants: {current_count} growth: {daily_growth}"
-        )
-
 
     def form_valid(self, form):
         """ Обработка формы """
@@ -110,16 +85,15 @@ class ParserView(FormView):
             # Start async parsing function
             async_parser = async_to_sync(self.async_tg_parser)
             parsed_data = async_parser(identifier, limit)
-            parsed_data.update({'language': language,
-                                'country': country,
-                                'category': category})
+            parsed_data.update({'language': language.name if language else None,
+                                'country': country.name if country else None,
+                                'category': category.name if category else None})
             
             log.info(f'Парсинг завершен для канала;'
-                     f'- {parsed_data['title']} ({parsed_data['channel_id']}')
+                     f'- {parsed_data.get("title")} ({parsed_data.get("channel_id")}')
 
             # Saving data
             channel, created = self.save_channel(parsed_data)
-            self.save_stats(channel, parsed_data)
 
             # Generating user message
             message = (
