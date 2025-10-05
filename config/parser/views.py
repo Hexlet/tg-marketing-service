@@ -72,17 +72,38 @@ class ChannelSearchView(ListAPIView):
             if param_value is not None:
                 # Преобразуем 'true'/'false' из URL в булево значение
                 is_true = param_value.lower() in ('true', '1')
-                
+
                 # Для некоторых фильтров логика инвертирована (например, no_scam=true означает is_scam=false)
                 if url_param in ['no_red_label', 'no_scam', 'hide_dead']:
                     queryset = queryset.filter(**{db_field: not is_true})
                 else:
                     queryset = queryset.filter(**{db_field: is_true})
 
+        # Фильтры по числовым диапазонам
+        range_filters = {
+            'subscribers_count': ('subscribers_min', 'subscribers_max'),
+            'avg_post_reach': ('reach_min', 'reach_max'),
+            'avg_post_reach_24h': ('reach_24h_min', 'reach_24h_max'),
+            'err': ('err_min', 'err_max'),
+            'er': ('er_min', 'er_max'),
+            'male_audience_percentage': ('male_audience_min', 'male_audience_max'),
+            'female_audience_percentage': ('female_audience_min', 'female_audience_max'),
+        }
+
+        for db_field, url_params in range_filters.items():
+            min_param, max_param = url_params
+            min_value = self.request.query_params.get(min_param, None)
+            max_value = self.request.query_params.get(max_param, None)
+
+            if min_value is not None:
+                queryset = queryset.filter(**{f'{db_field}__gte': min_value})
+            if max_value is not None:
+                queryset = queryset.filter(**{f'{db_field}__lte': max_value})
+
         # Сортировка по умолчанию, если не было поиска
         if not query_param:
             queryset = queryset.order_by('-subscribers_count')
-            
+
         return queryset
 
 
@@ -155,7 +176,7 @@ class ParserView(FormView):
             parsed_data.update({'language': language.name if language else None,
                                 'country': country.name if country else None,
                                 'category': category.name if category else None})
-            
+
             log.info(f'Парсинг завершен для канала;'
                      f'- {parsed_data.get("title")} ({parsed_data.get("channel_id")}')
 
