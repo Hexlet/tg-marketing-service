@@ -3,11 +3,10 @@ import logging
 from asgiref.sync import async_to_sync
 from django.conf import settings
 from django.contrib import messages
-
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import DetailView, FormView, ListView
-from rest_framework.generics import ListAPIView
+from django.views.generic import DetailView, FormView, ListView, View
+from inertia import render
 from telethon import TelegramClient
 from telethon.sessions import StringSession
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
@@ -16,27 +15,22 @@ from django.db.models import F
 from config.parser.forms import ChannelParseForm
 from config.parser.models import TelegramChannel, Category, Country, Language
 from config.parser.parser import tg_parser
-from .serializers import TelegramChannelSerializer
+# Убираем сериализатор, он больше не нужен для этой view
+# from .serializers import TelegramChannelSerializer
 
 log = logging.getLogger(__name__)
 
 
-class ChannelSearchView(ListAPIView):
+class ChannelSearchView(View):
     """
-    API view для поиска и фильтрации каналов.
+    View для поиска и фильтрации каналов с использованием Inertia.
     """
-    serializer_class = TelegramChannelSerializer
-
-    def get_queryset(self):
-        """
-        Фильтрует каналы по поисковому запросу 'q' и другим параметрам в URL.
-        """
+    def get(self, request, *args, **kwargs):
         queryset = TelegramChannel.objects.all()
-        
-        # Полнотекстовый поиск
-        query_param = self.request.query_params.get('q', None)
+        query_param = self.request.GET.get('q', None)
+
         if query_param:
-            # В реальном приложении этот update должен происходить в фоновой задаче
+            # Обновление search_vector для поиска
             TelegramChannel.objects.update(search_vector=(SearchVector('title', weight='A') + SearchVector('description', weight='B')))
 
             query = SearchQuery(query_param, search_type='websearch')
@@ -45,15 +39,15 @@ class ChannelSearchView(ListAPIView):
             ).filter(search_vector=query).order_by('-rank')
 
         # Фильтры по ID (справочники)
-        category_id = self.request.query_params.get('category', None)
+        category_id = self.request.GET.get('category', None)
         if category_id:
             queryset = queryset.filter(category_id=category_id)
 
-        country_id = self.request.query_params.get('country', None)
+        country_id = self.request.GET.get('country', None)
         if country_id:
             queryset = queryset.filter(country_id=country_id)
 
-        language_id = self.request.query_params.get('language', None)
+        language_id = self.request.GET.get('language', None)
         if language_id:
             queryset = queryset.filter(language_id=language_id)
 
@@ -62,18 +56,15 @@ class ChannelSearchView(ListAPIView):
             'is_verified': 'verified',
             'is_rkn_registered': 'rkn',
             'has_stories': 'stories',
-            'has_red_label': 'no_red_label', # инвертированная логика
-            'is_scam': 'no_scam', # инвертированная логика
-            'is_dead': 'hide_dead' # инвертированная логика
+            'has_red_label': 'no_red_label',
+            'is_scam': 'no_scam',
+            'is_dead': 'hide_dead'
         }
 
         for db_field, url_param in boolean_filters.items():
-            param_value = self.request.query_params.get(url_param, None)
+            param_value = self.request.GET.get(url_param, None)
             if param_value is not None:
-                # Преобразуем 'true'/'false' из URL в булево значение
                 is_true = param_value.lower() in ('true', '1')
-
-                # Для некоторых фильтров логика инвертирована (например, no_scam=true означает is_scam=false)
                 if url_param in ['no_red_label', 'no_scam', 'hide_dead']:
                     queryset = queryset.filter(**{db_field: not is_true})
                 else:
@@ -92,19 +83,50 @@ class ChannelSearchView(ListAPIView):
 
         for db_field, url_params in range_filters.items():
             min_param, max_param = url_params
-            min_value = self.request.query_params.get(min_param, None)
-            max_value = self.request.query_params.get(max_param, None)
+            min_value = self.request.GET.get(min_param, None)
+            max_value = self.request.GET.get(max_param, None)
 
             if min_value is not None:
                 queryset = queryset.filter(**{f'{db_field}__gte': min_value})
             if max_value is not None:
                 queryset = queryset.filter(**{f'{db_field}__lte': max_value})
 
-        # Сортировка по умолчанию, если не было поиска
+        # Сортировка по умолчанию
         if not query_param:
             queryset = queryset.order_by('-subscribers_count')
 
-        return queryset
+        # Формируем props для Inertia
+        channels_props = queryset.values(
+            'id',
+            'title',
+            'subscribers_count',
+            'is_verified',
+            'photo_url',
+            category_name=F('category__name'),
+            country_code=F('country__code')
+        )
+
+        # Переименовываем поля для фронтенда
+        channels_list = [
+            {
+                'id': ch['id'],
+                'name': ch['title'],
+                'subscribers': ch['subscribers_count'],
+                'category': ch['category_name'],
+                'verified': ch['is_verified'],
+                'countryCode': ch['country_code'],
+                'imageUrl': ch['photo_url']
+            } for ch in channels_props
+        ]
+
+        return render(
+            request,
+            'Channels/SearchPage',  # Имя React-компонента
+            {
+                'channels': channels_list,
+                'filters': request.GET.dict()  # Передаем текущие фильтры на фронт
+            }
+        )
 
 
 class ParserView(FormView):
