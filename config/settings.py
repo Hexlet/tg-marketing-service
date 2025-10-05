@@ -73,7 +73,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_vite',
     'rest_framework',
+    'inertia',
     'widget_tweaks',
     'django_bootstrap5',
     'django.contrib.sites',
@@ -109,6 +111,7 @@ MIDDLEWARE = [
     'config.users.middleware.RoleMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'inertia.middleware.InertiaMiddleware',
     'allauth.account.middleware.AccountMiddleware',
 ]
 
@@ -141,7 +144,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ BASE_DIR / 'templates' ],
+        'DIRS': [BASE_DIR / 'config' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -153,6 +156,14 @@ TEMPLATES = [
         },
     },
 ]
+
+# Inertia settings
+INERTIA_LAYOUT = 'base_inertia.html'
+
+# Django-Vite settings
+DJANGO_VITE_ASSETS_PATH = BASE_DIR / "frontend" / "dist"
+DJANGO_VITE_DEV_MODE = DEBUG
+DJANGO_VITE_DEV_SERVER_PORT = 5173
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
