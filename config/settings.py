@@ -88,7 +88,6 @@ INSTALLED_APPS = [
     'config.users',
     'config.group_channels',
     'config.parser',
-    'inertia',
 ]
 
 AUTHENTICATION_BACKENDS = [

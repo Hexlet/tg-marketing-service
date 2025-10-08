@@ -6,16 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="1bb037bb-6c23-43fc-beb2-260f7edbf615" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/group_channels/migrations/0005_group_channels_alter_group_created_at_and_more.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/group_channels/migrations/0006_group_slug.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/group_channels/migrations/0007_alter_group_channels.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/group_channels/migrations/0008_group_is_editorial_group_order.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/group_channels/migrations/0001_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/group_channels/migrations/0001_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/group_channels/migrations/0002_initial.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/config/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/config/templates/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/users/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/users/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/users/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/users/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/env.example" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/uv.lock" beforeDir="false" afterPath="$PROJECT_DIR$/uv.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
