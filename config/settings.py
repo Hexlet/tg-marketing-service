@@ -37,8 +37,8 @@ if not TELEGRAM_API_ID or not TELEGRAM_API_HASH or not TELEGRAM_SESSION_STRING:
     )
 
 # Celery settings
-CELERY_BROKER_URL = "redis://localhost:6379/0"  # Redis like messages brocker
-CELERY_RESULT_BACKEND = "redis://localhost:6379/0"  # tasks results
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"  # Redis like messages brocker
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"  # tasks results
 CELERY_ACCEPT_CONTENT = ["json"]  # tasks data format
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
