@@ -16,6 +16,7 @@ from .parser import tg_parser
 
 log = logging.getLogger(__name__)
 
+
 def get_telegram_client():
     """Helper function to get Telegram client"""
     return TelegramClient(
@@ -24,6 +25,7 @@ def get_telegram_client():
         settings.TELEGRAM_API_HASH,
     )
 
+
 async def async_save_channel_data(identifier, limit=10, category_name=None, country_name=None, language_name=None):
     """Async function to parse and save channel data"""
     client = get_telegram_client()
@@ -31,12 +33,12 @@ async def async_save_channel_data(identifier, limit=10, category_name=None, coun
     try:
         parsed_data = await tg_parser(identifier, client, limit)
         log.info(f'Парсинг завершен для канала; - {parsed_data.get("title")} ({parsed_data.get("channel_id")})')
-        
+
         # Get or create related objects
-        category_obj, _ = Category.objects.get_or_create(name=category_name or 'Без категории')
-        country_obj, _ = Country.objects.get_or_create(name=country_name or 'Неизвестно', defaults={'code': 'XX'})
-        language_obj, _ = Language.objects.get_or_create(name=language_name or 'Неизвестно')
-        
+        category_obj, _ = await Category.objects.aget_or_create(name=category_name or 'Без категории')
+        country_obj, _ = await Country.objects.aget_or_create(name=country_name or 'Неизвестно', defaults={'code': 'XX'})
+        language_obj, _ = await Language.objects.aget_or_create(name=language_name or 'Неизвестно')
+
         # Create or update channel
         channel, created = await TelegramChannel.objects.aupdate_or_create(
             channel_id=parsed_data["channel_id"],
@@ -46,6 +48,7 @@ async def async_save_channel_data(identifier, limit=10, category_name=None, coun
                 'description': parsed_data.get('description'),
                 'subscribers_count': parsed_data.get('participants_count', 0),
                 'photo_url': parsed_data.get('photo_url'),
+                'is_verified': parsed_data.get('verified', False),
                 'avg_post_reach': parsed_data.get('average_views', 0),
                 'language': language_obj,
                 'country': country_obj,
@@ -53,7 +56,7 @@ async def async_save_channel_data(identifier, limit=10, category_name=None, coun
                 'parsed_at': timezone.now(),
             }
         )
-        
+
         status = "создан" if created else "обновлен"
         log.info(f"Канал {channel.title} был успешно {status}.")
         return channel.id
