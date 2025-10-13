@@ -11,7 +11,7 @@ SPA веб-приложение. Единый портал для анализа
 
 - Typescript
 - React 19
-- Redux Toolkit: управление состоянием
+- Redux Toolkit: упраление состоянием
 - React Router: клиентский роутинг
 - React Hook Form: формы
 - Vite
@@ -70,7 +70,7 @@ SPA веб-приложение. Единый портал для анализа
    ```
    Можно указать порт: `make prod-run PORT=8080`. См. настройки в [`config/settings.py`](config/settings.py).
 
-### Фоновые задачи (Redis + Celery).  giЗапускаются в отдельном терминале.
+### Фоновые задачи (Redis + Celery). Запускаются в отдельном терминале.
 
 1. Запустите Redis:
    ```sh
