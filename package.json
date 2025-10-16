@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@inertiajs/react": "^2.1.4"
+  }
+}
