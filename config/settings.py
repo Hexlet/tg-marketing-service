@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'django_vite',
     'rest_framework',
     'drf_spectacular',
+    'django_filters',
     'inertia',
     'widget_tweaks',
     'django_bootstrap5',
