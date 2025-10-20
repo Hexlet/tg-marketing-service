@@ -15,14 +15,30 @@ from django.contrib.postgres.search import (
 from django.db.models import F
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
+from rest_framework import generics
+from rest_framework.filters import OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 from config.parser.forms import ChannelParseForm
 from config.parser.models import TelegramChannel, Category, Country, Language
 from config.parser.parser import tg_parser
-# Убираем сериализатор, он больше не нужен для этой view
-# from .serializers import TelegramChannelSerializer
+from .serializers import ChannelRatingSerializer
 
 log = logging.getLogger(__name__)
+
+
+class ChannelRatingView(generics.ListAPIView):
+    """
+    API-представление для получения рейтинга Telegram-каналов.
+
+    Предоставляет возможность фильтрации по 'category' и 'country',
+    а также сортировку по 'subscribers_count' и 'avg_post_reach'.
+    """
+    queryset = TelegramChannel.objects.all()
+    serializer_class = ChannelRatingSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['category', 'country']
+    ordering_fields = ['subscribers_count', 'avg_post_reach']
 
 
 class ChannelSearchView(View):
