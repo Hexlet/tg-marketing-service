@@ -11,4 +11,7 @@ urlpatterns = [
 
     # Новый путь для страницы поиска, использующей Inertia
     path('channels/search/', views.ChannelSearchView.as_view(), name='channel_search'),
+
+    # API-эндпоинт для рейтинга каналов
+    path('api/v1/channels/ratings/', views.ChannelRatingView.as_view(), name='channel_ratings_api'),
 ]
