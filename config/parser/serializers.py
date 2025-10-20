@@ -45,3 +45,25 @@ class TelegramChannelSerializer(serializers.ModelSerializer):
         representation['imageUrl'] = representation.pop('photo_url')
         representation['countryCode'] = representation.pop('country_code')
         return representation
+
+
+class ChannelRatingSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели TelegramChannel, возвращающий данные для рейтинга."""
+
+    class Meta:
+        model = TelegramChannel
+        fields = (
+            'title',
+            'photo_url',
+            'subscribers_count',
+            'avg_post_reach',
+        )
+
+    def to_representation(self, instance):
+        """Переименовываем поля для удобства фронтенда."""
+        representation = super().to_representation(instance)
+        representation['channel_name'] = representation.pop('title')
+        representation['avatar_url'] = representation.pop('photo_url')
+        representation['subscribers'] = representation.pop('subscribers_count')
+        representation['avg_views_per_post'] = representation.pop('avg_post_reach')
+        return representation
