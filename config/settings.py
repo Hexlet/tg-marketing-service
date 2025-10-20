@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_vite',
     'rest_framework',
+    'drf_spectacular',
     'inertia',
     'widget_tweaks',
     'django_bootstrap5',
@@ -246,6 +247,17 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'TG Marketing Service API',
+    'DESCRIPTION': 'API for the Telegram channel marketing analytics platform',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
 
 if os.getenv('PROD') == 't':
     # ALLOWED_HOSTS = ['example.com']
