@@ -22,10 +22,10 @@ from config.views import IndexView
 
 urlpatterns = [
     path('', IndexView.as_view(), name='main_index'),
-    path('auth/', include('config.users.urls')),
-    path('group/', include('config.group_channels.urls')),
+    path('auth/', include('apps.users.urls')),
+    path('group/', include('apps.group_channels.urls')),
     path('accounts/', include('allauth.urls')),
-    path('parser/', include('config.parser.urls')),
+    path('parser/', include('apps.parser.urls')),
     path('admin/', admin.site.urls),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain'))
 ]

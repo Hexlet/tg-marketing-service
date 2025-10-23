@@ -11,8 +11,8 @@ from django.utils import timezone
 from telethon import TelegramClient
 from telethon.sessions import StringSession
 
-from .models import ChannelStats, TelegramChannel
-from .parser import tg_parser
+from apps.parser.models import ChannelStats, TelegramChannel
+from apps.parser.parser import tg_parser
 
 log = logging.getLogger(__name__)
 

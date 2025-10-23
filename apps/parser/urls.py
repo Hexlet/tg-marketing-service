@@ -1,6 +1,6 @@
 from django.urls import path
 
-from config.parser import views
+from apps.parser import views
 
 app_name = 'parser'
 

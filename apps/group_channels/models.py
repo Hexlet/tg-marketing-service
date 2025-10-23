@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 from unidecode import unidecode
 
-from config.users.models import User
+from apps.users.models import User
 
 
 class Group(models.Model):

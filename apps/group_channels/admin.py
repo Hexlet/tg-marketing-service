@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Group, AutoGroupRule
+from apps.group_channels.models import Group, AutoGroupRule
 
 # Register your models here.
 

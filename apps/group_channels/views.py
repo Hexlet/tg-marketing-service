@@ -4,10 +4,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic.base import View
 
-from config.parser.models import TelegramChannel
+from apps.parser.models import TelegramChannel
 
-from .forms import AddChannelForm, CreateGroupForm, UpdateGroupForm
-from .models import Group
+from apps.group_channels.forms import AddChannelForm, CreateGroupForm, UpdateGroupForm
+from apps.group_channels.models import Group
 
 
 class CreateGroupView(View):
@@ -65,7 +65,7 @@ class GroupDetailView(View):
         auto_category = None
         if hasattr(group, 'auto_rule'):
             auto_category = group.auto_rule.category
-            channels = TelegramChannel.objects.filter(category=auto_category) 
+            channels = TelegramChannel.objects.filter(category=auto_category)
 
         is_owner = request.user.is_authenticated and (group.owner == request.user)
         add_form = None

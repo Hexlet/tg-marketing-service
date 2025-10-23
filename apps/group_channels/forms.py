@@ -1,9 +1,9 @@
 from django import forms
 
-from config.parser.models import TelegramChannel
+from apps.parser.models import TelegramChannel
 
 # from config.channel.models import Channel
-from .models import Group
+from apps.group_channels.models import Group
 
 
 class CreateGroupForm(forms.ModelForm):

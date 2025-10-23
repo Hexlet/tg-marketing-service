@@ -1,5 +1,4 @@
 from django import forms
-from .models import TelegramChannel
 
 
 class ChannelParseForm(forms.Form):

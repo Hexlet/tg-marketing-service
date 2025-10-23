@@ -1,6 +1,6 @@
 from django.urls import path
 
-from config.users.views import (
+from apps.users.views import (
     AvatarChangeView,
     LoginView,
     LogoutView,

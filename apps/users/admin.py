@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, PartnerProfile
-from config.parser.models import ChannelModerator
+from apps.users.models import User, PartnerProfile
+from apps.parser.models import ChannelModerator
 
 
 class ChannelModeratorInline(admin.TabularInline):

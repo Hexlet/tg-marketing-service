@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class ChannelConfig(AppConfig):
+class ParserConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'config.group_channels'
+    name = 'apps.parser'

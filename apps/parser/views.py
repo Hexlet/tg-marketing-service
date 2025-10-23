@@ -11,13 +11,11 @@ from django.views.generic import DetailView, FormView, ListView
 from telethon import TelegramClient
 from telethon.sessions import StringSession
 
-from config.parser.forms import ChannelParseForm
-from config.parser.models import ChannelStats, TelegramChannel
-from config.parser.parser import tg_parser
+from apps.parser.forms import ChannelParseForm
+from apps.parser.models import ChannelStats, TelegramChannel
+from apps.parser.parser import tg_parser
 
 log = logging.getLogger(__name__)
-
-
 
 
 class ParserView(FormView):
@@ -104,7 +102,6 @@ class ParserView(FormView):
             f"- participants: {current_count} growth: {daily_growth}"
         )
 
-
     def form_valid(self, form):
         """ Обработка формы """
         identifier = form.cleaned_data['channel_identifier']
@@ -121,7 +118,7 @@ class ParserView(FormView):
             parsed_data.update({'language': language,
                                 'country': country,
                                 'category': category})
-            
+
             log.info(f'Парсинг завершен для канала;'
                      f'- {parsed_data['title']} ({parsed_data['channel_id']}')
 
@@ -155,6 +152,5 @@ class ParserDetailView(DetailView):
     model = TelegramChannel
     template_name = 'parser/channel_detail.html'
     context_object_name = "channel"
-
 
 # Create your views here.

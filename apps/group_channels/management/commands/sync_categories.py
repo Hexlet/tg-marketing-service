@@ -4,8 +4,8 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Q
 
-from config.group_channels.models import Group, AutoGroupRule
-from config.parser.models import TelegramChannel
+from apps.group_channels.models import Group, AutoGroupRule
+from apps.parser.models import TelegramChannel
 
 
 def _flatten_choices(choices):
@@ -68,7 +68,7 @@ class Command(BaseCommand):
     def _load_categories_from_choices(self):
         try:
             # берём choices прямо из формы парсера
-            from config.parser.forms import ChannelParseForm
+            from apps.parser.forms import ChannelParseForm
             field = ChannelParseForm.base_fields["category"]
             raw = list(_flatten_choices(field.choices))
         except Exception as e:

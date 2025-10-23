@@ -1,6 +1,6 @@
 from django.urls import path
 
-from config.group_channels.views import (
+from apps.group_channels.views import (
     AddChannelsView,
     CreateGroupView,
     DeleteGroupView,

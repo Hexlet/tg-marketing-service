@@ -5,7 +5,7 @@ from tests.data_generator import DataGenerator, NUM_OF_FIXTURES
 
 # Avoid importing Django app modules (which may require settings/db) just to get constants.
 # Use project defaults, falling back safely if not importable.
-from config.users.models import ROLE_MAXLENGTH, BIO_MAXLENGTH
+from apps.users.models import ROLE_MAXLENGTH, BIO_MAXLENGTH
 
 logger = logging.getLogger(__name__)
 

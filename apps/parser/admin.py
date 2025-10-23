@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import TelegramChannel, ChannelStats, ChannelModerator
+from apps.parser.models import TelegramChannel, ChannelStats, ChannelModerator
 
 
 

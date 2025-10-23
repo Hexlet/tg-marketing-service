@@ -1,5 +1,5 @@
 from django.db import models
-from config.users.models import User
+from apps.users.models import User
 
 
 class TelegramChannel(models.Model):

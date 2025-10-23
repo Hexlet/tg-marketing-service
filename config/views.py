@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.views.generic.base import View
-from config.group_channels.models import Group
+from apps.group_channels.models import Group
 from django.db.models import Count
-from config.parser.models import TelegramChannel
+from apps.parser.models import TelegramChannel
 from math import ceil
 
 class IndexView(View):

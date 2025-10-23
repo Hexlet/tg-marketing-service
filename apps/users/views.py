@@ -5,9 +5,9 @@ from django.urls import reverse
 from django.utils.http import urlsafe_base64_decode
 from django.views.generic.base import View
 
-from config.group_channels.forms import CreateGroupForm, UpdateGroupForm
+from apps.group_channels.forms import CreateGroupForm, UpdateGroupForm
 
-from .forms import (
+from apps.users.forms import (
     AvatarChange,
     RestorePasswordForm,
     RestorePasswordRequestForm,
@@ -15,7 +15,7 @@ from .forms import (
     UserRegForm,
     UserUpdateForm,
 )
-from .models import User
+from apps.users.models import User
 
 
 class LogoutView(View):
@@ -23,7 +23,7 @@ class LogoutView(View):
         if not request.user.is_authenticated:
             messages.add_message(request,
                                  messages.ERROR,
-                            'Вы не авторизованы! Пожалуйста, выполните вход.')
+                                 'Вы не авторизованы! Пожалуйста, выполните вход.')
             return redirect(reverse('users:login'))
         return redirect(reverse('main_index'))
 
@@ -60,7 +60,7 @@ class UserProfileView(View):
         if not request.user.is_authenticated:
             messages.add_message(request,
                                  messages.ERROR,
-                            'Вы не авторизованы! Пожалуйста, выполните вход.')
+                                 'Вы не авторизованы! Пожалуйста, выполните вход.')
             return redirect(reverse('users:login'))
         create_form = CreateGroupForm()
         update_form = UpdateGroupForm()
@@ -170,7 +170,7 @@ class UserUpdate(View):
         if not request.user.is_authenticated:
             messages.add_message(request,
                                  messages.ERROR,
-                            'Вы не авторизованы! Пожалуйста, выполните вход.')
+                                 'Вы не авторизованы! Пожалуйста, выполните вход.')
             return redirect(reverse('users:login'))
         if request.user.username == kwargs.get('username'):
             form = UserUpdateForm(initial={
@@ -187,11 +187,11 @@ class UserUpdate(View):
                 {'form': form,
                  'username': request.user.username,
                  'user': request.user,
-                }
+                 }
             )
         messages.add_message(request,
                              messages.ERROR,
-                        'У вас нет прав для изменения другого пользователя.')
+                             'У вас нет прав для изменения другого пользователя.')
         return redirect(reverse('users:profile'))
 
     def post(self, request, *args, **kwargs):
@@ -245,22 +245,22 @@ class RestorePasswordRequestView(View):
             form.save(request=request,
                       use_https=request.is_secure(),
                       email_template_name='emails/restore-password-email.html',
-            )
+                      )
             messages.add_message(request,
                                  messages.SUCCESS,
                                  'Ссылка на восстановление пароля \
                                     отправлена на указанный вами Email'
-            )
+                                 )
             return redirect('users:login')  # redirect already uses reverse
-        
+
         messages.add_message(request,
                              messages.ERROR,
                              'Пожалуйста, введите корректный Email'
-        )
+                             )
         return render(request,
                       'users/restore-password-request.html',
                       {'form': form}
-        )
+                      )
 
 
 class RestorePasswordView(View):
@@ -308,7 +308,7 @@ class RestorePasswordView(View):
             {'form': form,
              'uid': uid,
              'token': token,
-            }
+             }
         )
 
     def post(self, request, *args, **kwargs):
@@ -362,5 +362,5 @@ class RestorePasswordView(View):
             {'form': form,
              'uid': uid,
              'token': token,
-            }
+             }
         )
