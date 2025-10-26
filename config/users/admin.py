@@ -1,15 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import User, PartnerProfile
-from config.parser.models import ChannelModerator
-
-
-class ChannelModeratorInline(admin.TabularInline):
-    model = ChannelModerator
-    extra = 0
-    fields = ('channel', 'is_owner', 'can_edit', 'can_delete', 'can_manage_moderators', 'created_at')
-    readonly_fields = ('created_at',)
-    show_change_link = True
 
 
 class PartnerProfileInline(admin.StackedInline):
@@ -22,12 +13,12 @@ class PartnerProfileInline(admin.StackedInline):
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'email', 'date_joined', 'is_staff', 'is_partner', 'is_channel_moderator')
+    list_display = ('username', 'email', 'date_joined', 'is_staff', 'is_partner')
     list_select_related = ('partner_profile',)
     list_filter = ('is_staff', 'is_superuser', 'is_active')
     search_fields = ('username', 'email', 'first_name', 'last_name')
     ordering = ('-date_joined',)
-    inlines = [PartnerProfileInline, ChannelModeratorInline]
+    inlines = [PartnerProfileInline]
 
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
@@ -52,12 +43,6 @@ class CustomUserAdmin(UserAdmin):
 
     is_partner.boolean = True
     is_partner.short_description = 'Партнер'
-
-    def is_channel_moderator(self, obj):
-        return obj.moderated_channels.exists()
-
-    is_channel_moderator.boolean = True
-    is_channel_moderator.short_description = 'Модератор канала'
 
 
 @admin.register(PartnerProfile)

@@ -43,9 +43,22 @@ async def tg_parser(url: str, client: TelegramClient, limit: int = 10) -> dict:
         # Gets channel information
         channel = await client.get_entity(url)
 
+        # Download photo
+        photo_path = await client.download_profile_photo(channel, file=f'media/photos/channel_{channel.id}.jpg')
+        data['photo_url'] = photo_path.replace('\\', '/') if photo_path else None
+
+
         data["title"] = channel.title  # Channel title
         data["channel_id"] = channel.id  # Channel id
-        data["username"] = channel.username if channel.username else '-'  # Channel username
+        
+        # Улучшенная логика для получения username
+        if channel.username:
+            data["username"] = channel.username
+        elif isinstance(url, str) and url.startswith('@'):
+            data["username"] = url.lstrip('@')
+        else:
+            data["username"] = '-'
+            
         data["verified"] = channel.verified  # Is channel verified? (boolean)
         # Channel creation date
         data["creation_date"] = channel.date.isoformat() if channel.date else None

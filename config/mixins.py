@@ -1,5 +1,7 @@
 from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 from django.contrib.auth.mixins import AccessMixin
+from django.shortcuts import redirect
+from django.contrib import messages
 
 
 class RoleRequiredMixin(AccessMixin):
@@ -9,6 +11,7 @@ class RoleRequiredMixin(AccessMixin):
     """
     allowed_roles = None  # Обязательно переопределить в дочерних классах
     permission_denied_message = "У вас нет прав для доступа к этой странице"
+    redirect_url = '/'  # URL для перенаправления при отказе в доступе
 
     def dispatch(self, request, *args, **kwargs):
         if not hasattr(request, 'role'):
@@ -38,19 +41,22 @@ class RoleRequiredMixin(AccessMixin):
         """Обработка отказа в доступе"""
         if not self.request.user.is_authenticated:
             return self.redirect_to_login()  # Перенаправляем гостей на страницу входа
-        raise PermissionDenied(self.get_permission_denied_message())
+        messages.error(self.request, self.permission_denied_message)
+        return redirect(self.redirect_url)
 
 
 class GuestRequiredMixin(RoleRequiredMixin):
     """Только для неавторизованных пользователей"""
     allowed_roles = ['guest']
     permission_denied_message = "Эта страница доступна только гостям"
+    redirect_url = '/'
 
 
 class UserRequiredMixin(RoleRequiredMixin):
     """Для всех авторизованных пользователей"""
     allowed_roles = ['user', 'partner', 'channel_moderator']
     permission_denied_message = "Требуется авторизация"
+    redirect_url = '/'
 
 
 class PartnerRequiredMixin(RoleRequiredMixin):
@@ -64,20 +70,6 @@ class PartnerRequiredMixin(RoleRequiredMixin):
                 super()._test_role(request) and
                 hasattr(request.user, 'is_partner') and
                 request.user.is_partner
-        )
-
-
-class ChannelModeratorRequiredMixin(RoleRequiredMixin):
-    """Только для модераторов каналов"""
-    allowed_roles = ['channel_moderator']
-    permission_denied_message = "Доступ только для модераторов каналов"
-
-    def _test_role(self, request):
-        """Дополнительная проверка статуса модератора канала"""
-        return (
-                super()._test_role(request) and
-                hasattr(request.user, 'is_channel_moderator') and
-                request.user.is_channel_moderator
         )
 
 

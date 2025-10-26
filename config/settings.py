@@ -30,16 +30,15 @@ TELEGRAM_API_HASH = os.getenv('TELEGRAM_API_HASH')
 TELEGRAM_SESSION_STRING = os.getenv('TELEGRAM_SESSION_STRING')
 
 # Telegram settings check
-# SESSIONS_STRING is not necessary, because working with sole db can be too
-if not TELEGRAM_API_ID or not TELEGRAM_API_HASH:
+if not TELEGRAM_API_ID or not TELEGRAM_API_HASH or not TELEGRAM_SESSION_STRING:
     raise ImproperlyConfigured(
         "Нет конфигурации для Telegram API. "
-        "Установи TELEGRAM_API_ID, TELEGRAM_API_HASH"
+        "Установи TELEGRAM_API_ID, TELEGRAM_API_HASH, TELEGRAM_SESSION_STRING"
     )
 
 # Celery settings
-CELERY_BROKER_URL = "redis://localhost:6379/0"  # Redis like messages brocker
-CELERY_RESULT_BACKEND = "redis://localhost:6379/0"  # tasks results
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"  # Redis like messages brocker
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"  # tasks results
 CELERY_ACCEPT_CONTENT = ["json"]  # tasks data format
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -74,9 +73,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+    'django_vite',
     'inertia',
-
     'widget_tweaks',
     'django_bootstrap5',
     'django.contrib.sites',
@@ -112,8 +110,8 @@ MIDDLEWARE = [
     'config.users.middleware.RoleMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
     'inertia.middleware.InertiaMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 
@@ -127,7 +125,7 @@ SOCIALACCOUNT_PROVIDERS = {
         'APP': {
             'secret': os.getenv('SECRET_ID_YA'),
             'client_id': os.getenv('CLIENT_ID_YA'),
-            'redirect_uri': MAPPING_PROD.get(os.getenv('PROD')), 
+            'redirect_uri': MAPPING_PROD.get(os.getenv('PROD')),
         },
         'SCOPE': [
             'login:email',   # Доступ к email
@@ -145,7 +143,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ BASE_DIR / 'templates' ],
+        'DIRS': [BASE_DIR / 'config' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -158,29 +156,49 @@ TEMPLATES = [
     },
 ]
 
+# Inertia settings
+INERTIA_LAYOUT = "base.html"
+CSRF_HEADER_NAME = 'HTTP_X_XSRF_TOKEN'
+CSRF_COOKIE_NAME = 'XSRF-TOKEN'
+
+# Django-Vite settings
+DJANGO_VITE_ASSETS_PATH = BASE_DIR / "frontend" / "dist"
+DJANGO_VITE_DEV_MODE = DEBUG
+DJANGO_VITE_DEV_SERVER_PORT = 5173
+
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if os.getenv('PROD') == 't':
+# Для локальной разработки优先적으로 используем PostgreSQL, если заданы переменные
+if os.getenv('USERDB'):
     DATABASES = {
-        'default':{
+        'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': os.getenv('NAMEDB'),
             'USER': os.getenv('USERDB'),
             'PASSWORD': os.getenv('PASSWORDDB'),
-            'HOST': os.getenv('HOSTDB'),
-            'PORT': os.getenv('PORTDB'),
+            'HOST': os.getenv('HOSTDB', 'localhost'),
+            'PORT': os.getenv('PORTDB', '5432'),
         }
     }
+# Для продакшена на Render
+elif os.getenv('PROD') == 't':
+     DATABASES = {
+        'default': dj_database_url.config(
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+# В качестве запасного варианта оставляем SQLite
 else:
     DATABASES = {
-        'default': dj_database_url.config(
-            default=os.getenv('DATABASE_URL', 'sqlite:///db.sqlite3'),
-            conn_max_age=600
-        )
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
 
 
@@ -220,6 +238,12 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / "frontend" / "public",
+]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -235,14 +259,3 @@ else:
     ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
     # Email settings for development - emails will be printed to console
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    
-
-# Inertia settings    
-    
-INERTIA_LAYOUT = "base.html"
-CSRF_HEADER_NAME = 'HTTP_X_XSRF_TOKEN'
-CSRF_COOKIE_NAME = 'XSRF-TOKEN'
-STATICFILES_DIRS = [
-    BASE_DIR / "frontend" / "public",
-]
-
