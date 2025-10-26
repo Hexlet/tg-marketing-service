@@ -19,11 +19,12 @@
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     ></script>
   </head>
+
   <body class="d-flex flex-column min-vh-100 custom-font">
     <div class="sticky-lg-top">
       <header>
         <div
-          class="x-container-xxxl px-5 mx-5 navbar navbar-expand-lg bg-white"
+          class="x-container-xxxl px-5 mx-5 navbar navbar-expand-lg bg-light"
         >
           <a class="navbar-brand" href="/">Главная</a>
           <button
@@ -38,7 +39,14 @@
             class="collapse navbar-collapse"
             id="navbarToggleExternalContent"
           >
-            {% if user.is_authenticated %}
+            {% if user.is_authenticated %} {% if user_role == 'guest' %}
+            <!-- Меню для гостя -->
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'users:login' %}">Вход</a>
+              </li>
+            </ul>
+            {% else %}
             <!-- Общие пункты для user и partner -->
             <ul class="navbar-nav mr-auto">
               <li class="nav-item">
@@ -93,8 +101,8 @@
                 </li>
               </ul>
             </ul>
-            {% else %}
-            <!-- Меню для гостя -->
+            {% endif %} {% else %}
+            <!-- Если пользователь не аутентифицирован -->
             <ul class="navbar-nav ms-auto">
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'users:login' %}">Вход</a>
@@ -105,9 +113,12 @@
         </div>
       </header>
     </div>
+
     <div class="container wrapper flex-grow-1">
-      {% include "message.html" %} {% block content %} {% endblock %}
+      {% block inertia %}{% endblock %} {% include "message.html" %} {% block
+      content %} {% endblock %}
     </div>
+
     <footer>
       <div class="container my-5 pt-4 border-top">
         <a target="_blank" href="https://github.com/Hexlet">Hexlet</a>

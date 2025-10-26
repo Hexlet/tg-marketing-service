@@ -74,7 +74,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_vite',
-    'django_filters',
     'inertia',
     'widget_tweaks',
     'django_bootstrap5',
@@ -126,7 +125,7 @@ SOCIALACCOUNT_PROVIDERS = {
         'APP': {
             'secret': os.getenv('SECRET_ID_YA'),
             'client_id': os.getenv('CLIENT_ID_YA'),
-            'redirect_uri': MAPPING_PROD.get(os.getenv('PROD')), 
+            'redirect_uri': MAPPING_PROD.get(os.getenv('PROD')),
         },
         'SCOPE': [
             'login:email',   # Доступ к email
@@ -158,7 +157,9 @@ TEMPLATES = [
 ]
 
 # Inertia settings
-INERTIA_LAYOUT = 'base_inertia.html'
+INERTIA_LAYOUT = "base.html"
+CSRF_HEADER_NAME = 'HTTP_X_XSRF_TOKEN'
+CSRF_COOKIE_NAME = 'XSRF-TOKEN'
 
 # Django-Vite settings
 DJANGO_VITE_ASSETS_PATH = BASE_DIR / "frontend" / "dist"
@@ -237,6 +238,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / "frontend" / "public",
+]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -255,4 +259,3 @@ else:
     ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
     # Email settings for development - emails will be printed to console
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-

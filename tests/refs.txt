@@ -1,0 +1,14 @@
+Change - file - ref
+Change - file - [ref1, ref2]
+
+url for images - tests/fixtures/urls.json - [
+    https://developers.google.com/search/docs/monitor-debug/search-operators/image-search,
+    https://dataforseo.com/help-center/google-search-engine-parameters-and-how-to-use-them,
+    https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types,
+    https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img,
+    ]
+
+CharField - config/users/tests.py - [
+    https://github.com/django/django/blob/stable/5.2.x/django/db/models/fields/__init__.py#L1292
+]
+

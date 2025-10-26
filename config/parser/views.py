@@ -3,6 +3,7 @@ import logging
 from asgiref.sync import async_to_sync
 from django.conf import settings
 from django.contrib import messages
+from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import View
@@ -172,6 +173,11 @@ class ParserView(View):
 
     def get_telegram_client(self):
         """Get Telegram client for parser work"""
+        if not settings.TELEGRAM_SESSION_STRING:
+            raise ImproperlyConfigured(
+                'TELEGRAM_SESSION_STRING is not set. Please run '
+                '`uv run python3 manage.py set_sessions_string`'
+            )
         return TelegramClient(
             StringSession(settings.TELEGRAM_SESSION_STRING),
             settings.TELEGRAM_API_ID,

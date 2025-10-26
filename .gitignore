@@ -50,6 +50,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+fixtures/
 
 # Translations
 *.mo
@@ -213,9 +214,10 @@ Footer
 
 # Telegram API
 test_session.*
+*.session
 
 # Temporary files
-tmp.*
+# tmp.*
 
 celerybeat-schedule*
 celerybeat-schedule.*

@@ -1,0 +1,88 @@
+name: Python CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Cache uv dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Install project and test deps
+        run: |
+          uv pip install --system .
+          uv pip install --system pytest pytest-cov
+
+      - name: Generate fixtures
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings
+          DATABASE_URL: ${{ secrets.DB_URL }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+          TELEGRAM_SESSION_STRING: ${{ secrets.TELEGRAM_SESSION_STRING }}
+        run: |
+          uv run python3 -c "from tests.generate_fixtures import ModelAndFormFixtureGenerator; ModelAndFormFixtureGenerator().generate_all()"
+
+      - name: Run tests
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings
+          DATABASE_URL: ${{ secrets.DB_URL }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+          TELEGRAM_SESSION_STRING: ${{ secrets.TELEGRAM_SESSION_STRING }}
+        run: |
+          uv run pytest --cov=config --cov-report=xml
+
+      - name: Upload coverage to CodeClimate
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        run: |
+          curl -Ls https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 -o ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
+          ./cc-test-reporter format-coverage -t coverage.py -o coverage/codeclimate.json
+          ./cc-test-reporter upload-coverage
+          ./cc-test-reporter after-build --exit-code $?
+
+      - name: Run linter
+        run: 
+          uv run ruff check .
+
+      - name: Upload django logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: django-logs
+          path: |
+            django.log
+            errors.log
+          if-no-files-found: ignore
+          retention-days: 1
+
+      - name: Show logs
+        run: |
+          [ -f django.log ] && echo "django.log:" && cat django.log || true
+          [ -f errors.log ] && echo "errors.log:" && cat errors.log || true

@@ -22,20 +22,69 @@
   </div>
 </div>
 
+<div class="container my-5" id="all-categories">
+  <h3 class="mb-3">Все категории</h3>
+
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="text-muted">
+      Страница {{ cats_page }} из {{ cats_total_pages }}
+    </div>
+    <div class="btn-group">
+      {% if cats_has_prev %}
+        <a class="btn btn-outline-secondary btn-sm"
+           href="?cats_page={{ cats_prev_page }}#all-categories">&laquo; Назад</a>
+      {% else %}
+        <button class="btn btn-outline-secondary btn-sm" disabled>&laquo; Назад</button>
+      {% endif %}
+      {% if cats_has_next %}
+        <a class="btn btn-outline-secondary btn-sm"
+           href="?cats_page={{ cats_next_page }}#all-categories">Вперёд &raquo;</a>
+      {% else %}
+        <button class="btn btn-outline-secondary btn-sm" disabled>Вперёд &raquo;</button>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card p-3">
+    <div class="row">
+      {% for col in categories_cols %}
+        <div class="col-md-3"> {# 4 колонки = 12/4 #}
+          {% for g in col %}
+            <a href="{% url 'group_channels:group_detail' g.slug %}"
+               class="d-flex justify-content-start align-items-center text-decoration-none link-dark mb-1">
+              <span>{{ g.name }}</span>
+              <span class="text-muted ms-3">{{ g.cat_count }}</span>
+            </a>
+          {% empty %}
+            {# если в последней колонке элементов меньше — просто пусто #}
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+
 {% if editorial_groups %}
 <div class="container my-5">
   <h3 class="mb-3">Подборки от редакции</h3>
 
-  <div class="row">
-    {% for g in editorial_groups %}
-      <div class="col-6 col-md-3 mb-1">
-        <a href="{% url 'group_channels:group_detail' g.slug %}"
-           class="d-flex justify-content-between text-decoration-none link-dark">
-          <span>{{ g.name }}</span>
-          <span class="text-muted small">{{ g.ch_count }}</span>
-        </a>
+  <div class="card p-3">
+    <div class="row">
+      <div class="col-md-6">
+        {% for g in editorial_groups %}
+          {% if forloop.counter0|divisibleby:10 and not forloop.first %}
+            </div>
+            <div class="col-md-6">
+          {% endif %}
+          <a href="{% url 'group_channels:group_detail' g.slug %}"
+            class="d-flex justify-content-start align-items-center text-decoration-none link-dark mb-1">
+            <span>{{ g.name }}</span>
+            <span class="text-muted ms-3">{{ g.ch_count }}</span>
+          </a>
+        {% endfor %}
       </div>
-    {% endfor %}
+    </div>
   </div>
 </div>
 {% else %}
@@ -43,5 +92,6 @@
   <p class="text-muted">Пока нет подборок от редакции.</p>
 </div>
 {% endif %}
+
 
 {% endblock %}

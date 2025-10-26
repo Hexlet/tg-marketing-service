@@ -5,7 +5,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div>
       <Header />
-      <main>{children}</main>
+      <main className='w-full'>{children}</main>
     </div>
   );
 };
