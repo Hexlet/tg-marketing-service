@@ -11,7 +11,7 @@ SPA веб-приложение. Единый портал для анализа
 
 - Typescript
 - React 19
-- Redux Toolkit: упраление состоянием
+- Redux Toolkit: управление состоянием
 - React Router: клиентский роутинг
 - React Hook Form: формы
 - Vite
@@ -45,6 +45,7 @@ SPA веб-приложение. Единый портал для анализа
 2.5. В `.env` присвойте переменной "TELEGRAM_API_ID" значение "App api_id", "TELEGRAM_API_HASH" значение "App api_hash"
 2.6. Запустите команду `set_telegram_session`: `uv run python manage.py set_telegram_session`
 
+
 ### Бэкенд (запуск через Make)
 
 1. Примените миграции базы данных:
@@ -69,7 +70,7 @@ SPA веб-приложение. Единый портал для анализа
    ```
    Можно указать порт: `make prod-run PORT=8080`. См. настройки в [`config/settings.py`](config/settings.py).
 
-### Фоновые задачи (Redis + Celery). Запускаются в отдельном терминале.
+### Фоновые задачи (Redis + Celery).  giЗапускаются в отдельном терминале.
 
 1. Запустите Redis:
    ```sh

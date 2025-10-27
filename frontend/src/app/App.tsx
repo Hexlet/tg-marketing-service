@@ -1,6 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes } from 'react-router-dom';
-import Layout from './components/Layout/Layout';
+import { BrowserRouter as Router } from 'react-router-dom';
+import Layout from '@/components/Layout/Layout';
 import { renderRoutes } from './routes';
 
 const App: React.FC = () => {
@@ -8,8 +8,6 @@ const App: React.FC = () => {
     <Router>
       <Layout>
           {renderRoutes()}
-        {/* <Routes>
-        </Routes> */}
       </Layout>
     </Router>
   );
