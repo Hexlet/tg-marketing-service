@@ -85,9 +85,10 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.yandex',
     'config',
-    'config.users',
-    'config.group_channels',
-    'config.parser',
+    'apps.users',
+    'apps.group_channels',
+    'apps.parser',
+    'apps.homepage',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -109,7 +110,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'config.users.middleware.RoleMiddleware',
+    'apps.users.middleware.RoleMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',

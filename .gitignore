@@ -223,3 +223,7 @@ staticfiles/
 # local only
 telegram_session_string.py
 
+telegram_configuration
+
+django.log
+errors.log
