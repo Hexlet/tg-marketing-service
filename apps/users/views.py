@@ -1,20 +1,17 @@
 from django.contrib import auth, messages
 from django.contrib.auth.tokens import default_token_generator
-<<<<<<<<< Temporary merge branch 1
 from django.middleware.csrf import get_token
 from django.utils import timezone
 from inertia import render as inertia_render
 from django.shortcuts import redirect, render
-=========
->>>>>>>>> Temporary merge branch 2
 from django.urls import reverse
 from django.utils.http import urlsafe_base64_decode
 from django.views.generic.base import View
-from inertia import InertiaResponse, inertia_redirect
+from inertia import InertiaResponse
 
-from config.group_channels.forms import CreateGroupForm, UpdateGroupForm
+from apps.group_channels.forms import CreateGroupForm, UpdateGroupForm
 
-from .forms import (
+from apps.users.forms import (
     AvatarChange,
     RestorePasswordForm,
     RestorePasswordRequestForm,
@@ -22,7 +19,7 @@ from .forms import (
     UserRegForm,
     UserUpdateForm,
 )
-from .models import User
+from apps.users.models import User
 
 
 class LogoutView(View):
@@ -31,13 +28,13 @@ class LogoutView(View):
             messages.add_message(request,
                                  messages.ERROR,
                             'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return inertia_redirect(reverse('users:login'))
-        return inertia_redirect(reverse('main_index'))
+            return redirect(reverse('users:login'))
+        return redirect(reverse('main_index'))
 
     def post(self, request, *args, **kwargs):
         messages.add_message(request, messages.INFO, 'Вы разлогинены')
         auth.logout(request)
-        return inertia_redirect(reverse('main_index'))
+        return redirect(reverse('main_index'))
 
 
 class LoginView(View):
@@ -68,7 +65,7 @@ class LoginView(View):
             if user:
                 auth.login(request, user)
                 messages.add_message(request, messages.SUCCESS, 'Вы залогинены')
-                return inertia_redirect(reverse('main_index'))
+                return redirect(reverse('main_index'))
         return InertiaResponse(request, 
                                component='LoginPage', 
                                props={'form': form})
@@ -103,7 +100,7 @@ class UserProfileView(View):
             messages.add_message(request,
                                  messages.ERROR,
                             'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return inertia_redirect(reverse('users:login'))
+            return redirect(reverse('users:login'))
         create_form = CreateGroupForm()
         update_form = UpdateGroupForm()
         avatar_form = AvatarChange()
@@ -296,7 +293,7 @@ rK3p1E6Fc9XhpNRPhra9i9jUSSr4XI6zeI6povWGv3iMqqWLA56gbCOM1NMMeUcW67B5lB\
             messages.add_message(request,
                                  messages.SUCCESS,
                                  'Пользователь успешно зарегистрирован')
-            return inertia_redirect(reverse('users:login'))
+            return redirect(reverse('users:login'))
         return InertiaResponse(request,
                                component='RegisterPage',
                                props={'form': form})
@@ -330,7 +327,7 @@ class UserUpdate(View):
             messages.add_message(request,
                                  messages.ERROR,
                             'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return inertia_redirect(reverse('users:login'))
+            return redirect(reverse('users:login'))
         if request.user.username == kwargs.get('username'):
             form = UserUpdateForm(initial={
                 'username': request.user.username,
@@ -352,7 +349,7 @@ class UserUpdate(View):
         messages.add_message(request,
                              messages.ERROR,
                         'У вас нет прав для изменения другого пользователя.')
-        return inertia_redirect(reverse('users:profile'))
+        return redirect(reverse('users:profile'))
 
     def post(self, request, *args, **kwargs):
         username = kwargs.get('username')
@@ -363,7 +360,7 @@ class UserUpdate(View):
             messages.add_message(request,
                                  messages.SUCCESS,
                                  'Профиль успешно изменен')
-            return inertia_redirect(reverse('users:profile'))
+            return redirect(reverse('users:profile'))
         return InertiaResponse(
             request,
             component='UpdatePage',
@@ -381,13 +378,13 @@ class AvatarChangeView(View):
             messages.add_message(request,
                                  messages.SUCCESS,
                                  'Аватар успешно изменен')
-            return inertia_redirect(reverse('users:profile'))
+            return redirect(reverse('users:profile'))
         if avatar_form.errors.get('avatar_url'):
             avatar_url = avatar_form.errors.get('avatar_url').as_text()
             messages.add_message(request,
                                  messages.ERROR,
                                  avatar_url[1:])
-        return inertia_redirect(reverse('users:profile'))
+        return redirect(reverse('users:profile'))
 
 
 class RestorePasswordRequestView(View):
@@ -420,7 +417,7 @@ class RestorePasswordRequestView(View):
                                  'Ссылка на восстановление пароля \
                                     отправлена на указанный вами Email'
             )
-            return inertia_redirect('users:login')  # redirect already uses reverse
+            return redirect('users:login')  # redirect already uses reverse
         
         messages.add_message(request,
                              messages.ERROR,
@@ -459,7 +456,7 @@ class RestorePasswordView(View):
             messages.add_message(request,
                                  messages.ERROR,
                                  'Некорректная ссылка для восстановления пароля')
-            return inertia_redirect('users:login')
+            return redirect('users:login')
 
         try:
             uid_decoded = urlsafe_base64_decode(uid).decode()
@@ -467,20 +464,20 @@ class RestorePasswordView(View):
             messages.add_message(request,
                                  messages.ERROR,
                                  'Некорректный id пользователя')
-            return inertia_redirect('users:login')
+            return redirect('users:login')
         try:
             user = User.objects.get(pk=uid_decoded)
         except User.DoesNotExist:
             messages.add_message(request,
                                  messages.ERROR,
                                  'Пользователь не найден')
-            return inertia_redirect('users:login')
+            return redirect('users:login')
 
         if not default_token_generator.check_token(user, token):
             messages.add_message(request,
                                  messages.ERROR,
                                  'Некорректная ссылка для восстановления пароля')
-            return inertia_redirect('users:login')
+            return redirect('users:login')
 
         form = RestorePasswordForm(user=user)
         return InertiaResponse(
@@ -507,7 +504,7 @@ class RestorePasswordView(View):
             messages.add_message(request,
                                  messages.ERROR,
                                  'Некорректная ссылка для восстановления пароля')
-            return inertia_redirect('users:login')
+            return redirect('users:login')
 
         try:
             uid_decoded = urlsafe_base64_decode(uid).decode()
@@ -515,20 +512,20 @@ class RestorePasswordView(View):
             messages.add_message(request,
                                  messages.ERROR,
                                  'Некорректный id пользователя')
-            return inertia_redirect('users:login')
+            return redirect('users:login')
         try:
             user = User.objects.get(pk=uid_decoded)
         except User.DoesNotExist:
             messages.add_message(request,
                                  messages.ERROR,
                                  'Пользователь не найден')
-            return inertia_redirect('users:login')
+            return redirect('users:login')
 
         if not default_token_generator.check_token(user, token):
             messages.add_message(request,
                                  messages.ERROR,
                                  'Некорректная ссылка для восстановления пароля')
-            return inertia_redirect('users:login')
+            return redirect('users:login')
 
         form = RestorePasswordForm(user=user, data=request.POST)
         if form.is_valid():
@@ -536,7 +533,7 @@ class RestorePasswordView(View):
             messages.add_message(request,
                                  messages.SUCCESS,
                                  'Пароль успешно изменен')
-            return inertia_redirect('users:login')
+            return redirect('users:login')
 
         return InertiaResponse(
             request,
