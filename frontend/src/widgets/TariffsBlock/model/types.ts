@@ -1,0 +1,24 @@
+export interface TariffFeature {
+  id: number;
+  text: string;
+}
+
+export interface TariffButton {
+  label: string;
+  variant: 'default' | 'primary';
+}
+
+export interface Tariff {
+  id: number;
+  name: string;
+  label?: string;
+  description: string;
+  price: string;
+  features: TariffFeature[];
+  button: TariffButton;
+  isHighlighted?: boolean;
+}
+
+export interface TariffsBlockProps {
+  tariffs?: Tariff[];
+}
