@@ -41,7 +41,8 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('category', models.CharField(max_length=255, verbose_name='Категория')),
                 ('materialize', models.BooleanField(default=True, verbose_name='Материализовать в M2M')),
-                ('group', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='auto_rule', to='group_channels.group', verbose_name='Группа')),
+                ('group', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='auto_rule',
+                                               to='group_channels.group', verbose_name='Группа')),
             ],
             options={
                 'verbose_name': 'Правило автоподборки',
