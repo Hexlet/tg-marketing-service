@@ -3,6 +3,7 @@ import { useForm, usePage } from '@inertiajs/react';
 import { mapServerErrors } from '../libr/mapServerErrors';
 import { validateProfile } from './validateProfile';
 import type { User, UserProfileProps } from './types';
+import { userProfileApi } from '../api';
 
 export const useUserProfileForm = () => {
   const { user, errors: serverErrors = {} } = usePage<UserProfileProps>().props;
@@ -28,7 +29,7 @@ export const useUserProfileForm = () => {
       return;
     }
 
-    post('/auth/profile', {
+    post(userProfileApi.update(), {
       onSuccess: () => console.log('Profile updated successfully'),
       onError: (serverErrors) => {
         console.log('Error updating the profile', serverErrors);
