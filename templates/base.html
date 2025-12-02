@@ -4,6 +4,7 @@
 {% load static %}
 {% load django_bootstrap5 %}
 
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,7 +23,7 @@
   <div class="sticky-lg-top">
     <header>
     <div class="x-container-xxxl px-5 mx-5 navbar navbar-expand-lg bg-light">
-{% if user.is_authenticated %}
+    <!--if user.is_authenticated при этом боле не отображаеться страница нужна авторизация такого буть не должно пока закомител-->
       <a class="navbar-brand" href="/">Главная</a>
       <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent">
         <span class="navbar-toggler-icon"></span>
@@ -52,12 +53,15 @@
             {% else %}
                 <!-- Общие пункты для user и partner -->
                 <ul class="navbar-nav mr-auto">
+                    <!--временный комит так как для авторизованного Каналы и Парсер дуюлируются-->
+                    {% comment %} 
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'parser:list' %}">Каналы</a>
+                    <a class="nav-link" href="{% url 'parser:list' %}">Каналы</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'parser:parser' %}">Парсер</a>
                     </li>
+                    {% endcomment %}
                     <li class="nav-item">
                         <a class="nav-link" >Добавление канала</a>
                     </li>
@@ -90,6 +94,7 @@
             {% endif %}
         </div>
     </div>
+    <!-- endif -->
 </header>
 </div>
 <div class="container wrapper flex-grow-1">
@@ -98,6 +103,7 @@
     {% block content %}
 
     {% endblock %}
+
 </div>
     <footer>
       <div class="container my-5 pt-4 border-top">

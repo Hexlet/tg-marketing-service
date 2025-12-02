@@ -32,4 +32,4 @@ flower:
 	uv run celery -A config flower
 
 s:
-	uv run python manage.py set_telegram_session
+	uv run python manage.py start_telegram_session

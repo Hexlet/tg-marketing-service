@@ -1,3 +1,6 @@
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.contrib import auth, messages
 from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 from django.contrib.auth.mixins import AccessMixin
 
@@ -8,6 +11,8 @@ class RoleRequiredMixin(AccessMixin):
     Наследуем от AccessMixin для стандартного поведения Django.
     """
     allowed_roles = None  # Обязательно переопределить в дочерних классах
+    login_url = 'users:login' # Обязательно переопределить в дочерних классах при необходимости
+    next_parameter = '?next='  # Параметр для сохранения начальной страницы
     permission_denied_message = "У вас нет прав для доступа к этой странице"
 
     def dispatch(self, request, *args, **kwargs):
@@ -37,8 +42,18 @@ class RoleRequiredMixin(AccessMixin):
     def handle_no_permission(self):
         """Обработка отказа в доступе"""
         if not self.request.user.is_authenticated:
-            return self.redirect_to_login()  # Перенаправляем гостей на страницу входа
+            return self.redirect_to_login() 
         raise PermissionDenied(self.get_permission_denied_message())
+    
+    def redirect_to_login(self):
+        """
+        Метод для перенаправления на страницу входа с сохранением начального адреса.
+        """
+        # выводим сообщение
+        messages.add_message(self.request, messages.INFO, self.get_permission_denied_message())
+        # Перенаправляем гостей на страницу входа,
+        # после аутентификации перенаправляем на первоначальную страницу
+        return redirect(f"{reverse(self.login_url)}{self.next_parameter}{self.request.path}")
 
 
 class GuestRequiredMixin(RoleRequiredMixin):
@@ -49,7 +64,7 @@ class GuestRequiredMixin(RoleRequiredMixin):
 
 class UserRequiredMixin(RoleRequiredMixin):
     """Для всех авторизованных пользователей"""
-    allowed_roles = ['user', 'partner', 'channel_moderator']
+    allowed_roles = ['user']
     permission_denied_message = "Требуется авторизация"
 
 
