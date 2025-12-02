@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'django_bootstrap5',
     'django.contrib.sites',
+    'django_vite.apps.DjangoViteAppConfig', # добавил регистрацию приложения 
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
