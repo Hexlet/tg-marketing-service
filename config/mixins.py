@@ -11,8 +11,11 @@ class RoleRequiredMixin(AccessMixin):
     Наследуем от AccessMixin для стандартного поведения Django.
     """
     allowed_roles = None  # Обязательно переопределить в дочерних классах
+    
+    # как временное явление возможно удалю
     login_url = 'users:login' # Обязательно переопределить в дочерних классах при необходимости
     next_parameter = '?next='  # Параметр для сохранения начальной страницы
+    
     permission_denied_message = "У вас нет прав для доступа к этой странице"
 
     def dispatch(self, request, *args, **kwargs):
@@ -49,8 +52,6 @@ class RoleRequiredMixin(AccessMixin):
         """
         Метод для перенаправления на страницу входа с сохранением начального адреса.
         """
-        # выводим сообщение
-        messages.add_message(self.request, messages.INFO, self.get_permission_denied_message())
         # Перенаправляем гостей на страницу входа,
         # после аутентификации перенаправляем на первоначальную страницу
         return redirect(f"{reverse(self.login_url)}{self.next_parameter}{self.request.path}")
@@ -64,12 +65,13 @@ class GuestRequiredMixin(RoleRequiredMixin):
 
 class UserRequiredMixin(RoleRequiredMixin):
     """Для всех авторизованных пользователей"""
-    allowed_roles = ['user']
+    allowed_roles = ['user', 'partner', 'channel_moderator', 'seff'] # seff еще не реализован - нужно реализовать.
     permission_denied_message = "Требуется авторизация"
 
 
 class PartnerRequiredMixin(RoleRequiredMixin):
     """Только для активных партнеров"""
+    login_url = 'users:login'
     allowed_roles = ['partner']
     permission_denied_message = "Доступ только для партнеров"
 
