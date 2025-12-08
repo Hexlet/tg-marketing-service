@@ -24,4 +24,9 @@ dependencies = [
     "telethon>=1.40.0",
     "unidecode>=1.4.0",
     "django-vite>=3.1.0",
+    "django-guardian>=3.2.0",
 ]
+
+
+[tool.setuptools.packages]
+find = { where = [], include = ["apps/*", "config"] }

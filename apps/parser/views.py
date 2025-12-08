@@ -17,12 +17,12 @@ from apps.parser.parser import tg_parser
 
 from inertia import render as inertia_render
 
-from config.mixins import UserRequiredMixin
+from config.mixins import UserAuthenticationCheckMixin
 
 log = logging.getLogger(__name__)
 
 
-class ParserView(UserRequiredMixin, FormView):
+class ParserView(UserAuthenticationCheckMixin, FormView):
     form_class = ChannelParseForm
     template_name = 'parser/parse_channel.html'
     success_url = reverse_lazy("parser:list")

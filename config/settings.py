@@ -74,13 +74,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'guardian',
     
     'inertia',
 
     'widget_tweaks',
     'django_bootstrap5',
     'django.contrib.sites',
-    'django_vite.apps.DjangoViteAppConfig', # добавил регистрацию приложения 
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -94,15 +94,18 @@ INSTALLED_APPS = [
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    'guardian.backends.ObjectPermissionBackend',
 ]
 
 SITE_ID = 1
 
-ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_AUTHENTICATION_METHOD = 'email'
+# ACCOUNT_USERNAME_REQUIRED = False
+
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_VERIFICATION = 'optional'  # или 'mandatory'
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_USERNAME_REQUIRED = False
 LOGIN_REDIRECT_URL = '/'  # Куда перенаправлять после входа
 
 MIDDLEWARE = [
@@ -111,12 +114,13 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'apps.users.middleware.RoleMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'inertia.middleware.InertiaMiddleware',
+    'apps.users.middleware.RoleMiddleware',
 ]
+
 
 
 MAPPING_PROD = {
@@ -252,3 +256,43 @@ STATICFILES_DIRS = [
 INERTIA_LAYOUT = 'base.html'
 CSRF_HEADER_NAME = 'HTTP_X_XSRF_TOKEN'
 CSRF_COOKIE_NAME = 'XSRF-TOKEN'
+
+USER_ROLES = [
+    ('guest', 'Guest'),
+    ('user', 'User'),
+    ('partner', 'Partner'),
+    ('channel_moderator', 'Сhannel_moderator'),
+    ('staff', 'Staff'),
+]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {asctime} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/home/pavel/My_folder/my_works/work_praktika/tg-marketing-service/django.log',  # Указываем нужный путь к файлу логов
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'root': {
+        'handlers': ['file', 'console'],  # Одновременно используем файл и терминал
+        'level': 'DEBUG',
+    },
+}

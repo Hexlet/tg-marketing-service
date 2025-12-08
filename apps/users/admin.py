@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from guardian.admin import GuardedModelAdmin
 from apps.users.models import User, PartnerProfile
 from apps.parser.models import ChannelModerator
 
@@ -21,7 +21,7 @@ class PartnerProfileInline(admin.StackedInline):
 
 
 @admin.register(User)
-class CustomUserAdmin(UserAdmin):
+class CustomUserAdmin(GuardedModelAdmin):
     list_display = ('username', 'email', 'date_joined', 'is_staff', 'is_partner', 'is_channel_moderator')
     list_select_related = ('partner_profile',)
     list_filter = ('is_staff', 'is_superuser', 'is_active')

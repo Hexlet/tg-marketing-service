@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.views.generic.base import View
 
 from apps.parser.models import TelegramChannel
-from config.mixins import UserRequiredMixin
+from config.mixins import UserAuthenticationCheckMixin
 
 from apps.group_channels.forms import AddChannelForm, CreateGroupForm, UpdateGroupForm
 from apps.group_channels.models import Group
@@ -83,7 +83,7 @@ class GroupDetailView(View):
         })
 
 
-class AddChannelsView(UserRequiredMixin, UserPassesTestMixin, View):
+class AddChannelsView(UserAuthenticationCheckMixin, UserPassesTestMixin, View):
     def test_func(self):
         self.group = get_object_or_404(Group, slug=self.kwargs['slug'])
         return self.group.owner == self.request.user
