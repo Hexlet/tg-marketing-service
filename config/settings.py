@@ -224,8 +224,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -248,9 +251,11 @@ else:
 INERTIA_LAYOUT = "base.html"
 CSRF_HEADER_NAME = 'HTTP_X_XSRF_TOKEN'
 CSRF_COOKIE_NAME = 'XSRF-TOKEN'
-STATICFILES_DIRS = [
-    BASE_DIR / "frontend" / "public",
-]
+
+# При переходе на инерцию раскоментировать 
+# STATICFILES_DIRS = [
+#    BASE_DIR / "frontend" / "public",
+#]
 
 # Inertia settings
 INERTIA_LAYOUT = 'base.html'
@@ -262,7 +267,6 @@ USER_ROLES = [
     ('user', 'User'),
     ('partner', 'Partner'),
     ('channel_moderator', 'Сhannel_moderator'),
-    ('staff', 'Staff'),
 ]
 
 LOGGING = {

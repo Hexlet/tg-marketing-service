@@ -147,12 +147,11 @@ class PartnerProfile(models.Model):
                     Если код уникален, выходим из цикла.
                     """
                     break
-    
+            
+        # Привязываем изменение роли пользователя
+        user = self.user  # Связанный пользователь
+        user.role = USER_ROLES['partner']
+        user.save()
+            
         # Вызываем родительский метод save для сохранения объекта
         super().save(*args, **kwargs)
-
-
-
-
-
-# Добавить модели 'channel_moderator', 'staff'.

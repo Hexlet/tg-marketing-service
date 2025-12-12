@@ -4,6 +4,7 @@ from asgiref.sync import async_to_sync
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -14,10 +15,12 @@ from telethon.sessions import StringSession
 from apps.parser.forms import ChannelParseForm
 from apps.parser.models import ChannelStats, TelegramChannel
 from apps.parser.parser import tg_parser
+from apps.users.models import User
 
 from inertia import render as inertia_render
 
 from config.mixins import UserAuthenticationCheckMixin
+from config.settings import USER_ROLES
 
 log = logging.getLogger(__name__)
 
@@ -50,8 +53,27 @@ class ParserView(UserAuthenticationCheckMixin, FormView):
             return await tg_parser(url, client, limit)
         finally:
             await client.disconnect()
+    
+    def update_role(self, request):
+        """
+        Присваивает роль 'channel_moderator' создателю канала, если она ещё не назначена
+        """
+        try:
+            # Получаем текущего пользователя из запроса
+            current_user = request.user
 
-    def save_channel(self, data):
+            # Проверяем, назначен ли уже статус moderator данному пользователю
+            if not hasattr(current_user, 'role') or current_user.role != USER_ROLES['channel_moderator']:
+                current_user.role = USER_ROLES['channel_moderator']
+                current_user.save()
+                log.info(f"Назначена роль 'channel_moderator' пользователю {current_user.username}.")
+
+        except AttributeError:
+            log.error("Нет атрибута 'role' у пользователя.")
+        except ObjectDoesNotExist:
+            log.error("Пользователь не найден.")
+
+    def save_channel(self, data, request=None):
         """Create or update channel"""
         channel, created = TelegramChannel.objects.update_or_create(
             channel_id=data["channel_id"],
@@ -73,9 +95,13 @@ class ParserView(UserAuthenticationCheckMixin, FormView):
             log.info(f"New channel created: {channel.title}")
         else:
             log.info(f"Channel updated: {channel.title}")
+        
+        # После сохранения канала назначаем роль создателя канала
+        if request:
+            self.update_role(request)
 
         return channel, created
-
+            
     def save_stats(self, channel, data):
         """Create stats record with growth calculation"""
         last_stats = (

@@ -73,6 +73,9 @@ class RoleRequiredMixin(AccessMixin):
         raise PermissionDenied(self.get_permission_denied_message())
         
     
+"""Ниже примеры реализации организации доступа по ролям"""
+"""при необходимости добавляем класс  с необходимыми аргументами и их значения"""
+"""далее наследуем созданный класс в представлении котором нужно организовать доступ"""
 
 class GuestRequiredMixin(RoleRequiredMixin):
     """Только для неавторизованных пользователей"""
