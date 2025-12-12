@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from apps.group_channels.models import Group, AutoGroupRule
-
+from guardian.admin import GuardedModelAdminMixin
 # Register your models here.
 
 class AutoGroupRule(admin.StackedInline):
@@ -10,9 +10,10 @@ class AutoGroupRule(admin.StackedInline):
     can_delete = False
     extra = 0
 
-
+"""Миксин GuardedModelAdminMixin от guardian расширяет возможости стандартной модели"""
+"""и добавляет в админку возможность работать с правами. В верхнем правом углу кнопка <Права на объект>"""
 @admin.register(Group)
-class GroupAdmin(admin.ModelAdmin):
+class GroupAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
     list_display = ('name', 'is_editorial', 'order', 'owner')
     list_filter = ('is_editorial',)
     search_fields = ('name', 'description')

@@ -59,7 +59,9 @@ class IndexView(View):
             start_i = i * self.ROWS_PER_COL
             end_i = start_i + self.ROWS_PER_COL
             cols.append(page_groups[start_i:end_i])
-
+        
+        role = request.role
+        
         context = {
             'editorial_groups': editorial,
             'categories_cols': cols,
@@ -69,5 +71,7 @@ class IndexView(View):
             'cats_has_next': page < total_pages,
             'cats_prev_page': page - 1,
             'cats_next_page': page + 1,
+            'user_role': role
         }
+        print(role)
         return render(request, 'index.html', context)

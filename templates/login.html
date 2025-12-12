@@ -8,12 +8,16 @@
     <h1 class="my-4">Вход</h1>
     <form action="{% url 'users:login' %}" method="post">
         {% csrf_token %}
-        {% comment %} {% for item in form %}
+    
+        {% comment %}
+        {% for item in form %}
         <div class="mb-3">
             <label class="form-label" for="{{ item.id_for_label }}">{{ item.label }}</label>
             {{ item }}
         </div>
-        {% endfor %} {% endcomment %}
+        {% endfor %}
+        {% endcomment %}
+
 
         {% if form.non_field_errors %}
         <ul class="list-unstyled text-danger">
@@ -44,7 +48,7 @@
     <div class="container d-flex justify-content-center align-items-center wrapper mt-3">
         <div>
             <span class="fw-bolder">или </span>
-            <a href="{% url "users:user_create" %}" class="fw-bolder">зарегистрируйтесь</a>
+            <a href="{% url 'users:user_create' %}" class="fw-bolder">зарегистрируйтесь</a>
         </div>
     </div>
         {% comment %} <div class="social-login">
