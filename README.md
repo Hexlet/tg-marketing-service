@@ -93,6 +93,7 @@ SPA веб-приложение. Единый портал для сравнен
    make flower
    ```
 
+
 ### Утилиты
 
 1. Сгенерируйте/обновите Telegram сессию через management команду (запускает uv run python manage.py set_telegram_session):
