@@ -39,7 +39,7 @@
               <a class="nav-link" href="{% url 'parser:parser' %}">Парсер</a>
             </li>
         </ul>
-
+{% endif %}
         <div class="collapse navbar-collapse" id="navbarToggleExternalContent">
             {% if user_role == 'guest' %}
                 <!-- Меню для гостя -->
