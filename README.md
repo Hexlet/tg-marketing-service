@@ -38,12 +38,12 @@ SPA веб-приложение. Единый портал для сравнен
 1.1. Запустите команду `set_telegram_session`: `uv run python manage.py set_telegram_session`
 1.2. Передайте в команде параметры "API_ID", "API_HASH", "PHONE" для первой настройки клиента Telegram. Также передайте StringSession для запуска уже сохраненной версии клиента Telegram. 
 #### .env
-2.1. В `.env` присвойте переменной "PHONE" 
-2.2. Перейдите на [API development tools](https://my.telegram.org/apps).
-2.3. Заполните поля "App configuration". Если поля уже заполнены, не меняйте их.
-2.4. Сохраните настройки
-2.5. В `.env` присвойте переменной "TELEGRAM_API_ID" значение "App api_id", "TELEGRAM_API_HASH" значение "App api_hash"
-2.6. Запустите команду `set_telegram_session`: `uv run python manage.py set_telegram_session`
+2.1. В `.env` присвойте переменной "PHONE".  
+2.2. Перейдите на [API development tools](https://my.telegram.org/apps).  
+2.3. Заполните поля "App configuration". Если поля уже заполнены, не меняйте их.  
+2.4. Сохраните настройки.  
+2.5. В `.env` присвойте переменной "TELEGRAM_API_ID" значение "App api_id", "TELEGRAM_API_HASH" значение "App api_hash".  
+2.6. Запустите команду `set_telegram_session`: `uv run python manage.py set_telegram_session`.
 
 
 ### Бэкенд (запуск через Make)
