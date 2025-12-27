@@ -35,7 +35,7 @@ SPA веб-приложение. Единый портал для сравнен
 Настройка Telegram нужна для парсинга данных.
 1. Авторизуйтесь на [My Telegram](https://my.telegram.org/apps) с помощью номера телефона вашего Telegram аккаунта.
 #### CLI
-1.1. Запустите команду `set_telegram_session`: `uv run python manage.py set_telegram_session`
+1.1. Запустите команду `set_telegram_session`: `uv run python manage.py set_telegram_session`.  
 1.2. Передайте в команде параметры "API_ID", "API_HASH", "PHONE" для первой настройки клиента Telegram. Также передайте StringSession для запуска уже сохраненной версии клиента Telegram. 
 #### .env
 2.1. В `.env` присвойте переменной "PHONE".  
