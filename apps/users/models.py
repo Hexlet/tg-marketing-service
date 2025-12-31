@@ -7,12 +7,13 @@ from django.utils.crypto import get_random_string
 ROLE_MAXLENGTH = 150
 BIO_MAXLENGTH = 200
 
-USER_ROLES = [
-    ('guest', 'Guest'),
-    ('user', 'User'),
-    ('partner', 'Partner'),
-    ('channel_moderator', 'Сhannel_moderator'),
-]
+USER_ROLES = {
+    'guest': 'Guest',
+    'user': 'User',
+    'partner': 'Partner',
+    'channel_moderator': 'Сhannel_moderator',
+}
+
 
 # Create your models here.
 class User(AbstractUser):
@@ -43,7 +44,6 @@ class User(AbstractUser):
     def is_channel_moderator(self):
         """Проверка, является ли пользователь модератором какого-либо канала."""
         return self.moderated_channels.exists()
-
 
 
 class PartnerProfile(models.Model):
