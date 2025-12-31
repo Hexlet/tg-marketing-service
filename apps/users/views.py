@@ -11,7 +11,7 @@ from django.views.generic.base import View
 from apps.group_channels.forms import CreateGroupForm, UpdateGroupForm
 
 from config.mixins import UserAuthenticationCheckMixin
-from config.settings import USER_ROLES
+from models import USER_ROLES
 
 from apps.users.forms import (
     AvatarChange,

@@ -3,11 +3,16 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.crypto import get_random_string
 
-from config.settings import USER_ROLES
 
 ROLE_MAXLENGTH = 150
 BIO_MAXLENGTH = 200
 
+USER_ROLES = [
+    ('guest', 'Guest'),
+    ('user', 'User'),
+    ('partner', 'Partner'),
+    ('channel_moderator', 'Сhannel_moderator'),
+]
 
 # Create your models here.
 class User(AbstractUser):

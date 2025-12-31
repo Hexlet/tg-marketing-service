@@ -262,12 +262,6 @@ INERTIA_LAYOUT = 'base.html'
 CSRF_HEADER_NAME = 'HTTP_X_XSRF_TOKEN'
 CSRF_COOKIE_NAME = 'XSRF-TOKEN'
 
-USER_ROLES = [
-    ('guest', 'Guest'),
-    ('user', 'User'),
-    ('partner', 'Partner'),
-    ('channel_moderator', 'Сhannel_moderator'),
-]
 
 LOGGING = {
     'version': 1,

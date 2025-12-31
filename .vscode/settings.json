@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
     "inertiajs"
-  ]
+  ],
+  "python.REPL.enableREPLSmartSend": false
 }

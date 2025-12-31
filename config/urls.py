@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import TemplateView
 
-from config.views import IndexView
+from apps.homepage.views import IndexView
 
 
 urlpatterns = [

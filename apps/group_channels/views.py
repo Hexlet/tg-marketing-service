@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic.base import View
@@ -90,7 +90,11 @@ class AddChannelsView(UserAuthenticationCheckMixin, UserPassesTestMixin, View):
 
     def post(self, request, slug):
         free_qs = TelegramChannel.objects.exclude(groups=self.group)
-        form = AddChannelForm(request.POST, instance=self.group, channel_qs=free_qs)
+        form = AddChannelForm(
+            request.POST,
+            instance=self.group,
+            channel_qs=free_qs
+        )
 
         if form.is_valid():
             self.group.channels.add(*form.cleaned_data['channels'])

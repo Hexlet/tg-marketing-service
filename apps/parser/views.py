@@ -20,7 +20,7 @@ from apps.users.models import User
 from inertia import render as inertia_render
 
 from config.mixins import UserAuthenticationCheckMixin
-from config.settings import USER_ROLES
+from users.models import USER_ROLES
 
 log = logging.getLogger(__name__)
 

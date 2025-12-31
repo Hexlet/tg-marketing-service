@@ -6,7 +6,6 @@ from apps.homepage.models import HomePageComponent
 class IndexView(View):
     def get(self, request, *args, **kwargs):
         components = HomePageComponent.objects.filter(is_active=True).order_by('order')
-        role = request.role
         page_data = {
             'components': [
                 {
@@ -18,7 +17,6 @@ class IndexView(View):
                 }
                 for component in components
             ],
-            'user_role': role 
         }
 
         return inertia_render(request, 'Home', props=page_data)
