@@ -152,7 +152,7 @@ class PartnerProfile(models.Model):
                     Если код уникален, выходим из цикла.
                     """
                     break
-            
+         
         # Привязываем изменение роли пользователя
         user = self.user  # Связанный пользователь
         user.role = USER_ROLES['partner']
