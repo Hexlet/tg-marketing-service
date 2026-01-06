@@ -65,6 +65,14 @@ role = request.role
 
 Для получения роли через модель используеться стандартный API работы с сущностями.
 
+### перечень ролей в базе данных
+
+roles = [
+    {'code': 'guest', 'name': 'Guest'},
+    {'code': 'user', 'name': 'User'},
+    {'code': 'partner', 'name': 'Partner'},
+    {'code': 'channel_moderator', 'name': 'Channel Moderator'},
+];
 
 
 ## Контроль прав реализован с помощью Django-guardian

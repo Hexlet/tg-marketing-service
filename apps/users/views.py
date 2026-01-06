@@ -11,7 +11,6 @@ from django.views.generic.base import View
 from apps.group_channels.forms import CreateGroupForm, UpdateGroupForm
 
 from config.mixins import UserAuthenticationCheckMixin
-from models import USER_ROLES
 
 from apps.users.forms import (
     AvatarChange,
@@ -156,7 +155,7 @@ class UserRegister(View):
         if form.is_valid():
             user = form.save(commit=False)
             # Устанавливаем роль пользователя
-            user.role = USER_ROLES['user']
+            user.role = 'user'
             
             if not user.avatar_image:
                 user.avatar_image = 'data:image/png;base64,iVBORw0KGg\
