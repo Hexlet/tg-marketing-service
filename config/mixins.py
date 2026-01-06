@@ -27,7 +27,7 @@ class CheckingUserRolesMixin:
             return False
 
 
-class UserAuthenticationCheckMixin(CheckingUserRolesMixin, View):
+class UserAuthenticationCheckMixin(CheckingUserRolesMixin):
     """
     Класс-миксин для принудительной проверки аутентификации перед отображением страницы
     """
