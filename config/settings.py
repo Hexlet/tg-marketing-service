@@ -277,12 +277,6 @@ LOGGING = {
         },
     },
     'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': '/home/pavel/My_folder/my_works/work_praktika/tg-marketing-service/django.log',  # Указываем нужный путь к файлу логов
-            'formatter': 'verbose',
-        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -290,7 +284,7 @@ LOGGING = {
         },
     },
     'root': {
-        'handlers': ['file', 'console'],  # Одновременно используем файл и терминал
+        'handlers': ['console'],
         'level': 'DEBUG',
     },
 }
