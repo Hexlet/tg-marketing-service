@@ -103,7 +103,7 @@ tzdata==2025.2
     # via kombu
 unidecode==1.4.0
     # via hexlet-price-tracker (pyproject.toml)
-urllib3==2.5.0
+urllib3==2.6.3
     # via requests
 vine==5.1.0
     # via
