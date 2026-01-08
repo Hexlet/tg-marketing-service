@@ -1,7 +1,9 @@
 import React from 'react';
 import type { AiDemoBlockProps } from '../model/types';
 
-export const AiDemoWindow: React.FC<AiDemoBlockProps> = ({ demoTitle }) => {
+export const AiDemoWindow: React.FC<AiDemoBlockProps> = (props) => {
+  const { demoTitle } = props;
+  
   return (
     <div
       className="flex-1 w-full rounded-xl border p-4 bg-white flex min-h-[15rem] lg:min-h-0"

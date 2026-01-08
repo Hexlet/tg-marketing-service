@@ -7,14 +7,16 @@ import {
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 
-export const AiDemoText: React.FC<AiDemoTextProps> = ({
-  description,
-  features = [],
-  tryButton,
-  demoButton,
-  activeButton,
-  onButtonClick,
-}) => {
+export const AiDemoText: React.FC<AiDemoTextProps> = (props) => {
+  const {
+    description,
+    features = [],
+    tryButton,
+    demoButton,
+    activeButton,
+    onButtonClick,
+  } = props;
+  
   return (
     <div className="flex flex-col gap-4">
       {description && (
