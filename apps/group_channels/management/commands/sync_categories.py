@@ -4,8 +4,8 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Q
 
-from group_channels.models import Group, AutoGroupRule
-from parser.models import TelegramChannel
+from apps.group_channels.models import Group, AutoGroupRule
+from apps.parser.models import TelegramChannel
 
 
 def _flatten_choices(choices):

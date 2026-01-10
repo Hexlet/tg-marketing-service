@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 from apps.homepage.models import HomePageComponent
 from django.test import RequestFactory
-
+from apps.homepage.views import IndexView
 
 
 class IndexViewTest(TestCase):
@@ -22,14 +22,11 @@ class IndexViewTest(TestCase):
         request = factory.get(reverse('main_index'), HTTP_ACCEPT='application/json')
         response = IndexView.as_view()(request)
         
-        # Теперь мы можем безопасно парсить JSON-ответ
-        data = json.loads(response.content.decode())
-
         try:
             # Попытка преобразования ответа в JSON
             data = json.loads(response.content.decode())
         except Exception as e:
-            print(f"Failed to parse JSON: {e}\nContent Type: {response.headers.get('Content-Type')}")
+            self.fail(f"Failed to parse JSON: {e}, Content Type: {response.headers.get('Content-Type')}")
             raise
 
         # Остальные проверки оставлены такими же

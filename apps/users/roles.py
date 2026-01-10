@@ -73,4 +73,3 @@ class UserRoleHistory(models.Model):
     @property
     def is_current_role(self):
         return self.end_date is None
-    

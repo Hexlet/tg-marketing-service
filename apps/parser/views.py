@@ -19,7 +19,6 @@ from apps.parser.parser import tg_parser
 from inertia import render as inertia_render
 
 from config.mixins import UserAuthenticationCheckMixin
-from apps.users.roles import Role
 
 log = logging.getLogger(__name__)
 
