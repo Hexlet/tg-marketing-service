@@ -2,8 +2,6 @@ import json
 from django.test import TestCase
 from django.urls import reverse
 from apps.homepage.models import HomePageComponent
-from django.test import RequestFactory
-from apps.homepage.views import IndexView
 
 
 class IndexViewTest(TestCase):
@@ -17,27 +15,32 @@ class IndexViewTest(TestCase):
         )
 
     def test_index_view_with_inertia_props(self):
-        # Выполняем запрос к нашему view
-        factory = RequestFactory()
-        request = factory.get(reverse('main_index'), HTTP_ACCEPT='application/json')
-        response = IndexView.as_view()(request)
-        
-        try:
-            # Попытка преобразования ответа в JSON
-            data = json.loads(response.content.decode())
-        except Exception as e:
-            self.fail(f"Failed to parse JSON: {e}, Content Type: {response.headers.get('Content-Type')}")
-            raise
+        response = self.client.get(
+            reverse('main_index'),
+            HTTP_ACCEPT='application/json',
+            HTTP_X_INERTIA='true',
+        )
 
-        # Остальные проверки оставлены такими же
+        self.assertEqual(response.status_code, 200)
+
+        # Django test client автоматически декодирует JSON
+        data = response.json()
+
+        # Inertia-обёртка
+        self.assertIn('component', data)
         self.assertIn('props', data)
-        self.assertIsInstance(data['props'], dict)
+        self.assertIn('url', data)
+        self.assertIn('version', data)
 
-        self.assertIn('components', data['props'])
-        components = data['props']['components']
+        # Проверяем props
+        props = data['props']
+        self.assertIn('components', props)
 
+        components = props['components']
         self.assertGreater(len(components), 0)
+
         first_component = components[0]
         self.assertEqual(first_component['title'], self.component.title)
         self.assertEqual(first_component['content'], self.component.content)
         self.assertEqual(first_component['order'], self.component.order)
+
