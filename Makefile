@@ -33,3 +33,6 @@ flower:
 
 s:
 	uv run python manage.py start_telegram_session
+
+test:
+	python3 -m pytest --tb=short -q

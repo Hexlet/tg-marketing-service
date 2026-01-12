@@ -2,5 +2,8 @@
   "cSpell.words": [
     "inertiajs"
   ],
-  "python.REPL.enableREPLSmartSend": false
+  "python.REPL.enableREPLSmartSend": false,
+  "githubPullRequests.ignoredPullRequestBranches": [
+    "main"
+  ]
 }
