@@ -66,6 +66,7 @@ class Group(models.Model):
             self.slug = slugify(unidecode(self.name))
         super().save(*args, **kwargs)
 
+
 class AutoGroupRule(models.Model):
     group = models.OneToOneField(
         Group,
@@ -83,7 +84,6 @@ class AutoGroupRule(models.Model):
         default=True,
         verbose_name='Материализовать в M2M',
     )
-
 
     class Meta:
         db_table = 'auto_group_rules'

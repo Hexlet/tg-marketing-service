@@ -10,6 +10,8 @@ from django.views.generic.base import View
 
 from apps.group_channels.forms import CreateGroupForm, UpdateGroupForm
 
+from config.mixins import UserAuthenticationCheckMixin
+
 from apps.users.forms import (
     AvatarChange,
     RestorePasswordForm,
@@ -21,13 +23,8 @@ from apps.users.forms import (
 from apps.users.models import User
 
 
-class LogoutView(View):
+class LogoutView(UserAuthenticationCheckMixin, View):
     def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            messages.add_message(request,
-                                 messages.ERROR,
-                            'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return redirect(reverse('users:login'))
         return redirect(reverse('main_index'))
 
     def post(self, request, *args, **kwargs):
@@ -58,13 +55,9 @@ class LoginView(View):
         return render(request, 'login.html', {'form': form})
 
 
-class UserProfileView(View):
+# добавил миксин UserAuthenticationCheckMixin
+class UserProfileView(UserAuthenticationCheckMixin, View):
     def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            messages.add_message(request,
-                                 messages.ERROR,
-                            'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return redirect(reverse('users:login'))
         create_form = CreateGroupForm()
         update_form = UpdateGroupForm()
         avatar_form = AvatarChange()
@@ -73,15 +66,17 @@ class UserProfileView(View):
         return render(
             request,
             'users/profile.html',
-            {'user': user,
-             'create_form': create_form,
-             'update_form': update_form,
-             'avatar_form': avatar_form,
-             'groups': groups}
+            {
+                'user': user,
+                'create_form': create_form,
+                'update_form': update_form,
+                'avatar_form': avatar_form,
+                'groups': groups
+            }
         )
 
 
-class UserCabinetView(View):
+class UserCabinetView(UserAuthenticationCheckMixin, View):
     def _build_base_props(self, request, user: User) -> dict:
         registration_date = user.date_joined
         last_visit = user.last_login if user.last_login else timezone.now()
@@ -114,25 +109,14 @@ class UserCabinetView(View):
                 'new_features': True,
             },
             'usage_stats': usage_stats,
+            'user_role': request.role,  # Используем атрибут из middleware
         }
     def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            messages.add_message(request,
-                                 messages.ERROR,
-                            'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return redirect(reverse('users:login'))
-
         user = request.user
         props = self._build_base_props(request, user)
         return inertia_render(request, 'UserProfile', props)
 
     def post(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            messages.add_message(request,
-                                 messages.ERROR,
-                            'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return redirect(reverse('users:login'))
-
         user = request.user
         action = request.POST.get('action')
 
@@ -170,6 +154,9 @@ class UserRegister(View):
         form = UserRegForm(data=request.POST)
         if form.is_valid():
             user = form.save(commit=False)
+            # Устанавливаем роль пользователя
+            user.role = 'user'
+            
             if not user.avatar_image:
                 user.avatar_image = 'data:image/png;base64,iVBORw0KGg\
                     oAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAMFBMVEX\
@@ -252,13 +239,8 @@ rK3p1E6Fc9XhpNRPhra9i9jUSSr4XI6zeI6povWGv3iMqqWLA56gbCOM1NMMeUcW67B5lB\
         )
 
 
-class UserUpdate(View):
+class UserUpdate(UserAuthenticationCheckMixin, View):
     def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            messages.add_message(request,
-                                 messages.ERROR,
-                            'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return redirect(reverse('users:login'))
         if request.user.username == kwargs.get('username'):
             form = UserUpdateForm(initial={
                 'username': request.user.username,

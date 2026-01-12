@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
+
+from apps.users.roles import Role
 
 User = get_user_model()
 
@@ -9,18 +10,19 @@ class RoleMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if not request.user.is_authenticated:
-            request.role = 'guest'
-        else:
-            try:
-                if hasattr(request.user, 'partner_profile') and request.user.partner_profile.status == 'active':
-                    request.role = 'partner'
-                elif hasattr(request.user, 'is_channel_moderator') and request.user.is_channel_moderator:
-                    request.role = 'channel_moderator'
-                else:
-                    request.role = 'user'
-            except ObjectDoesNotExist:
-                request.role = 'user'
-
+    
+        # Получаем роль пользователя, если она известна
+        user_role = getattr(request.user, 'role', None)
+        role_obj = Role.objects.filter(code=user_role).first()
+        
+        # Если роль пользователя не найдена, ставим гостевую роль
+        final_role = role_obj.name if role_obj else 'Guest'
+    
+        # Ставим роль в запрос
+        request.role = final_role
         response = self.get_response(request)
+        
+        # !!!!!! Для деплоя эту отдалдку удалить!!!!!!! 
+        print(f"Middleware: Current role of the user is '{request.role}'")
+        
         return response

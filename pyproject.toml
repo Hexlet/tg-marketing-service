@@ -23,4 +23,14 @@ dependencies = [
     "ruff>=0.12.2",
     "telethon>=1.40.0",
     "unidecode>=1.4.0",
+    "django-vite>=3.1.0",
+    "django-guardian>=3.2.0",
 ]
+
+
+[tool.setuptools.packages]
+find = { where = [], include = ["apps/*", "config"] }
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = "test_*.py"

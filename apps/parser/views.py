@@ -4,6 +4,7 @@ from asgiref.sync import async_to_sync
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -17,10 +18,12 @@ from apps.parser.parser import tg_parser
 
 from inertia import render as inertia_render
 
+from config.mixins import UserAuthenticationCheckMixin
+
 log = logging.getLogger(__name__)
 
 
-class ParserView(FormView):
+class ParserView(UserAuthenticationCheckMixin, FormView):
     form_class = ChannelParseForm
     template_name = 'parser/parse_channel.html'
     success_url = reverse_lazy("parser:list")
@@ -48,8 +51,9 @@ class ParserView(FormView):
             return await tg_parser(url, client, limit)
         finally:
             await client.disconnect()
+    
 
-    def save_channel(self, data):
+    def save_channel(self, data, request=None):
         """Create or update channel"""
         channel, created = TelegramChannel.objects.update_or_create(
             channel_id=data["channel_id"],
@@ -73,7 +77,7 @@ class ParserView(FormView):
             log.info(f"Channel updated: {channel.title}")
 
         return channel, created
-
+            
     def save_stats(self, channel, data):
         """Create stats record with growth calculation"""
         last_stats = (

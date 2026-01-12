@@ -1,16 +1,31 @@
+import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils.crypto import get_random_string
+
 
 ROLE_MAXLENGTH = 150
 BIO_MAXLENGTH = 200
 
+
 # Create your models here.
 class User(AbstractUser):
-    avatar_image = models.CharField(verbose_name='url изображения профиля', blank=True, null=True)
-    role = models.CharField(verbose_name='роль',
-                            max_length=150)
-    bio = models.CharField(max_length=200, verbose_name='о себе', blank=True)
-    email = models.EmailField(verbose_name="email адрес", blank=True, unique=True)
+    avatar_image = models.CharField(
+        verbose_name='url изображения профиля',
+        blank=True,
+        null=True
+    )
+    role = models.CharField(max_length=50)
+    bio = models.CharField(
+        max_length=200,
+        verbose_name='о себе',
+        blank=True
+    )
+    email = models.EmailField(
+        verbose_name="email адрес",
+        blank=True,
+        unique=True
+    )
 
     class Meta:
         db_table = 'users'
@@ -34,17 +49,6 @@ class User(AbstractUser):
     def is_channel_moderator(self):
         """Проверка, является ли пользователь модератором какого-либо канала."""
         return self.moderated_channels.exists()
-
-    @property
-    def role(self):
-        """Динамическое определение роли для удобства использования."""
-        if not self.is_authenticated:
-            return 'guest'
-        if self.is_partner:
-            return 'partner'
-        if self.is_channel_moderator:
-            return 'channel_moderator'
-        return 'user'
 
 
 class PartnerProfile(models.Model):
@@ -104,8 +108,55 @@ class PartnerProfile(models.Model):
         return f"{self.user.username} ({self.get_status_display()})"
 
     def save(self, *args, **kwargs):
-        """Генерация партнерского кода при создании профиля."""
+        """
+        Переопределенный метод сохранения объекта, который генерирует уникальный партнерский код
+        при создании нового профиля.
+
+        Метод обеспечивает:
+        - Автоматическую генерацию партнерского кода
+        - Проверку уникальности сгенерированного кода
+        - Безопасное сохранение объекта в базе данных
+        """
+    
+        # Проверяем, существует ли уже партнерский код
         if not self.partner_code:
-            # Реальная реализация должна использовать более надежный метод генерации
-            self.partner_code = f"partner-{self.user_id}-{self.user.date_joined.timestamp()}"
+            """
+            Если партнерский код отсутствует, начинаем генерацию уникального кода.
+            Используем бесконечный цикл для гарантии уникальности.
+            """
+            while True:
+                # Генерируем случайную строку длиной 6 символов
+                random_part = get_random_string(length=6)
+                """
+                get_random_string генерирует криптографически безопасную случайную строку,
+                которая делает код более уникальным.
+                """
+            
+                # Создаем уникальный идентификатор на основе UUID
+                unique_id = uuid.uuid4().hex[:8]
+                """
+                uuid.uuid4() генерирует случайный UUID.
+                .hex преобразует его в шестнадцатеричную строку.
+                [:8] берет первые 8 символов для компактности.
+                """
+            
+                # Формируем финальный партнерский код
+                self.partner_code = f"partner-{self.user_id}-{unique_id}-{random_part}"
+                """
+                Структура кода:
+                - Префикс "partner-" для идентификации
+                - ID пользователя для связи с профилем
+                - Уникальный идентификатор
+                - Случайная строка для дополнительной уникальности
+                """
+            
+                # Проверяем уникальность сгенерированного кода
+                if not PartnerProfile.objects.filter(partner_code=self.partner_code).exists():
+                    """
+                    Проверяем, существует ли такой код в базе данных.
+                    Если код уникален, выходим из цикла.
+                    """
+                    break
+         
+        # Вызываем родительский метод save для сохранения объекта
         super().save(*args, **kwargs)

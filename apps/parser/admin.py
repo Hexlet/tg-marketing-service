@@ -1,10 +1,10 @@
 from django.contrib import admin
 from apps.parser.models import TelegramChannel, ChannelStats, ChannelModerator
-
+from guardian.admin import GuardedModelAdminMixin
 
 
 @admin.register(TelegramChannel)
-class TelegramChannelAdmin(admin.ModelAdmin):
+class TelegramChannelAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
     list_display = ['channel_id', 'title', 'username', 'participants_count', 'average_views', 'parsed_at']
     list_filter = ['parsed_at', 'creation_date']
     search_fields = ['title', 'username', 'description']
@@ -26,7 +26,7 @@ class TelegramChannelAdmin(admin.ModelAdmin):
 
 
 @admin.register(ChannelStats)
-class ChannelStatsAdmin(admin.ModelAdmin):
+class ChannelStatsAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
     list_display = ['channel', 'participants_count', 'daily_growth', 'parsed_at']
     list_filter = ['parsed_at', 'channel']
     search_fields = ['channel__title', 'channel__username']
@@ -51,7 +51,7 @@ class ChannelModeratorInline(admin.TabularInline):
 
 
 @admin.register(ChannelModerator)
-class ChannelModeratorAdmin(admin.ModelAdmin):
+class ChannelModeratorAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
     list_display = ['user', 'channel', 'is_owner', 'can_edit', 'can_delete', 'can_manage_moderators', 'created_at']
     list_filter = ['is_owner', 'can_edit', 'can_delete', 'can_manage_moderators', 'created_at']
     search_fields = ['user__username', 'user__email', 'channel__title', 'channel__username']

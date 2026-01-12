@@ -20,6 +20,7 @@ from django.views.generic import TemplateView
 
 from apps.homepage.views import IndexView
 
+
 urlpatterns = [
     path('', IndexView.as_view(), name='main_index'),
     path('auth/', include('apps.users.urls')),
