@@ -1,5 +1,6 @@
 from django.contrib import auth, messages
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth import login
 from django.middleware.csrf import get_token
 from django.utils import timezone
 from inertia import render as inertia_render
@@ -35,24 +36,49 @@ class LogoutView(UserAuthenticationCheckMixin, View):
 
 class LoginView(View):
     def get(self, request, *args, **kwargs):
-        form = UserLoginForm()
-        return render(
+        # возвращаем форму
+        return inertia_render(
             request,
-            'login.html',
-            {'form': form}
+            "Auth",
+            props={'form': {
+                "data": {
+                        "username": "",
+                        "password": ""
+                }, 
+                "errors": {}
+                }
+            }
         )
 
     def post(self, request, *args, **kwargs):
-        form = UserLoginForm(data=request.POST)
+        form = UserLoginForm(request, data=request.POST)
+        
+        # валидируем данные
         if form.is_valid():
-            username = request.POST['username']
-            password = request.POST['password']
-            user = auth.authenticate(username=username, password=password)
-            if user:
-                auth.login(request, user)
-                messages.add_message(request, messages.SUCCESS, 'Вы залогинены')
-                return redirect(reverse('main_index'))
-        return render(request, 'login.html', {'form': form})
+            # сохраняем полученные данные в объект
+            user = form.get_user()
+            
+            # записываем пользователя в сессию
+            login(request, user)
+            
+            # возвращаем компонент и props
+            return inertia_render(request, 'Home', props={
+                "flash": {
+                    "success": "Вы залогинены"
+                },
+                "user": {
+                    "username": user.username
+                }
+            }, url="/")
+        
+        else:
+            # Ошибки валидации
+            return inertia_render(request, "Auth", props={
+                "form": {
+                    "data": request.POST.dict(),
+                    "errors": form.errors
+                }
+            }, url="/auth")
 
 
 # добавил миксин UserAuthenticationCheckMixin
