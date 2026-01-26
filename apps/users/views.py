@@ -51,7 +51,7 @@ class LoginView(View):
         )
 
     def post(self, request, *args, **kwargs):
-        form = UserLoginForm(request, data=request.POST)
+        form = UserLoginForm(request, request.POST)
         
         # валидируем данные
         if form.is_valid():
@@ -67,18 +67,21 @@ class LoginView(View):
                     "success": "Вы залогинены"
                 },
                 "user": {
-                    "username": user.username
+                    "username": request.POST.get('username')
                 }
-            }, url="/")
+            })
         
         else:
             # Ошибки валидации
             return inertia_render(request, "Auth", props={
                 "form": {
-                    "data": request.POST.dict(),
+                    "data": {
+                        "username": request.POST.get("username", ""),
+                        "password": ""
+                        },
                     "errors": form.errors
                 }
-            }, url="/auth")
+            })
 
 
 # добавил миксин UserAuthenticationCheckMixin
