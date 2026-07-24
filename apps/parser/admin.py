@@ -1,6 +1,7 @@
 from django.contrib import admin
-from apps.parser.models import TelegramChannel, ChannelStats, ChannelModerator
+from apps.parser.models import TelegramChannel, ChannelStats, ChannelModerator, Post
 from guardian.admin import GuardedModelAdminMixin
+from apps.parser.serializers import PostSerializer
 
 
 @admin.register(TelegramChannel)
@@ -73,7 +74,21 @@ class ChannelModeratorAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
     
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('user', 'channel')
+    
 
+
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
+    list_display = PostSerializer.get_admin_list_display()
+    list_filter = PostSerializer.get_admin_list_filter()
+    search_fields = PostSerializer.get_admin_search_fields()
+
+    def text_preview(self, obj):
+        return obj.text[:50] + '...' if len(obj.text) > 50 else obj.text
+    text_preview.short_description = 'Текст'
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('channel').prefetch_related('reactions')
 
 # Добавляем inline для модераторов в админку каналов
 TelegramChannelAdmin.inlines = [ChannelModeratorInline]
