@@ -6,26 +6,59 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('group_channels', '0002_alter_group_image_url'),
+        ("group_channels", "0002_alter_group_image_url"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SavedCollection',
+            name="SavedCollection",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Создано')),
-                ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='saves', to='group_channels.group', verbose_name='Подборка')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='saved_collections', to=settings.AUTH_USER_MODEL, verbose_name='Пользователь')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Создано"
+                    ),
+                ),
+                (
+                    "group",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="saves",
+                        to="group_channels.group",
+                        verbose_name="Подборка",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="saved_collections",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Пользователь",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Сохраненная подборка',
-                'verbose_name_plural': 'Сохраненные подборки',
-                'db_table': 'saved_collections',
-                'constraints': [models.UniqueConstraint(fields=('user', 'group'), name='unique_saved_collection_user_group')],
+                "verbose_name": "Сохраненная подборка",
+                "verbose_name_plural": "Сохраненные подборки",
+                "db_table": "saved_collections",
+                "constraints": [
+                    models.UniqueConstraint(
+                        fields=("user", "group"),
+                        name="unique_saved_collection_user_group",
+                    )
+                ],
             },
         ),
     ]
