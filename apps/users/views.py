@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib import auth, messages
 from django.contrib.auth import login
 from django.contrib.auth.tokens import default_token_generator
+from django.db.models import Count
 from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -87,7 +88,9 @@ class LoginView(View):
 class UserProfileView(UserAuthenticationCheckMixin, View):
     def get(self, request, *args, **kwargs):
         user = request.user
-        groups = user.owned_groups.all()
+        groups = user.owned_groups.annotate(
+            annotated_saves_count=Count("saves"),
+        )
 
         user_data = {
             "id": request.user.id,

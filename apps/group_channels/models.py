@@ -70,6 +70,9 @@ class Group(models.Model):
 
     @property
     def saves_count(self):
+        if hasattr(self, "annotated_saves_count"):
+            return self.annotated_saves_count
+
         return self.saves.count()
 
     def get_data(self):

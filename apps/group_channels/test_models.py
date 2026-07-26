@@ -1,3 +1,4 @@
+from django.db import IntegrityError, transaction
 from django.test import TestCase
 
 from apps.group_channels.models import Group, SavedCollection
@@ -26,3 +27,16 @@ class SavedCollectionTest(TestCase):
         self.assertEqual(self.group.saves_count, 1)
         self.assertEqual(self.group.saves.first(), save)
         self.assertEqual(self.user.saved_collections.first(), save)
+
+    def test_cant_save_group_twice(self):
+        SavedCollection.objects.create(
+            user=self.user,
+            group=self.group,
+        )
+
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                SavedCollection.objects.create(
+                    user=self.user,
+                    group=self.group,
+                )
