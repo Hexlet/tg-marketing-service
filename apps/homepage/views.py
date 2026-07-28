@@ -1,4 +1,3 @@
-from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.views import View
 from inertia import render as inertia_render
@@ -9,9 +8,9 @@ from .services.dashboard_service import DashboardService
 class DashboardView(View):
     """
     Inertia view для дашборда авторизованного пользователя.
-    
+
     Пример Inertia payload для фронтенда:
-    
+
     {
         "component": "Dashboard",
         "props": {
@@ -41,12 +40,14 @@ class DashboardView(View):
             ],
             "ai_insights": [
                 {
-                    "text": "Тренд: посты о новых ИИ инструментах набирают +45% просмотров",
+                    "text": "Тренд: посты о новых ИИ инструментах "
+                            "набирают +45% просмотров",
                     "type": "trend",
                     "id": 1
                 },
                 {
-                    "text": "Канал «Tech News RU» растёт (+156 подписчиков за день)",
+                    "text": "Канал «Tech News RU» растёт "
+                            "(+156 подписчиков за день)",
                     "type": "positive",
                     "id": null
                 }
@@ -71,12 +72,11 @@ class DashboardView(View):
                 "Добавить канал",
                 "Экспорт данных",
                 "Настройки"
-            ],
-            "csrfToken": "abc123xyz456..."
+            ]
         },
         "url": "/dashboard/"
     }
-    
+
     Примечания:
     - channels ограничены первыми 5 каналами для производительности
     - ai_insights: до 5 непрочитанных из БД или сгенерированных fallback
@@ -85,19 +85,16 @@ class DashboardView(View):
     - days_left: 0 для неактивной подписки, иначе 30 (пример)
     - is_auto: признак автоматической/ручной коллекции
     """
-    
+
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return redirect('main_index')
-        
+            return redirect("main_index")
+
         service = DashboardService(request.user)
         dto = service.build()
-        
+
         return inertia_render(
             request,
-            'Dashboard',
-            props={
-                **dto.model_dump(mode="json"),
-                "csrfToken": get_token(request),
-            }
+            "Dashboard",
+            props={**dto.model_dump(mode="json")},
         )

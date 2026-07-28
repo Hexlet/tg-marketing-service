@@ -1,109 +1,211 @@
-# PriceAggregator 1.0
+# Telegram Marketing Service
 
-## Описание
+**SPA-веб-приложение** для сбора, сравнения и анализа Telegram-каналов: парсит каналы, копит статистику (подписчики, просмотры, динамика роста), объединяет их в тематические подборки и даёт пользователям аналитику и AI-инсайты.
 
-SPA веб-приложение. Единый портал для сравнения цен для сегментов B2C.
+> Проект в активной разработке. Фронтенд (React SPA) интегрирован с Django через Inertia.js.
 
-- [Хостинг](Ссылка) пока нет.
-- [Сваггер](Ссылка) пока нет.
+## Дизайн
 
-## Фронтенд-стэк
+Макеты и спецификация продукта (**tgpulse**) — в [`docs/design/`](docs/design/README.md): интерактивный hi-fi прототип всех экранов, спека с дизайн-токенами и маппингом на **Mantine**, карта «экран → майлстоун». Это источник истины для фронтенд-задач.
 
-- Typescript
-- React 19
-- Redux Toolkit: упраление состоянием
-- React Router: клиентский роутинг
-- React Hook Form: формы
-- Vite
-- shadcn/ui с Tailwind СSS
-- см. другие зависимости в [`package.json`](package.json)
+## Ссылки
 
-## Бэкенд-стек
+- Хостинг — _скоро_.
+- Swagger / API-документация — _скоро_.
 
-- Python
-- Django
-- PostgreSQL
-- Docker 
-- GitHub Actions
-- см. другие зависимости в [`package.json`](package.json)
+## Стек
+
+### Фронтенд
+
+- **TypeScript**
+- **React 19**
+- **Mantine** — библиотека UI-компонентов и хуков (`@mantine/core`, `@mantine/hooks`)
+- **Redux Toolkit** — управление состоянием
+- **React Router** — клиентский роутинг
+- **React Hook Form** — работа с формами
+- **Vite** — сборка и dev-сервер
+- Остальные зависимости — в [`frontend/package.json`](frontend/package.json)
+
+### Бэкенд
+
+- **Python 3.12**, менеджер зависимостей **uv**
+- **Django 5.2**
+- **PostgreSQL** (в проде) / **SQLite** (локально) — через `dj-database-url`
+- **Celery + Redis** — фоновые задачи и планировщик (Celery Beat), мониторинг через **Flower**
+- **Telethon** — парсинг Telegram
+- **django-allauth** — аутентификация, вход через Яндекс OAuth
+- **django-guardian** — ролевая модель и права доступа (см. [`docs/rbac.md`](docs/rbac.md))
+- **Inertia.js** (`inertia-django`) + **django-vite** — связка Django ↔ React SPA
+- **Gunicorn** — прод-сервер
+- Остальные зависимости — в [`pyproject.toml`](pyproject.toml)
+
+### Инфраструктура
+
+- **Docker** — контейнеризация
+- **GitHub Actions** — CI (тесты)
+- **pytest** + **pytest-django** — тесты
+- **Ruff** — линтер
+
+## Возможности
+
+- Парсинг Telegram-каналов через Telethon: название, описание, число подписчиков, закреплённые и последние сообщения, средние просмотры.
+- Хранение истории статистики каналов и расчёт дневного прироста подписчиков.
+- Тематические подборки каналов (`Group`), включая редакторские и автоподборки по категориям.
+- Ролевая модель: `guest`, `user`, `partner`, `channel_moderator` (подробнее — [`docs/rbac.md`](docs/rbac.md)).
+- Партнёрская программа: профиль партнёра, баланс, партнёрский код.
+- AI-инсайты по каналам (тренды, рекомендации, предупреждения).
+
+## Структура проекта
+
+```
+.
+├── apps/
+│   ├── users/           # пользователи, роли, партнёрские профили
+│   ├── parser/          # Telegram-каналы, парсинг, статистика, AI-инсайты
+│   ├── group_channels/  # подборки каналов
+│   └── homepage/        # главная страница, дашборд
+├── config/              # настройки Django, Celery, URL-маршруты
+├── frontend/            # React + Mantine SPA
+├── templates/           # серверные шаблоны Django
+└── manage.py
+```
 
 ## Локальная установка
-Для запуска приложения на локальном сервере необходима настройка Django, Telegram.  
-Для полноценной работы приложения на локальном сервере необходима настройка Redis, Celery (запускаются в отдельном терминале).
 
-### Telegram
-Настройка Telegram нужна для парсинга данных.
-1. Авторизуйтесь на [My Telegram](https://my.telegram.org/apps) с помощью номера телефона вашего Telegram аккаунта.
-#### CLI
-1.1. Запустите команду заполнения `TELEGRAM_SESSION_STRING`
+Для полноценной работы нужны настроенные Django и Telegram. Фоновые задачи требуют Redis и Celery (запускаются в отдельных терминалах).
+
+### 0. Зависимости и окружение
+
+```sh
+make install   # uv sync
+```
+
+Скопируйте [`.env.example`](.env.example) в `.env` и заполните значения.
+
+### 1. Telegram
+
+Настройка Telegram нужна только для парсинга данных; запуск проекта и тестов работает без неё.
+
+1. Авторизуйтесь на [my.telegram.org/apps](https://my.telegram.org/apps) по номеру телефона вашего Telegram-аккаунта.
+2. Откройте **API development tools**, заполните поля **App configuration** (если уже заполнены — не меняйте) и сохраните настройки.
+3. В `.env` пропишите `TELEGRAM_API_ID` (= App api_id), `TELEGRAM_API_HASH` (= App api_hash) и `PHONE`.
+4. Сгенерируйте / обновите строку сессии:
+
    ```sh
-   make s
-   ```
-1.2. Передайте в команде параметры "API_ID", "API_HASH", "PHONE" для первой настройки клиента Telegram. Также передайте StringSession для запуска уже сохраненной версии клиента Telegram. 
-#### .env
-2.1. В `.env` присвойте переменной "PHONE".  
-2.2. Перейдите на [API development tools](https://my.telegram.org/apps).  
-2.3. Заполните поля "App configuration". Если поля уже заполнены, не меняйте их.  
-2.4. Сохраните настройки.  
-2.5. В `.env` присвойте переменной "TELEGRAM_API_ID" значение "App api_id", "TELEGRAM_API_HASH" значение "App api_hash".  
-2.6. Если не выполняли п. 1.1, тогда запустите команду 
-   ```sh
-   make s
-   ```
-
-
-### Бэкенд (запуск через Make)
-
-1. Примените миграции базы данных:
-   ```sh
-   make migrate
+   make s   # uv run python manage.py start_telegram_session
    ```
 
-2. Соберите статические файлы (требуется только для продакшена):
-   ```sh
-   make collectstatic
-   ```
+   Команде можно передать параметры `API_ID`, `API_HASH`, `PHONE` для первичной настройки клиента, а также готовую `StringSession` для запуска уже сохранённой сессии.
 
-3. Запустите dev сервер Django (требуется только для разработки):
-   ```sh
-   make dev
-   ```
-   По умолчанию сервер доступен на http://127.0.0.1:8000. Порт задаётся переменной PORT в [`Makefile`](Makefile).
+### 2. Бэкенд (через Make)
 
-4. Запустите prod-сервер на Gunicorn (требуется только для продакшена):
-   ```sh
-   make prod-run
-   ```
-   Можно указать порт: `make prod-run PORT=8080`. См. настройки в [`config/settings.py`](config/settings.py).
+```sh
+make migrate         # применить миграции БД
+make dev             # dev-сервер Django → http://127.0.0.1:8000
+```
 
-### Фоновые задачи (Redis + Celery). Запускаются в отдельном терминале.
+Для продакшена:
 
-1. Запустите Redis:
-   ```sh
-   make redis
-   ```
+```sh
+make collectstatic          # собрать статические файлы
+make prod-run               # Gunicorn; порт: make prod-run PORT=8080
+```
 
-2. Запустите Celery worker:
-   ```sh
-   make celery
-   ```
+Порт dev-сервера задаётся переменной `PORT` в [`Makefile`](Makefile). Настройки — в [`config/settings.py`](config/settings.py).
 
-3. Запустите планировщик задач Celery Beat:
-   ```sh
-   make celery-beat
-   ```
-   Плановые задачи настраиваются в [`config/settings.py`](config/settings.py) (CELERY_BEAT_SCHEDULE).
+### 3. Фоновые задачи (Redis + Celery)
 
-4. Откройте мониторинг задач (Flower) (используется только для разработки):
-   ```sh
-   make flower
-   ```
+Каждую команду запускайте в отдельном терминале:
 
+```sh
+make redis          # Redis
+make celery         # Celery worker
+make celery-beat    # планировщик задач (Celery Beat)
+make flower         # мониторинг задач (только для разработки)
+```
 
-### Утилиты
+Расписание задач — в `CELERY_BEAT_SCHEDULE` ([`config/settings.py`](config/settings.py)). По умолчанию все каналы парсятся по расписанию раз в день.
 
-1. Сгенерируйте/обновите Telegram сессию через management команду (запускает uv run python manage.py set_telegram_session):
-   ```sh
-   make s
-   ```
-   .
+### 4. Фронтенд
+
+См. [`frontend/README.md`](frontend/README.md).
+
+### 5. Режимы работы django-vite
+
+Фронтенд запускается в одном из двух режимов. Переключение контролируется
+переменной `DEBUG` в `.env`: `django-vite` использует `dev_mode = DEBUG`
+([`config/settings.py`](config/settings.py)).
+
+#### Dev-режим (HMR)
+
+В development ассеты отдаются Vite dev-сервером, поэтому изменения во фронтенде
+видны мгновенно.
+
+Требования: `DEBUG=True` в `.env`.
+
+Запустите в двух терминалах:
+
+```sh
+# терминал 1 — Django
+make dev
+# → http://127.0.0.1:8000
+```
+
+```sh
+# терминал 2 — Vite dev-сервер
+cd frontend
+npm run dev
+# → http://localhost:5173
+```
+
+В этом режиме `django-vite` проксирует запросы к ассетам на `localhost:5173`.
+В шаблоне [`templates/base.html`](templates/base.html) используются теги
+`{% vite_hmr_client %}`, `{% vite_react_refresh %}` и
+`{% vite_asset 'src/main.tsx' %}`.
+
+#### Prod-режим (собранные ассеты с хешами)
+
+В production Django самостоятельно отдаёт собранные статические файлы по
+манифесту Vite.
+
+Требования: `DEBUG=False` (или `DEBUG` не задана) и собранный фронтенд.
+
+```sh
+cd frontend
+npm run build
+
+cd ..
+make collectstatic
+make prod-run
+```
+
+`django-vite` читает `manifest.json` и резолвит ассеты с хешами в именах файлов.
+Пути сборки Vite (`build.outDir`) и `manifest_path` / `STATICFILES_DIRS` должны
+быть согласованы отдельно при финальной настройке фронтенда. Текущие значения
+в [`config/settings.py`](config/settings.py):
+
+- `STATICFILES_DIRS = [BASE_DIR / "frontend" / "static"]`
+- `manifest_path = STATIC_ROOT / "manifest.json"`
+
+## Тесты и линтер
+
+```sh
+make test       # pytest
+make lint       # ruff
+make lint-fix   # ruff check --fix
+```
+
+## Полезные команды Make
+
+| Команда | Действие |
+|---------|----------|
+| `make install` | Установка зависимостей (`uv sync`) |
+| `make migrate` | Миграции БД |
+| `make dev` | Dev-сервер Django |
+| `make prod-run` | Прод-сервер (Gunicorn) |
+| `make collectstatic` | Сбор статических файлов |
+| `make s` | Генерация Telegram-сессии |
+| `make redis` / `make celery` / `make celery-beat` / `make flower` | Фоновые задачи |
+| `make test` / `make lint` / `make lint-fix` | Тесты и линтер |
+
+ 
