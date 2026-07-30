@@ -35,7 +35,7 @@ s:
 	uv run python manage.py start_telegram_session
 
 test:
-	python3 -m pytest --tb=short -q
+	uv run pytest --tb=short -q
 
 install:
 	uv sync
