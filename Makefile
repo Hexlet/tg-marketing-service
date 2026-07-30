@@ -14,7 +14,7 @@ prod-run:
 	uv run gunicorn -b 0.0.0.0:$(PORT) config.wsgi
 
 lint:
-	uv run ruff
+	uv run ruff check
 
 lint-fix:
 	uv run ruff check --fix
@@ -35,7 +35,7 @@ s:
 	uv run python manage.py start_telegram_session
 
 test:
-	python3 -m pytest --tb=short -q
+	uv run pytest --tb=short -q
 
 install:
 	uv sync

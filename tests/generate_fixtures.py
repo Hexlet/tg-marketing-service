@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Tuple
 # Avoid importing Django app modules
 # (which may require settings/db) just to get constants.
 # Use project defaults, falling back safely if not importable.
-from apps.users.models import BIO_MAXLENGTH, ROLE_MAXLENGTH
+from apps.users.constants import BIO_MAXLENGTH, ROLE_MAXLENGTH
 from tests.data_generator import NUM_OF_FIXTURES, DataGenerator
 
 logger = logging.getLogger(__name__)

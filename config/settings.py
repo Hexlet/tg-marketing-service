@@ -29,6 +29,13 @@ TELEGRAM_API_ID: str | None = os.getenv("TELEGRAM_API_ID")
 TELEGRAM_API_HASH: str | None = os.getenv("TELEGRAM_API_HASH")
 TELEGRAM_SESSION_STRING: str | None = os.getenv("TELEGRAM_SESSION_STRING")
 
+# AI settings
+AI_API_KEY: str | None = os.getenv("AI_API_KEY")
+AI_MODEL: str | None = os.getenv("AI_MODEL", "claude-sonnet-5")
+AI_ENABLED: bool | None = env_bool("AI_ENABLED", default=True)
+AI_TIMEOUT_SECONDS: int | None = int(os.getenv("AI_TIMEOUT_SECONDS", 30))
+AI_MAX_TOKENS: int | None = int(os.getenv("AI_MAX_TOKENS", 1024))
+
 # Celery settings
 CELERY_BROKER_URL = "redis://localhost:6379/0"  # Redis like messages brocker
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"  # tasks results
@@ -66,6 +73,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_vite",
     "guardian",
     "inertia",
     "widget_tweaks",
@@ -80,6 +88,7 @@ INSTALLED_APPS = [
     "apps.group_channels",
     "apps.parser",
     "apps.homepage",
+    "apps.ai",
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -109,6 +118,7 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     "inertia.middleware.InertiaMiddleware",
     "apps.users.middleware.RoleMiddleware",
+    "config.middleware.SharedInertiaPropsMiddleware",
 ]
 
 
@@ -171,9 +181,10 @@ if os.getenv("PROD") == "t":
         }
     }
 else:
+    database_url = os.getenv("DATABASE_URL", "") or "sqlite:///db.sqlite3"
     DATABASES = {
-        "default": dj_database_url.config(
-            default=os.getenv("DATABASE_URL", "sqlite:///db.sqlite3"),
+        "default": dj_database_url.parse(
+            url=database_url,
             conn_max_age=600,
         )
     }
@@ -214,10 +225,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_DIRS = [str(BASE_DIR / "frontend" / "static")]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -241,11 +250,15 @@ INERTIA_LAYOUT = "base.html"
 CSRF_HEADER_NAME = "HTTP_X_XSRF_TOKEN"
 CSRF_COOKIE_NAME = "XSRF-TOKEN"
 
-# При переходе на инерцию раскоментировать
-# STATICFILES_DIRS = [
-#    BASE_DIR / "frontend" / "public",
-# ]
+# Django Vite settings
 
+DJANGO_VITE = {
+    "default": {
+        "dev_mode": DEBUG,
+        "dev_server_port": 5173,
+        "manifest_path": os.path.join(STATIC_ROOT, "manifest.json"),
+    }
+}
 
 LOGGING = {
     "version": 1,

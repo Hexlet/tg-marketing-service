@@ -3,19 +3,21 @@ from typing import Any
 
 from asgiref.sync import async_to_sync
 from django.contrib import messages
-from django.http import HttpRequest, HttpResponse
+from django.db.models import Q
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import DetailView, FormView, ListView
-from inertia import render as inertia_render
+from django.views.generic import DetailView, FormView, ListView, View
 from telethon import TelegramClient
 from telethon.sessions import StringSession
 
+from apps.parser.dto.channel_dto import ChannelDTO, ChannelListDTO
 from apps.parser.forms import ChannelParseForm
 from apps.parser.models import ChannelStats, TelegramChannel
 from apps.parser.parser import tg_parser
 from apps.parser.utils import get_telegram_credentials
 from config.mixins import UserAuthenticationCheckMixin
+from config.renderers import render_inertia_from_dto
 
 log = logging.getLogger(__name__)
 
@@ -153,7 +155,6 @@ class ParserView(UserAuthenticationCheckMixin, FormView):
 
 class ParserListView(ListView):
     model = TelegramChannel
-    token = "TEMP_TOKEN"
 
     def get(
         self,
@@ -163,13 +164,13 @@ class ParserListView(ListView):
     ) -> HttpResponse:
         channels = self.get_queryset()
 
-        return inertia_render(
+        channel_dtos = [ChannelDTO(**c.get_data()) for c in channels]
+        dto = ChannelListDTO(channels=channel_dtos)
+
+        return render_inertia_from_dto(
             request,
             "ChannelAnalytics",
-            props={
-                "channels": channels,
-                "csrfToken": self.token,
-            },
+            props=dto,
         )
 
 
@@ -177,6 +178,59 @@ class ParserDetailView(DetailView):
     model = TelegramChannel
     template_name = "parser/channel_detail.html"
     context_object_name = "channel"
+
+
+class ChannelLookupView(View):
+    """
+    API endpoint для поиска каналов
+
+    GET /parser/lookup/?q=<query>
+
+    Параметры:
+    - q (str): поисковая строка по title или username
+
+    Возвращает JSON:
+    [
+        {
+            "id": 123456789,
+            "title": "Channel Name",
+            "username": "channelname",
+            "participants_count": 5000,
+            "category": "news"
+        }
+    ]
+
+    - Пустой q / Нет совпадений - возвращает []
+    - Максимум 10 результатов
+    """
+
+    def get(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> JsonResponse:
+        q = request.GET.get("q", "").strip()
+
+        if not q:
+            return JsonResponse([], safe=False)
+
+        channels = TelegramChannel.objects.filter(
+            Q(title__icontains=q) | Q(username__icontains=q)
+        ).order_by("-participants_count")[:10]
+
+        result = list(
+            channels.values(
+                "id",
+                "title",
+                "username",
+                "participants_count",
+                "category",
+            )
+        )
+
+        # Временно заглушка, пока в модели TelegramChannel нету аватарки
+        for item in result:
+            item["avatar"] = None
+
+        return JsonResponse(result, safe=False)
 
 
 # Create your views here.

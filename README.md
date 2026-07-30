@@ -130,6 +130,63 @@ make flower         # мониторинг задач (только для ра�
 
 См. [`frontend/README.md`](frontend/README.md).
 
+### 5. Режимы работы django-vite
+
+Фронтенд запускается в одном из двух режимов. Переключение контролируется
+переменной `DEBUG` в `.env`: `django-vite` использует `dev_mode = DEBUG`
+([`config/settings.py`](config/settings.py)).
+
+#### Dev-режим (HMR)
+
+В development ассеты отдаются Vite dev-сервером, поэтому изменения во фронтенде
+видны мгновенно.
+
+Требования: `DEBUG=True` в `.env`.
+
+Запустите в двух терминалах:
+
+```sh
+# терминал 1 — Django
+make dev
+# → http://127.0.0.1:8000
+```
+
+```sh
+# терминал 2 — Vite dev-сервер
+cd frontend
+npm run dev
+# → http://localhost:5173
+```
+
+В этом режиме `django-vite` проксирует запросы к ассетам на `localhost:5173`.
+В шаблоне [`templates/base.html`](templates/base.html) используются теги
+`{% vite_hmr_client %}`, `{% vite_react_refresh %}` и
+`{% vite_asset 'src/main.tsx' %}`.
+
+#### Prod-режим (собранные ассеты с хешами)
+
+В production Django самостоятельно отдаёт собранные статические файлы по
+манифесту Vite.
+
+Требования: `DEBUG=False` (или `DEBUG` не задана) и собранный фронтенд.
+
+```sh
+cd frontend
+npm run build
+
+cd ..
+make collectstatic
+make prod-run
+```
+
+`django-vite` читает `manifest.json` и резолвит ассеты с хешами в именах файлов.
+Пути сборки Vite (`build.outDir`) и `manifest_path` / `STATICFILES_DIRS` должны
+быть согласованы отдельно при финальной настройке фронтенда. Текущие значения
+в [`config/settings.py`](config/settings.py):
+
+- `STATICFILES_DIRS = [BASE_DIR / "frontend" / "static"]`
+- `manifest_path = STATIC_ROOT / "manifest.json"`
+
 ## Тесты и линтер
 
 ```sh
@@ -150,3 +207,5 @@ make lint-fix   # ruff check --fix
 | `make s` | Генерация Telegram-сессии |
 | `make redis` / `make celery` / `make celery-beat` / `make flower` | Фоновые задачи |
 | `make test` / `make lint` / `make lint-fix` | Тесты и линтер |
+
+ 
