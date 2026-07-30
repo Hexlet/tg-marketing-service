@@ -251,9 +251,9 @@ class UserRegister(View):
                 user.avatar_image = DEFAULT_AVATAR_URL
             user.save()
 
-            request.session["flash_success"] = (
-                "Пользователь успешно зарегистрирован"
-            )
+            request.session["flash"] = {
+                "success": "Пользователь успешно зарегистрирован"
+            }
             login(
                 request,
                 user,
