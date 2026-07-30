@@ -44,6 +44,7 @@ class UserRegForm(UserCreationForm):
         fields = (
             "first_name",
             "last_name",
+            "username",
             "password1",
             "password2",
             "email",
@@ -63,6 +64,16 @@ class UserRegForm(UserCreationForm):
         label="Фамилия",
         widget=forms.TextInput(
             attrs={"class": "form-control", "placeholder": "Фамилия"}
+        ),
+    )
+    username = forms.CharField(
+        required=False,
+        label="Имя пользователя",
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Имя пользователя",
+            }
         ),
     )
     password1 = forms.CharField(
@@ -137,7 +148,10 @@ class UserRegForm(UserCreationForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.username = self._generate_username()
+        user.username = (
+            self.cleaned_data.get("username", "").strip()
+            or self._generate_username()
+        )
         if commit:
             user.save()
             self.save_m2m()
