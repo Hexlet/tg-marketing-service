@@ -8,15 +8,16 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import DetailView, FormView, ListView, View
-from inertia import render as inertia_render
 from telethon import TelegramClient
 from telethon.sessions import StringSession
 
+from apps.parser.dto.channel_dto import ChannelDTO, ChannelListDTO
 from apps.parser.forms import ChannelParseForm
 from apps.parser.models import ChannelStats, TelegramChannel
 from apps.parser.parser import tg_parser
 from apps.parser.utils import get_telegram_credentials
 from config.mixins import UserAuthenticationCheckMixin
+from config.renderers import render_inertia_from_dto
 
 log = logging.getLogger(__name__)
 
@@ -163,10 +164,13 @@ class ParserListView(ListView):
     ) -> HttpResponse:
         channels = self.get_queryset()
 
-        return inertia_render(
+        channel_dtos = [ChannelDTO(**c.get_data()) for c in channels]
+        dto = ChannelListDTO(channels=channel_dtos)
+
+        return render_inertia_from_dto(
             request,
             "ChannelAnalytics",
-            props={"channels": channels},
+            props=dto,
         )
 
 
