@@ -261,7 +261,6 @@ class UserRegister(View):
             )
             return redirect(reverse("homepage:dashboard"))
 
- main
         return inertia_render(
             request,
             "FormRegistration",
