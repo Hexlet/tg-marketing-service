@@ -39,6 +39,7 @@ python_files = "test_*.py"
 
 [dependency-groups]
 dev = [
+    "pre-commit>=4.6.1",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "pytest-django>=4.12.0",

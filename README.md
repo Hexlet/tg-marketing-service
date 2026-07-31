@@ -195,6 +195,16 @@ make lint       # ruff
 make lint-fix   # ruff check --fix
 ```
 
+### Pre-commit
+
+Pre-commit автоматически проверяет код перед каждым коммитом (ruff lint + format). Установите hooks один раз:
+
+```sh
+uv run pre-commit install
+```
+
+Подробнее об использовании и обходе ошибок — в [`PRE-COMMIT.md`](PRE-COMMIT.md).
+
 ## Полезные команды Make
 
 | Команда | Действие |
@@ -207,5 +217,3 @@ make lint-fix   # ruff check --fix
 | `make s` | Генерация Telegram-сессии |
 | `make redis` / `make celery` / `make celery-beat` / `make flower` | Фоновые задачи |
 | `make test` / `make lint` / `make lint-fix` | Тесты и линтер |
-
- 
