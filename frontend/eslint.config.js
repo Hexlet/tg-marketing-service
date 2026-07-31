@@ -22,7 +22,7 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       "@typescript-eslint/no-unused-vars": [
         "error",
-        { 
+        {
           "varsIgnorePattern": "^Routes$",
           "argsIgnorePattern": "^_"
         }

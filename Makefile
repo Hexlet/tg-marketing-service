@@ -1,6 +1,6 @@
 PORT ?= 8000
 
-migrate:	
+migrate:
 	uv run python manage.py makemigrations
 	uv run python manage.py migrate
 
