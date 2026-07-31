@@ -16,7 +16,9 @@ from telethon.tl.functions.channels import GetFullChannelRequest
 log = logging.getLogger(__name__)
 
 
-async def tg_parser(url: str, client: TelegramClient, limit: int = 10) -> dict:
+async def tg_parser(
+    url: str | None, client: TelegramClient, limit: int = 10
+) -> dict:
     """
     Telegram channel parser function. Retrieves channel data including:
     name, ID, description, subscriber count, pinned message, and recent posts.

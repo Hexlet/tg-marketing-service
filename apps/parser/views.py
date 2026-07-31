@@ -226,10 +226,6 @@ class ChannelLookupView(View):
             )
         )
 
-        # Временно заглушка, пока в модели TelegramChannel нету аватарки
-        for item in result:
-            item["avatar"] = None
-
         return JsonResponse(result, safe=False)
 
 

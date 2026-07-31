@@ -39,8 +39,46 @@ python_files = "test_*.py"
 
 [dependency-groups]
 dev = [
+    "celery-stubs>=0.1.3",
+    "django-stubs>=6.0.7",
+    "mypy>=2.3.0",
     "pre-commit>=4.6.1",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "pytest-django>=4.12.0",
 ]
+
+[tool.mypy]
+python_version = "3.12"
+
+plugins = ["mypy_django_plugin.main"]
+
+check_untyped_defs = false
+disallow_untyped_defs = false
+disallow_untyped_calls = true
+
+no_implicit_optional = true
+
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+
+show_error_codes = true
+
+exclude = [
+    ".*/migrations/.*",
+    "(^|/)tests?/",
+    "manage\\.py$",
+]
+
+[[tool.mypy.overrides]]
+module = [
+    "telethon.*",
+    "allauth.*",
+    "inertia.*",
+]
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings"
+strict_settings = false
