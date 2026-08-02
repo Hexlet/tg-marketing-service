@@ -5,60 +5,160 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('parser', '0002_aiinsight'),
+        ("parser", "0002_aiinsight"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Post',
+            name="Post",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('telegram_message_id', models.BigIntegerField(verbose_name='ID Телеграм сообщения')),
-                ('text', models.TextField(verbose_name='Текст поста')),
-                ('published_at', models.DateTimeField(db_index=True, verbose_name='Время публикации поста')),
-                ('views', models.PositiveIntegerField(db_index=True, default=0, verbose_name='Количество просмотров')),
-                ('forwards', models.PositiveIntegerField(default=0, verbose_name='Количество пересылок')),
-                ('comments_count', models.PositiveIntegerField(default=0, verbose_name='Количество комментариев')),
-                ('reposts', models.PositiveIntegerField(default=0, verbose_name='Количество репостов')),
-                ('is_pinned', models.BooleanField(default=False, verbose_name='Закреплённый пост')),
-                ('media_type', models.CharField(choices=[('photo', 'Photo'), ('video', 'Video'), ('document', 'Document'), ('sticker', 'Sticker'), ('none', 'No media')], default='none', max_length=20, verbose_name='Тип медиа')),
-                ('permalink', models.URLField(blank=True, null=True, verbose_name='Ссылка на пост')),
-                ('channel', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='posts', to='parser.telegramchannel', verbose_name='Канал')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "telegram_message_id",
+                    models.BigIntegerField(
+                        verbose_name="ID Телеграм сообщения"
+                    ),
+                ),
+                ("text", models.TextField(verbose_name="Текст поста")),
+                (
+                    "published_at",
+                    models.DateTimeField(
+                        db_index=True, verbose_name="Время публикации поста"
+                    ),
+                ),
+                (
+                    "views",
+                    models.PositiveIntegerField(
+                        db_index=True,
+                        default=0,
+                        verbose_name="Количество просмотров",
+                    ),
+                ),
+                (
+                    "forwards",
+                    models.PositiveIntegerField(
+                        default=0, verbose_name="Количество пересылок"
+                    ),
+                ),
+                (
+                    "comments_count",
+                    models.PositiveIntegerField(
+                        default=0, verbose_name="Количество комментариев"
+                    ),
+                ),
+                (
+                    "reposts",
+                    models.PositiveIntegerField(
+                        default=0, verbose_name="Количество репостов"
+                    ),
+                ),
+                (
+                    "is_pinned",
+                    models.BooleanField(
+                        default=False, verbose_name="Закреплённый пост"
+                    ),
+                ),
+                (
+                    "media_type",
+                    models.CharField(
+                        choices=[
+                            ("photo", "Photo"),
+                            ("video", "Video"),
+                            ("document", "Document"),
+                            ("sticker", "Sticker"),
+                            ("none", "No media"),
+                        ],
+                        default="none",
+                        max_length=20,
+                        verbose_name="Тип медиа",
+                    ),
+                ),
+                (
+                    "permalink",
+                    models.URLField(
+                        blank=True, null=True, verbose_name="Ссылка на пост"
+                    ),
+                ),
+                (
+                    "channel",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="posts",
+                        to="parser.telegramchannel",
+                        verbose_name="Канал",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Пост',
-                'verbose_name_plural': 'Посты',
+                "verbose_name": "Пост",
+                "verbose_name_plural": "Посты",
             },
         ),
         migrations.CreateModel(
-            name='PostReaction',
+            name="PostReaction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('emoji', models.CharField(max_length=10, verbose_name='Эмоджи')),
-                ('count', models.PositiveIntegerField(default=1, verbose_name='Количество реакций')),
-                ('post', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reactions', to='parser.post', verbose_name='Пост')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "emoji",
+                    models.CharField(max_length=10, verbose_name="Эмоджи"),
+                ),
+                (
+                    "count",
+                    models.PositiveIntegerField(
+                        default=1, verbose_name="Количество реакций"
+                    ),
+                ),
+                (
+                    "post",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reactions",
+                        to="parser.post",
+                        verbose_name="Пост",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Реакция на пост',
-                'verbose_name_plural': 'Реакции на пост',
+                "verbose_name": "Реакция на пост",
+                "verbose_name_plural": "Реакции на пост",
             },
         ),
         migrations.AddIndex(
-            model_name='post',
-            index=models.Index(fields=['channel', '-published_at'], name='parser_post_channel_403fad_idx'),
+            model_name="post",
+            index=models.Index(
+                fields=["channel", "-published_at"],
+                name="parser_post_channel_403fad_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='post',
-            index=models.Index(fields=['views'], name='parser_post_views_836294_idx'),
+            model_name="post",
+            index=models.Index(
+                fields=["views"], name="parser_post_views_836294_idx"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='post',
-            unique_together={('channel', 'telegram_message_id')},
+            name="post",
+            unique_together={("channel", "telegram_message_id")},
         ),
         migrations.AlterUniqueTogether(
-            name='postreaction',
-            unique_together={('post', 'emoji')},
+            name="postreaction",
+            unique_together={("post", "emoji")},
         ),
     ]
