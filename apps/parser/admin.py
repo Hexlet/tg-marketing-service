@@ -5,6 +5,7 @@ from apps.parser.models import (
     ChannelModerator,
     ChannelStats,
     Post,
+    PostReaction,
     TelegramChannel,
 )
 from apps.parser.serializers import PostSerializer
@@ -134,11 +135,18 @@ class ChannelModeratorAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
         return super().get_queryset(request).select_related("user", "channel")
 
 
+class PostReactionInline(admin.TabularInline):
+    model = PostReaction
+    extra = 0
+    fields = ["emoji", "count"]
+
+
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = PostSerializer.get_admin_list_display()
     list_filter = PostSerializer.get_admin_list_filter()
     search_fields = PostSerializer.get_admin_search_fields()
+    inlines = [PostReactionInline]
 
     def text_preview(self, obj):
         return obj.text[:50] + "..." if len(obj.text) > 50 else obj.text

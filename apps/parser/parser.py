@@ -20,19 +20,15 @@ log = logging.getLogger(__name__)
 
 async def tg_parser(
     url: str,
-    api_id: int,
-    api_hash: str,
+    client: TelegramClient,  # Теперь принимаем готовый клиент
     limit: int = 10,
-    session_name: str = "parser_session",
 ) -> Dict:
     """Основная функция парсинга Telegram-канала.
 
     Args:
         url: URL канала (например, "https://t.me/example_channel")
-        api_id: ID приложения в Telegram
-        api_hash: Хэш приложения в Telegram
+        client: Уже инициализированный и подключенный TelegramClient
         limit: Количество постов для парсинга
-        session_name: Название сессии (по умолчанию "parser_session")
 
     Returns:
         Dict: Результаты парсинга, включая метаданные канала
@@ -41,18 +37,14 @@ async def tg_parser(
 
     data = {"pinned_messages": []}
 
-    # Инициализация клиента напрямую через TelegramClient
-    client = TelegramClient(
-        session_name,
-        api_id,
-        api_hash,
-        device_model="ParserBot",
-        system_version="Linux",
-    )
+    # передается извне (из tasks.py)
 
     try:
-        await client.start()
-        log.info("Telegram client connected successfully")
+        # Проверяем, подключен ли клиент, если нет — подключаем
+        if not client.is_connected():
+            await client.connect()
+
+        log.info("Telegram client is ready for parsing")
 
         try:
             # Парсинг канала
@@ -97,7 +89,3 @@ async def tg_parser(
     except AuthKeyError:
         log.critical("AUTH SESSION FAILURE — Telegram auth key invalid")
         raise
-
-    finally:
-        await client.disconnect()
-        log.info("Telegram client disconnected")

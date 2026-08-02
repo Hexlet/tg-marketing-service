@@ -12,18 +12,20 @@ class PostSerializer:
 
     @classmethod
     def get_post_data(cls, post: Post) -> dict:
-        """
-        Возвращает словарь с метриками для Inertia
-        """
-        reactions = post.reactions.aggregate(
-            total_reactions=Sum("count"),
-            reaction_details=Sum("count", field="emoji"),
+        reactions = (
+            post.reactions.values("emoji")
+            .annotate(count=Sum("count"))
+            .order_by("-count")
         )
 
-        reaction_details_dict = {
-            reaction["emoji"]: reaction["sum__count"]
-            for reaction in reactions["reaction_details"] or []
-        }
+        reaction_details_dict = {}
+        total_reactions = 0
+
+        for item in reactions:
+            emoji = item["emoji"]
+            count = item["count"]
+            reaction_details_dict[emoji] = count
+            total_reactions += count
 
         return {
             "id": post.id,

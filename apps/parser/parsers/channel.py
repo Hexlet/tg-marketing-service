@@ -46,7 +46,7 @@ class ChannelParser(BaseParser):
             )
             django_channel.description = data["description"]
             django_channel.subscribers_count = data["participants_count"]
-            django_channel.save(
+            await django_channel.asave(
                 update_fields=["description", "subscribers_count"]
             )
 

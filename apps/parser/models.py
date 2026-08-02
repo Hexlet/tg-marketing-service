@@ -207,6 +207,11 @@ class AIInsight(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = "AI инсайт"
+        verbose_name_plural = "AI инсайты"
+        ordering = ["-created_at"]
+
 
 class Post(models.Model):
     """
@@ -246,7 +251,6 @@ class Post(models.Model):
     )
 
     telegram_message_id = models.BigIntegerField(
-        unique=True,
         verbose_name="ID Телеграм сообщения",
     )
 

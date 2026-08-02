@@ -21,7 +21,7 @@ class BaseParser:
         self, channel_entity, data: dict
     ) -> TelegramChannel:
         """Создать/обновить модель TelegramChannel."""
-        channel, created = TelegramChannel.objects.get_or_create(
+        channel, created = await TelegramChannel.objects.aget_or_create(
             telegram_id=channel_entity.id,
             defaults={
                 "title": channel_entity.title,
