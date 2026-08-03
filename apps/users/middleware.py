@@ -26,7 +26,7 @@ class RoleMiddleware:
         # logging-сообщение
         logger.debug(
             "Middleware: Current role of the user is '%s'", request.role
-            )
+        )
 
         response = self.get_response(request)
 
