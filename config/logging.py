@@ -1,6 +1,9 @@
 from pathlib import Path
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
 LOGGING = {
     "version": 1,
@@ -31,14 +34,14 @@ LOGGING = {
     "handlers": {
         # вывод в консоль при DEBUG = True
         "debug_console": {
-            "level": "DEBUG",
+            "level": LOG_LEVEL,
             "filters": ["require_debug_true"],
             "class": "logging.StreamHandler",
             "formatter": "simple",
         },
         # вывод в файл django.log
         "file": {
-            "level": "DEBUG",
+            "level": LOG_LEVEL,
             "class": "logging.handlers.RotatingFileHandler",
             "filename": BASE_DIR / "django.log",
             "maxBytes": 2 * 1024 * 1024,  # 2 MB максимальный размер
@@ -67,7 +70,7 @@ LOGGING = {
         # корневой логгер
         "": {
             "handlers": ["debug_console", "file", "error_file"],
-            "level": "DEBUG",
+            "level": LOG_LEVEL,
         },
         # логгер django
         "django": {
@@ -78,7 +81,7 @@ LOGGING = {
         # логгер приложения
         "myapp": {
             "handlers": ["debug_console", "file", "error_file"],
-            "level": "DEBUG",
+            "level": LOG_LEVEL,
             "propagate": False,
         },
     },

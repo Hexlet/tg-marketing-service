@@ -20,6 +20,8 @@ from apps.users.forms import (
 )
 from apps.users.models import User
 from config.mixins import UserAuthenticationCheckMixin
+from django.views.decorators.debug import sensitive_post_parameters
+from django.utils.decorators import method_decorator
 
 # константа с дефолтной=аватаркой для представления UserRegister
 DEFAULT_AVATAR_URL = f"{settings.STATIC_URL}default_avatar.jpeg"
@@ -35,6 +37,10 @@ class LogoutView(UserAuthenticationCheckMixin, View):
         return redirect(reverse("main_index"))
 
 
+@method_decorator(
+    sensitive_post_parameters("password"),
+    name="post",
+)
 class LoginView(View):
     def get(self, request, *args, **kwargs):
         # возвращаем форму
@@ -203,6 +209,10 @@ class UserCabinetView(UserAuthenticationCheckMixin, View):
         return redirect(reverse("users:user_cabinet"))
 
 
+@method_decorator(
+    sensitive_post_parameters("password1", "password2"),
+    name="post",
+)
 class UserRegister(View):
     """
     Страница регистрации и аутентификации пользователя
@@ -427,6 +437,13 @@ class RestorePasswordRequestView(View):
         )
 
 
+@method_decorator(
+    sensitive_post_parameters(
+        "new_password1",
+        "new_password2",
+    ),
+    name="post",
+)
 class RestorePasswordView(View):
     """
     Метод get возвращает props

@@ -2,6 +2,9 @@ from django.contrib.auth import get_user_model
 
 from apps.users.roles import Role
 
+import logging
+
+logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
@@ -19,9 +22,10 @@ class RoleMiddleware:
 
         # Ставим роль в запрос
         request.role = final_role
-        response = self.get_response(request)
 
-        # !!!!!! Для деплоя эту отдалдку удалить!!!!!!!
-        print(f"Middleware: Current role of the user is '{request.role}'")
+        # logging-сообщение
+        logger.debug("Middleware: Current role of the user is '%s'", request.role)
+
+        response = self.get_response(request)
 
         return response
