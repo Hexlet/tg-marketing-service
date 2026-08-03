@@ -41,7 +41,7 @@ class PostSerializer:
             "media_type": post.media_type,
             "permalink": post.permalink,
             "reactions": {
-                "total": reactions["total_reactions"] or 0,
+                "total": total_reactions,
                 "details": reaction_details_dict,
             },
         }

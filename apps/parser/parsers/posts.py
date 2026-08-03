@@ -52,7 +52,7 @@ class PostsParser:
             # Обновление просмотров (если уже существует)
             if not created and message.views:
                 post.views = max(post.views, message.views)
-                post.save(update_fields=["views"])
+                await post.asave(update_fields=["views"])
 
             # Обработка реакций
             if message.reactions:
