@@ -6,7 +6,9 @@ from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.utils.http import urlsafe_base64_decode
+from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic.base import View
 from inertia import render as inertia_render
 
@@ -20,8 +22,6 @@ from apps.users.forms import (
 )
 from apps.users.models import User
 from config.mixins import UserAuthenticationCheckMixin
-from django.views.decorators.debug import sensitive_post_parameters
-from django.utils.decorators import method_decorator
 
 # константа с дефолтной=аватаркой для представления UserRegister
 DEFAULT_AVATAR_URL = f"{settings.STATIC_URL}default_avatar.jpeg"

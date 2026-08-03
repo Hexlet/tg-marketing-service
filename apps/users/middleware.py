@@ -1,8 +1,8 @@
+import logging
+
 from django.contrib.auth import get_user_model
 
 from apps.users.roles import Role
-
-import logging
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -24,7 +24,9 @@ class RoleMiddleware:
         request.role = final_role
 
         # logging-сообщение
-        logger.debug("Middleware: Current role of the user is '%s'", request.role)
+        logger.debug(
+            "Middleware: Current role of the user is '%s'", request.role
+            )
 
         response = self.get_response(request)
 
