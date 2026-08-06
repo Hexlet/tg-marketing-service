@@ -10,9 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
-from .logging import LOGGING
 import os
+from pathlib import Path
 from celery.schedules import crontab
 from dotenv import load_dotenv
 import dj_database_url
@@ -20,6 +19,8 @@ import dj_database_url
 from .utils import env_bool
 
 load_dotenv()
+
+from .logging import LOGGING
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

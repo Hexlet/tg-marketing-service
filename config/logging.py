@@ -3,7 +3,10 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+
+if os.getenv("PROD") == "t" and LOG_LEVEL == "DEBUG":
+    LOG_LEVEL = "INFO"
 
 LOGGING = {
     "version": 1,
