@@ -16,3 +16,14 @@ repos:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
+
+  # Python type checking with Mypy
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: uv run mypy
+        args:
+        - .
+        pass_filenames: false
+        language: system

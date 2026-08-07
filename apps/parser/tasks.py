@@ -116,7 +116,7 @@ def parse_all_channels() -> None:
 
     for channel in channels:
         # start task for parsing
-        parse_channel.delay(channel.channel_id)
+        parse_channel.delay(channel.channel_id)  # type: ignore[attr-defined]
         # add pause between parsing, 15s + random value
         pause = 15 + random.uniform(0, 5)
         log.info(

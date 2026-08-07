@@ -40,3 +40,6 @@ test:
 install:
 	uv sync
 .PHONY: install
+
+typecheck:
+	uv run mypy .

@@ -13,7 +13,7 @@ API_ID = os.getenv("API_ID")  # значения из лк телеграма
 API_HASH = os.getenv("API_HASH")
 
 
-async def main():
+async def main() -> None:
     # создаем клиент Telegram
     client = TelegramClient(SESSION_NAME, API_ID, API_HASH)
 
