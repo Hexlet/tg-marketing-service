@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from random import uniform
-from typing import Dict, Any
+from typing import Any, Dict
 
 from telethon import TelegramClient
 from telethon.errors import (

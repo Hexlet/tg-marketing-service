@@ -151,7 +151,7 @@ class PostAdmin(admin.ModelAdmin):
     def text_preview(self, obj):
         return obj.text[:50] + "..." if len(obj.text) > 50 else obj.text
 
-    text_preview.short_description = "Текст" # type: ignore
+    text_preview.short_description = "Текст"  # type: ignore
 
     def get_queryset(self, request):
         return (
