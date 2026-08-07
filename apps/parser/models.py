@@ -312,7 +312,7 @@ class Post(models.Model):
             models.Index(fields=["views"]),
         ]
 
-    def total_reactions(self):
+    def total_reactions(self) -> int:
         """Метод для админки (одиночное число)."""
         return self.reactions.aggregate(total=models.Sum("count"))["total"] or 0
 

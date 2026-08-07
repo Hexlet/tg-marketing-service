@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from random import uniform
-from typing import Dict
+from typing import Dict, Any
 
 from telethon import TelegramClient
 from telethon.errors import (
@@ -22,7 +22,7 @@ async def tg_parser(
     url: str,
     client: TelegramClient,  # Теперь принимаем готовый клиент
     limit: int = 10,
-) -> Dict:
+) -> Dict[str, Any]:
     """Основная функция парсинга Telegram-канала.
 
     Args:
@@ -35,7 +35,7 @@ async def tg_parser(
               и статистику постов.
     """
 
-    data = {"pinned_messages": []}
+    data: Dict[str, Any] = {"pinned_messages": []}
 
     # передается извне (из tasks.py)
 

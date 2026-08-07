@@ -43,7 +43,7 @@ def parse_channel(channel_id: int) -> None:
             try:
                 # make connection with Telegram
                 await client.connect()
-                identifier = channel_obj.username or channel_obj.channel_id
+                identifier = str(channel_obj.username or channel_obj.channel_id)
                 data = await tg_parser(identifier, client)
                 # using sync_to_async to avoid Django ORM errors
                 # (cause ORM is sync)
