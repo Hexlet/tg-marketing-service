@@ -1,4 +1,3 @@
-from collections.abc import Callable
 from typing import Any, cast
 
 from django.contrib import auth, messages
@@ -133,10 +132,7 @@ class UserProfileView(UserAuthenticationCheckMixin, View):
             "is_active": user.is_active,
         }
 
-        groups_data = [
-            cast(Callable[[], dict[str, Any]], group.get_data)()
-            for group in groups
-        ]
+        groups_data = [group.get_data() for group in groups]
 
         create_form_data = {"name": "", "description": "", "image_url": ""}
 

@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.views.generic.base import View
@@ -22,7 +24,9 @@ class IndexView(View):
     ]
     """
 
-    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def get(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponse:
         # Если пользователь авторизован - редирект на дашборд
         if request.user.is_authenticated:
             return redirect("homepage:dashboard")

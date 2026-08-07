@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.http import HttpRequest
 from guardian.admin import GuardedModelAdmin
 
 from apps.parser.models import ChannelModerator
@@ -154,5 +155,5 @@ class PartnerProfileAdmin(GuardedModelAdmin):
             request, f"Деактивировано {updated} партнерских профилей"
         )
 
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related("user")
+    def get_queryset(self, request: HttpRequest):
+        return super().get_queryset(request).select_related("user")  # type: ignore[no-untyped-call]

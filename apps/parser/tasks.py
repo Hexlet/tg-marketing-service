@@ -2,7 +2,6 @@ import asyncio
 import logging
 import random
 import time
-from typing import Any
 
 from asgiref.sync import sync_to_async
 from celery import shared_task
@@ -13,6 +12,7 @@ from telethon.sessions import StringSession
 
 from apps.parser.models import ChannelStats, TelegramChannel
 from apps.parser.parser import tg_parser
+from apps.parser.types import ParsedChannelData
 from apps.parser.utils import get_telegram_credentials
 
 log = logging.getLogger(__name__)
@@ -45,6 +45,11 @@ def parse_channel(channel_id: int) -> None:
                 await client.connect()
                 identifier = channel_obj.username or channel_obj.channel_id
                 data = await tg_parser(identifier, client)
+                if data is None:
+                    log.warning(
+                        "No data parsed for channel %s", channel_obj.channel_id
+                    )
+                    return
                 # using sync_to_async to avoid Django ORM errors
                 # (cause ORM is sync)
                 # using sync_to_async to avoid Django ORM errors
@@ -64,7 +69,9 @@ def parse_channel(channel_id: int) -> None:
         log.error(f"Connection failed for {channel_id}: {e}")
 
 
-def save_channel_data(channel: TelegramChannel, data: dict[str, Any]) -> None:
+def save_channel_data(
+    channel: TelegramChannel, data: ParsedChannelData
+) -> None:
     """Save channels data"""
     channel.username = data.get("username")
     channel.title = data["title"]
@@ -78,7 +85,9 @@ def save_channel_data(channel: TelegramChannel, data: dict[str, Any]) -> None:
     log.info(f"Data from channel {channel.title} successfully saved")
 
 
-def save_channel_stats(channel: TelegramChannel, data: dict[str, Any]) -> None:
+def save_channel_stats(
+    channel: TelegramChannel, data: ParsedChannelData
+) -> None:
     """Save channel stats"""
     last_stats = (
         ChannelStats.objects.filter(channel=channel)

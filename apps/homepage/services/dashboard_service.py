@@ -9,10 +9,11 @@ from apps.homepage.dto.dashboard_dto import (
     StatsDTO,
 )
 from apps.parser.models import AIInsight, ChannelStats, TelegramChannel
+from apps.users.models import User
 
 
 class DashboardService:
-    def __init__(self, user):
+    def __init__(self, user: User) -> None:
         self.user = user
 
     # 🔹 публичный метод
@@ -54,7 +55,7 @@ class DashboardService:
     # Stats
     # ------------------------
 
-    def _build_stats(self, qs) -> StatsDTO:
+    def _build_stats(self, qs: QuerySet[TelegramChannel]) -> StatsDTO:
         channels_count = qs.count()
 
         posts_count = sum(len(c.last_messages or []) for c in qs)
@@ -72,7 +73,9 @@ class DashboardService:
     # Channels
     # ------------------------
 
-    def _build_channels(self, qs) -> list[ChannelDTO]:
+    def _build_channels(
+        self, qs: QuerySet[TelegramChannel]
+    ) -> list[ChannelDTO]:
         result = []
 
         for c in qs[:5]:
@@ -83,7 +86,7 @@ class DashboardService:
             engagement = (views / subscribers) * 100 if subscribers > 0 else 0
 
             # ✔ рост
-            growth = c.latest_growth or 0
+            growth = getattr(c, "latest_growth", 0) or 0
 
             growth_percent = (
                 (growth / max(1, subscribers - growth)) * 100 if growth else 0
@@ -106,7 +109,9 @@ class DashboardService:
     # AI insights
     # ------------------------
 
-    def _build_insights(self, qs) -> list[InsightDTO]:
+    def _build_insights(
+        self, qs: QuerySet[TelegramChannel]
+    ) -> list[InsightDTO]:
         insights_qs = AIInsight.objects.filter(
             user=self.user, is_read=False
         ).order_by("-created_at")[:5]
@@ -121,10 +126,11 @@ class DashboardService:
         result = []
 
         for c in qs[:3]:
-            if c.latest_growth and c.latest_growth > 50:
+            latest_growth = getattr(c, "latest_growth", 0) or 0
+            if latest_growth > 50:
                 result.append(
                     InsightDTO(
-                        text=f"Канал «{c.title}» растёт (+{c.latest_growth})",
+                        text=f"Канал «{c.title}» растёт (+{latest_growth})",
                         type="positive",
                     )
                 )

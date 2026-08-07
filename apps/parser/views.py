@@ -15,6 +15,7 @@ from apps.parser.dto.channel_dto import ChannelDTO, ChannelListDTO
 from apps.parser.forms import ChannelParseForm
 from apps.parser.models import ChannelStats, TelegramChannel
 from apps.parser.parser import tg_parser
+from apps.parser.types import ChannelDataForSave, ParsedChannelData
 from apps.parser.utils import get_telegram_credentials
 from config.mixins import UserAuthenticationCheckMixin
 from config.renderers import render_inertia_from_dto
@@ -40,7 +41,7 @@ class ParserView(UserAuthenticationCheckMixin, FormView):
 
     async def async_tg_parser(
         self, url: str, limit: int = 10
-    ) -> dict[str, Any]:
+    ) -> ParsedChannelData | None:
         """Parser wrapper"""
         client = self.get_telegram_client()
         await client.connect()
@@ -50,7 +51,7 @@ class ParserView(UserAuthenticationCheckMixin, FormView):
             await client.disconnect()
 
     def save_channel(
-        self, data: dict[str, Any]
+        self, data: ChannelDataForSave
     ) -> tuple[TelegramChannel, bool]:
         """Create or update channel"""
         channel, created = TelegramChannel.objects.update_or_create(
@@ -77,7 +78,7 @@ class ParserView(UserAuthenticationCheckMixin, FormView):
         return channel, created
 
     def save_stats(
-        self, channel: TelegramChannel, data: dict[str, Any]
+        self, channel: TelegramChannel, data: ChannelDataForSave
     ) -> None:
         """Create stats record with growth calculation"""
         last_stats = (
@@ -125,6 +126,10 @@ class ParserView(UserAuthenticationCheckMixin, FormView):
             # Start async parsing function
             async_parser = async_to_sync(self.async_tg_parser)
             parsed_data = async_parser(identifier, limit)
+            if parsed_data is None:
+                form.add_error(None, "Не удалось получить данные канала")
+                return self.form_invalid(form)
+            parsed_data = ChannelDataForSave(**parsed_data)
             parsed_data.update(
                 {"language": language, "country": country, "category": category}
             )

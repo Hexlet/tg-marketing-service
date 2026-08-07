@@ -2,6 +2,7 @@ import asyncio
 import logging
 import random
 import time
+from typing import Any, cast
 
 from telethon import TelegramClient
 from telethon.errors import (
@@ -13,12 +14,14 @@ from telethon.errors import (
 )
 from telethon.tl.functions.channels import GetFullChannelRequest
 
+from apps.parser.types import ParsedChannelData, PartialParsedChannelData
+
 log = logging.getLogger(__name__)
 
 
 async def tg_parser(
     url: str | int, client: TelegramClient, limit: int = 10
-) -> dict:
+) -> ParsedChannelData | None:
     """
     Telegram channel parser function. Retrieves channel data including:
     name, ID, description, subscriber count, pinned message, and recent posts.
@@ -37,9 +40,10 @@ async def tg_parser(
     Note:
         This function requires a registered Telegram API application to work.
     """
-    data = {}
-    full_channel = None
-    pinned_messages = None
+    data: PartialParsedChannelData = {}
+    channel: Any | None = None
+    full_channel: Any | None = None
+    pinned_message: Any | None = None
 
     try:
         # Anti-flood - remove when dedicated number is assigned
@@ -74,7 +78,7 @@ async def tg_parser(
             if post.views:
                 total_views += post.views
                 total_posts += 1
-        average_views = total_views // total_posts
+        average_views = total_views // total_posts if total_posts else 0
         data["average_views"] = average_views
 
     except FloodWaitError as e:
@@ -82,18 +86,23 @@ async def tg_parser(
         # wait recommended time + random interval
 
         await asyncio.sleep(e.seconds + random.uniform(1.0, 2.0))
+        return None
 
     except ChannelInvalidError:
         log.warning(f"This channel is private or unavailable: {url}")
+        return None
 
     except UsernameNotOccupiedError:
         log.error(f"Username does not exist: {url}")
+        return None
 
     except AuthKeyError:
         log.critical("AUTH SESSION FAILURE")
+        return None
 
     except Exception as e:
         log.error(f"ERROR - {e}")
+        return None
 
     if channel:
         try:
@@ -114,9 +123,7 @@ async def tg_parser(
         if full_channel:
             # Fetching channel participants count
             participants_count = full_channel.full_chat.participants_count
-            data["participants_count"] = (
-                participants_count if participants_count else "Нет участников"
-            )
+            data["participants_count"] = participants_count or 0
             # Fetching channel description
             description = full_channel.full_chat.about
             data["description"] = description if description else "Нет описания"
@@ -124,17 +131,27 @@ async def tg_parser(
             pinned_message_id = full_channel.full_chat.pinned_msg_id
             # Fetching pinned message
             if pinned_message_id:
-                pinned_messages = await client.get_messages(
-                    channel, ids=pinned_message_id
-                )
+                try:
+                    pinned_message = await client.get_messages(
+                        channel, ids=pinned_message_id
+                    )
+                except Exception as e:
+                    log.error(f"Failed to fetch pinned message: {e}")
             data["pinned_messages"] = [
                 {
-                    "text": pinned_messages.message
-                    if pinned_messages
+                    "text": (pinned_message.message or "")
+                    if pinned_message
                     else "Нет закрепленного сообщения",
-                    "id": pinned_message_id if pinned_messages else None,
+                    "id": pinned_message_id if pinned_message else None,
                 }
             ]
 
+    if channel is None:
+        return None
+
+    data.setdefault("participants_count", 0)
+    data.setdefault("description", "Нет описания")
+    data.setdefault("pinned_messages", [])
+
     log.debug(f"Channel successfully parsed: {data}")
-    return data
+    return cast(ParsedChannelData, data)

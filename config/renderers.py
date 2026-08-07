@@ -1,14 +1,15 @@
 from typing import Any
 
+from django.http import HttpRequest
 from inertia import render as inertia_render
 from pydantic import BaseModel
 
 
 def render_inertia_from_dto(
-    request,
+    request: HttpRequest,
     component: str,
     props: BaseModel,
-    **kwargs,
+    **kwargs: Any,
 ) -> Any:
     """Рендерит Inertia-компонент, используя Pydantic DTO.
 

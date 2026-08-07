@@ -1,5 +1,8 @@
+from typing import Any
+
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.http import HttpRequest, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import View
 from inertia import render as inertia_render
@@ -17,14 +20,16 @@ from config.mixins import UserAuthenticationCheckMixin
 DEFAULT_AVATAR_GROUP = f"{settings.STATIC_URL}default_avatar_group.jpg"
 
 
-class CreateGroupView(View):
-    def post(self, request, *args, **kwargs):
+class CreateGroupView(UserAuthenticationCheckMixin, View):
+    def post(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponse:
         form = CreateGroupForm(request.POST)
         if form.is_valid():
             group = form.save(commit=False)
+            group.owner = request.user
             if not group.image_url or not group.image_url.strip():
                 group.image_url = DEFAULT_AVATAR_GROUP
-                group.owner = request.user
             group.save()
             return inertia_render(
                 request,
@@ -49,10 +54,14 @@ class CreateGroupView(View):
         )
 
 
-class UpdateGroupView(View):
-    def post(self, request, *args, **kwargs):
+class UpdateGroupView(UserAuthenticationCheckMixin, View):
+    def post(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponse:
         slug = kwargs["slug"]
         group = get_object_or_404(Group, slug=slug)
+        if group.owner != request.user:
+            return HttpResponseForbidden("Недостаточно прав")
         form = UpdateGroupForm(request.POST, instance=group)
 
         if form.is_valid():
@@ -76,10 +85,14 @@ class UpdateGroupView(View):
         )
 
 
-class DeleteGroupView(View):
-    def post(self, request, *args, **kwargs):
+class DeleteGroupView(UserAuthenticationCheckMixin, View):
+    def post(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponse:
         slug = kwargs["slug"]
         group = get_object_or_404(Group, slug=slug)
+        if group.owner != request.user:
+            return HttpResponseForbidden("Недостаточно прав")
         group.delete()
         return inertia_render(
             request,
@@ -118,7 +131,9 @@ class GroupDetailView(View):
             'language': self.language
     """
 
-    def get(self, request, *args, **kwargs):
+    def get(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponse:
         slug = kwargs["slug"]
         group = get_object_or_404(Group, slug=slug)
 
@@ -132,7 +147,7 @@ class GroupDetailView(View):
         is_owner = request.user.is_authenticated and (
             group.owner == request.user
         )
-        add_form = None
+        add_form: AddChannelForm | None = None
         if is_owner and not hasattr(group, "auto_rule"):
             free_qs = TelegramChannel.objects.exclude(groups=group)
             add_form = AddChannelForm(channel_qs=free_qs)
@@ -141,8 +156,8 @@ class GroupDetailView(View):
             request,
             "GroupDetail",
             props={
-                "group": group.get_data,
-                "channels": channels.get_data,
+                "group": group.get_data(),
+                "channels": [channel.get_data() for channel in channels],
                 "auto_category": auto_category,
                 "add_form": add_form,
                 "is_owner": is_owner,
@@ -153,13 +168,13 @@ class GroupDetailView(View):
 class AddChannelsView(UserAuthenticationCheckMixin, UserPassesTestMixin, View):
     # Кажеться это лишнее, так как реализована аутентификайия
     # с использованием django-guardian
-    def test_func(self):
+    def test_func(self) -> bool:
         self.group = get_object_or_404(Group, slug=self.kwargs["slug"])
         return self.group.owner == self.request.user
 
     # На стороне фронта нет компонента groep_detaile,
     # бронируем название компонента GroupDetail
-    def post(self, request, slug):
+    def post(self, request: HttpRequest, slug: str) -> HttpResponse:
         free_qs = TelegramChannel.objects.exclude(groups=self.group)
         form = AddChannelForm(
             request.POST, instance=self.group, channel_qs=free_qs
