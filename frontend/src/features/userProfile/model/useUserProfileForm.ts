@@ -7,7 +7,7 @@ import { userProfileApi } from '../api';
 
 export const useUserProfileForm = () => {
   const { user, errors: serverErrors = {} } = usePage<UserProfileProps>().props;
-  
+
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { data, setData, post, processing } = useForm<User>({

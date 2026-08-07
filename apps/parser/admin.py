@@ -1,5 +1,5 @@
 from django.contrib import admin
-from guardian.admin import GuardedModelAdminMixin
+from guardian.admin import GuardedModelAdmin
 
 from apps.parser.models import (
     ChannelModerator,
@@ -12,7 +12,7 @@ from apps.parser.serializers import PostSerializer
 
 
 @admin.register(TelegramChannel)
-class TelegramChannelAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
+class TelegramChannelAdmin(GuardedModelAdmin):
     list_display = [
         "channel_id",
         "title",
@@ -53,7 +53,7 @@ class TelegramChannelAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
 
 
 @admin.register(ChannelStats)
-class ChannelStatsAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
+class ChannelStatsAdmin(GuardedModelAdmin):
     list_display = [
         "channel",
         "participants_count",
@@ -89,7 +89,7 @@ class ChannelModeratorInline(admin.TabularInline):
 
 
 @admin.register(ChannelModerator)
-class ChannelModeratorAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
+class ChannelModeratorAdmin(GuardedModelAdmin):
     list_display = [
         "user",
         "channel",

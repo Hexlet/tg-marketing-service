@@ -43,7 +43,8 @@ def parse_channel(channel_id: int) -> None:
             try:
                 # make connection with Telegram
                 await client.connect()
-                data = await tg_parser(channel_obj.username, client)
+                identifier = channel_obj.username or channel_obj.channel_id
+                data = await tg_parser(identifier, client)
                 # using sync_to_async to avoid Django ORM errors
                 # (cause ORM is sync)
                 # using sync_to_async to avoid Django ORM errors
@@ -65,6 +66,7 @@ def parse_channel(channel_id: int) -> None:
 
 def save_channel_data(channel: TelegramChannel, data: dict[str, Any]) -> None:
     """Save channels data"""
+    channel.username = data.get("username")
     channel.title = data["title"]
     channel.description = data.get("description", "Нет описания")
     channel.participants_count = data.get("participants_count", 0)
@@ -116,7 +118,7 @@ def parse_all_channels() -> None:
 
     for channel in channels:
         # start task for parsing
-        parse_channel.delay(channel.channel_id)
+        parse_channel.delay(channel.channel_id)  # type: ignore[attr-defined]
         # add pause between parsing, 15s + random value
         pause = 15 + random.uniform(0, 5)
         log.info(
