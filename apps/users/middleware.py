@@ -36,10 +36,12 @@ class RoleMiddleware:
             final_role = "guest"
 
         # Ставим роль в запрос
-        cast(RoleRequest, request).role = final_role
+        role_request = cast(RoleRequest, request)
+        role_request.role = final_role
 
+        # logging-сообщение
         logger.debug(
-            "Middleware: Current role of the user is '%s'", request.role
+            "Middleware: Current role of the user is '%s'", role_request.role
         )
 
         response = self.get_response(request)
