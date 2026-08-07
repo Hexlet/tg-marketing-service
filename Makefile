@@ -1,6 +1,6 @@
 PORT ?= 8000
 
-migrate:	
+migrate:
 	uv run python manage.py makemigrations
 	uv run python manage.py migrate
 
@@ -35,8 +35,11 @@ s:
 	uv run python manage.py start_telegram_session
 
 test:
-	python3 -m pytest --tb=short -q
+	uv run pytest --tb=short -q
 
 install:
 	uv sync
 .PHONY: install
+
+typecheck:
+	uv run mypy .

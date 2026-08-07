@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from typing import cast
 import os
 from pathlib import Path
 from celery.schedules import crontab
@@ -30,6 +31,13 @@ TELEGRAM_API_ID: str | None = os.getenv("TELEGRAM_API_ID")
 TELEGRAM_API_HASH: str | None = os.getenv("TELEGRAM_API_HASH")
 TELEGRAM_SESSION_STRING: str | None = os.getenv("TELEGRAM_SESSION_STRING")
 
+# AI settings
+AI_API_KEY: str | None = os.getenv("AI_API_KEY")
+AI_MODEL: str = os.getenv("AI_MODEL", "claude-sonnet-5")
+AI_ENABLED: bool | None = env_bool("AI_ENABLED", default=True)
+AI_TIMEOUT_SECONDS: int = int(os.getenv("AI_TIMEOUT_SECONDS", 30))
+AI_MAX_TOKENS: int = int(os.getenv("AI_MAX_TOKENS", 1024))
+
 # Celery settings
 CELERY_BROKER_URL = "redis://localhost:6379/0"  # Redis like messages brocker
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"  # tasks results
@@ -41,8 +49,8 @@ CELERY_TIMEZONE = "Europe/Moscow"  # project timezone
 # Celery dict with schedule
 CELERY_BEAT_SCHEDULE = {
     "parse-all-channels-every-day-12-30": {
-        "task": "config.parser.tasks.parse_all_channels",  # path to task
-        "schedule": crontab(hour=11, minute=40),
+        "task": "apps.parser.tasks.parse_all_channels",  # path to task
+        "schedule": crontab(hour="11", minute="40"),
     },
 }
 
@@ -82,6 +90,7 @@ INSTALLED_APPS = [
     "apps.group_channels",
     "apps.parser",
     "apps.homepage",
+    "apps.ai",
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -111,6 +120,7 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     "inertia.middleware.InertiaMiddleware",
     "apps.users.middleware.RoleMiddleware",
+    "config.middleware.SharedInertiaPropsMiddleware",
 ]
 
 
@@ -124,7 +134,7 @@ SOCIALACCOUNT_PROVIDERS = {
         "APP": {
             "secret": os.getenv("SECRET_ID_YA"),
             "client_id": os.getenv("CLIENT_ID_YA"),
-            "redirect_uri": MAPPING_PROD.get(os.getenv("PROD")),
+            "redirect_uri": MAPPING_PROD.get(os.getenv("PROD", "")),
         },
         "SCOPE": [
             "login:email",  # Доступ к email
@@ -175,9 +185,12 @@ if os.getenv("PROD") == "t":
 else:
     database_url = os.getenv("DATABASE_URL", "") or "sqlite:///db.sqlite3"
     DATABASES = {
-        "default": dj_database_url.parse(
-            url=database_url,
-            conn_max_age=600,
+        "default": cast(
+            "dict[str, str | None]",
+            dj_database_url.parse(
+                url=database_url,
+                conn_max_age=600,
+            ),
         )
     }
 

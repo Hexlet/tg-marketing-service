@@ -13,7 +13,7 @@ jobs:
     env:
       DJANGO_SETTINGS_MODULE: config.settings
       SECRET_KEY: ci-secret-key
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,6 +36,9 @@ jobs:
 
       - name: Run backend formatter
         run: uv run ruff format --check
+
+      - name: Run backend type checker
+        run: uv run mypy .
 
       - name: Install project and test deps
         run: |

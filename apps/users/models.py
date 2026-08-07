@@ -1,4 +1,5 @@
 import uuid
+from typing import Any
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -29,11 +30,11 @@ class User(AbstractUser):
             ("can_apply_partnership", "Может подавать заявку на партнерство"),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.get_full_name() or self.username
 
     @property
-    def is_partner(self):
+    def is_partner(self) -> bool:
         """Проверка, является ли пользователь активным партнером."""
         return (
             hasattr(self, "partner_profile")
@@ -41,7 +42,7 @@ class User(AbstractUser):
         )
 
     @property
-    def is_channel_moderator(self):
+    def is_channel_moderator(self) -> bool:
         """Проверка, является ли пользователь модератором какого-либо канала."""
         return self.moderated_channels.exists()
 
@@ -94,10 +95,10 @@ class PartnerProfile(models.Model):
             ("view_traffic_analytics", "Может просматривать аналитику трафика"),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.user.username} ({self.get_status_display()})"
 
-    def save(self, *args, **kwargs):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         """
         Переопределенный метод сохранения объекта, который генерирует
         уникальный партнерский код при создании нового профиля.

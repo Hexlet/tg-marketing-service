@@ -1,12 +1,12 @@
 from django.contrib import admin
-from guardian.admin import GuardedModelAdminMixin
+from guardian.admin import GuardedModelAdmin
 
-from apps.group_channels.models import AutoGroupRule, Group
+from apps.group_channels.models import AutoGroupRule, Group, SavedCollection
 
 # Register your models here.
 
 
-class AutoGroupRule(admin.StackedInline):
+class AutoGroupRuleInline(admin.StackedInline):
     model = AutoGroupRule
     can_delete = False
     extra = 0
@@ -20,7 +20,7 @@ class AutoGroupRule(admin.StackedInline):
 
 
 @admin.register(Group)
-class GroupAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
+class GroupAdmin(GuardedModelAdmin):
     list_display = ("name", "is_editorial", "order", "owner")
     list_filter = ("is_editorial",)
     search_fields = ("name", "description")
@@ -32,3 +32,10 @@ class GroupAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
         if obj and hasattr(obj, "auto_rule"):
             return tuple(set(ro) | {"channels"})
         return ro
+
+
+@admin.register(SavedCollection)
+class SavedCollectionAdmin(admin.ModelAdmin):
+    list_display = ("user", "group", "created_at")
+    search_fields = ("user__username", "group__name")
+    ordering = ("-created_at",)
