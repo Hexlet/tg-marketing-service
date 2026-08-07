@@ -22,12 +22,11 @@ class BaseParser:
     ) -> TelegramChannel:
         """Создать/обновить модель TelegramChannel."""
         channel, created = await TelegramChannel.objects.aget_or_create(
-            telegram_id=channel_entity.id,
+            channel_id=channel_entity.id,
             defaults={
                 "title": channel_entity.title,
                 "username": channel_entity.username or "-",
-                "is_verified": channel_entity.verified,
-                "created_at": channel_entity.date,
+                "creation_date": channel_entity.date,
             },
         )
         return channel

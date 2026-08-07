@@ -313,8 +313,25 @@ class Post(models.Model):
         ]
 
     def total_reactions(self):
-        """Возвращает общее количество реакций на пост."""
-        return sum(reaction.count for reaction in self.reactions.all())
+        """Метод для админки (одиночное число)."""
+        return self.reactions.aggregate(total=models.Sum("count"))["total"] or 0
+
+    def get_reactions_breakdown(self, limit: int | None = None) -> dict:
+        """
+        Метод для API/Сериализатора.
+        Возвращает объект, содержащий общую сумму и список (top-N)
+        """
+        reactions_qs = self.reactions.values("emoji", "count").order_by(
+            "-count"
+        )
+
+        if limit is not None:
+            reactions_qs = reactions_qs[:limit]
+
+        return {
+            "total": self.total_reactions(),
+            "details": list(reactions_qs),
+        }
 
     def __str__(self):
         return f"Post #{self.telegram_message_id} in {self.channel}"

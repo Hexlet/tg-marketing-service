@@ -54,7 +54,7 @@ async def tg_parser(
 
             # Поиск модели канала в Django
             django_channel = await TelegramChannel.objects.aget(
-                telegram_id=channel_data["channel_id"]
+                channel_id=channel_data["channel_id"]
             )
 
             # Парсинг постов

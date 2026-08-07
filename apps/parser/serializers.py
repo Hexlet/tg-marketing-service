@@ -12,20 +12,7 @@ class PostSerializer:
 
     @classmethod
     def get_post_data(cls, post: Post) -> dict:
-        reactions = (
-            post.reactions.values("emoji")
-            .annotate(count=Sum("count"))
-            .order_by("-count")
-        )
-
-        reaction_details_dict = {}
-        total_reactions = 0
-
-        for item in reactions:
-            emoji = item["emoji"]
-            count = item["count"]
-            reaction_details_dict[emoji] = count
-            total_reactions += count
+        breakdown = post.get_reactions_breakdown()
 
         return {
             "id": post.id,
@@ -41,8 +28,8 @@ class PostSerializer:
             "media_type": post.media_type,
             "permalink": post.permalink,
             "reactions": {
-                "total": total_reactions,
-                "details": reaction_details_dict,
+                "total": breakdown["total"],
+                "details": breakdown["details"],
             },
         }
 
