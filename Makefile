@@ -1,6 +1,6 @@
 PORT ?= 8000
 
-migrate:	
+migrate:
 	uv run python manage.py makemigrations
 	uv run python manage.py migrate
 
@@ -40,3 +40,6 @@ test:
 install:
 	uv sync
 .PHONY: install
+
+typecheck:
+	uv run mypy .
