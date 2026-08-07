@@ -125,7 +125,7 @@ class UserRegForm(UserCreationForm):
         ),
     )
 
-    def clean_email(self):
+    def clean_email(self) -> str:
         email = self.cleaned_data["email"].strip().lower()
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError(
@@ -133,7 +133,7 @@ class UserRegForm(UserCreationForm):
             )
         return email
 
-    def _generate_username(self):
+    def _generate_username(self) -> str:
         email_local_part = self.cleaned_data["email"].split("@", 1)[0]
         username_base = "".join(
             char if char.isalnum() or char in "@.+-_" else "_"
@@ -146,7 +146,7 @@ class UserRegForm(UserCreationForm):
             if not User.objects.filter(username=username).exists():
                 return username
 
-    def save(self, commit=True):
+    def save(self, commit: bool = True) -> User:
         user = super().save(commit=False)
         user.username = (
             self.cleaned_data.get("username", "").strip()

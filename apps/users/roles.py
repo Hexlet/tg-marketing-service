@@ -1,14 +1,19 @@
+from __future__ import annotations
+
 from django.db import models
 
 from apps.users.models import User
 
 
-class UserRoleHistoryManager(models.Manager):
-    def current_role(self, user):
+class UserRoleHistoryManager(models.Manager["UserRoleHistory"]):
+    def current_role(self, user: User) -> Role | None:
         """
         Возвращает объект Role текущей роли пользователя или None
         """
-        history = self.filter(user=user, end_date__isnull=True).first()
+        history: UserRoleHistory | None = self.filter(
+            user=user,
+            end_date__isnull=True,
+        ).first()
         if history:
             return history.role
         return None
@@ -26,7 +31,7 @@ class Role(models.Model):
         verbose_name = "Роль"
         verbose_name_plural = "Роли"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.name) or "NONE"
 
 
@@ -60,9 +65,9 @@ class UserRoleHistory(models.Model):
             )
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Роль {self.role.name} пользователя {self.user.username}"
 
     @property
-    def is_current_role(self):
+    def is_current_role(self) -> bool:
         return self.end_date is None
