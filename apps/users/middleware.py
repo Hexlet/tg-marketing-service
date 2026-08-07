@@ -37,11 +37,11 @@ class RoleMiddleware:
 
         # Ставим роль в запрос
         cast(RoleRequest, request).role = final_role
-        
+
         logger.debug(
             "Middleware: Current role of the user is '%s'", request.role
         )
-        
+
         response = self.get_response(request)
 
         return response
