@@ -5,7 +5,7 @@ from apps.blog.models import BlogArticle
 
 
 @admin.register(BlogArticle)
-class BlogArticleAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
+class BlogArticleAdmin(GuardedModelAdminMixin, admin.ModelAdmin):  # type: ignore[misc]
     list_display = (
         "title",
         "category",
