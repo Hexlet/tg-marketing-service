@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class BlogArticle(models.Model):
@@ -71,6 +72,13 @@ class BlogArticle(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создана")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлена")
+
+    def save(self, *args, **kwargs):
+        # Автоматически проставляем дату публикации при первой публикации,
+        # чтобы не оставался state is_published=True без published_at.
+        if self.is_published and not self.published_at:
+            self.published_at = timezone.now()
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Статья блога"
