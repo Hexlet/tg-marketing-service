@@ -2,7 +2,7 @@ import asyncio
 import logging
 import random
 import time
-from typing import Any, cast
+from typing import Any
 
 from telethon import TelegramClient
 from telethon.errors import (
@@ -149,9 +149,18 @@ async def tg_parser(
     if channel is None:
         return None
 
-    data.setdefault("participants_count", 0)
-    data.setdefault("description", "Нет описания")
-    data.setdefault("pinned_messages", [])
+    parsed_data = ParsedChannelData(
+        title=data["title"],
+        channel_id=data["channel_id"],
+        username=data["username"],
+        verified=data["verified"],
+        creation_date=data["creation_date"],
+        last_messages=data["last_messages"],
+        average_views=data["average_views"],
+        participants_count=data.get("participants_count", 0),
+        description=data.get("description", "Нет описания"),
+        pinned_messages=data.get("pinned_messages", []),
+    )
 
-    log.debug(f"Channel successfully parsed: {data}")
-    return cast(ParsedChannelData, data)
+    log.debug(f"Channel successfully parsed: {parsed_data}")
+    return parsed_data
