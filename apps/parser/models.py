@@ -98,9 +98,9 @@ class TelegramChannel(models.Model):
             "description": self.description,
             "participants_count": self.participants_count,
             "parsed_at": self.parsed_at,
-            "pinned_messages": self.pinned_messages or [],
+            "pinned_messages": self.pinned_messages,
             "creation_date": self.creation_date,
-            "last_messages": self.last_messages or [],
+            "last_messages": self.last_messages,
             "average_views": self.average_views,
             "category": self.category,
             "country": self.country,
@@ -211,3 +211,149 @@ class AIInsight(models.Model):
         verbose_name = "AI инсайт"
         verbose_name_plural = "AI инсайты"
         ordering = ["-created_at"]
+
+
+class Post(models.Model):
+    """
+    Формат данных для пропсов поста:
+    {
+        "telegram_message_id": 12345,
+        "text": "Hello!",
+        "published_at": "2024-01-01T12:00:00Z",
+        "views": 1000,
+        "forwards": 50,
+        "comments_count": 20,
+        "reposts": 10,
+        "is_pinned": False,
+        "media_type": "photo",
+        "permalink": "https://t.me/channel/12345",
+        "reactions": [
+            {"emoji": "👍", "count": 42},
+            {"emoji": "❤️", "count": 15},
+        ],
+        "total_reactions": 57
+    }
+    """
+
+    MEDIA_TYPES = [
+        ("photo", "Photo"),
+        ("video", "Video"),
+        ("document", "Document"),
+        ("sticker", "Sticker"),
+        ("none", "No media"),
+    ]
+
+    channel = models.ForeignKey(
+        TelegramChannel,
+        on_delete=models.CASCADE,
+        related_name="posts",
+        verbose_name="Канал",
+    )
+
+    telegram_message_id = models.BigIntegerField(
+        verbose_name="ID Телеграм сообщения",
+    )
+
+    text = models.TextField(
+        verbose_name="Текст поста",
+    )
+
+    published_at = models.DateTimeField(
+        db_index=True,
+        verbose_name="Время публикации поста",
+    )
+
+    views = models.PositiveIntegerField(
+        default=0,
+        db_index=True,
+        verbose_name="Количество просмотров",
+    )
+
+    forwards = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Количество пересылок",
+    )
+
+    comments_count = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Количество комментариев",
+    )
+
+    reposts = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Количество репостов",
+    )
+
+    is_pinned = models.BooleanField(
+        default=False,
+        verbose_name="Закреплённый пост",
+    )
+
+    media_type = models.CharField(
+        max_length=20,
+        choices=MEDIA_TYPES,
+        default="none",
+        verbose_name="Тип медиа",
+    )
+
+    permalink = models.URLField(
+        blank=True,
+        null=True,
+        verbose_name="Ссылка на пост",
+    )
+
+    class Meta:
+        verbose_name = "Пост"
+        verbose_name_plural = "Посты"
+        unique_together = ("channel", "telegram_message_id")
+
+        indexes = [
+            models.Index(fields=["channel", "-published_at"]),
+            models.Index(fields=["views"]),
+        ]
+
+    def total_reactions(self) -> int:
+        """Метод для админки (одиночное число)."""
+        return self.reactions.aggregate(total=models.Sum("count"))["total"] or 0
+
+    def get_reactions_breakdown(self, limit: int | None = None) -> dict:
+        """
+        Метод для API/Сериализатора.
+        Возвращает объект, содержащий общую сумму и список (top-N)
+        """
+        reactions_qs = self.reactions.values("emoji", "count").order_by(
+            "-count"
+        )
+
+        if limit is not None:
+            reactions_qs = reactions_qs[:limit]
+
+        return {
+            "total": self.total_reactions(),
+            "details": list(reactions_qs),
+        }
+
+    def __str__(self):
+        return f"Post #{self.telegram_message_id} in {self.channel}"
+
+
+class PostReaction(models.Model):
+    post = models.ForeignKey(
+        "Post",
+        on_delete=models.CASCADE,
+        related_name="reactions",
+        verbose_name="Пост",
+    )
+    emoji = models.CharField(
+        max_length=10,
+        verbose_name="Эмоджи",
+    )
+    count = models.PositiveIntegerField(
+        default=1,
+        verbose_name="Количество реакций",
+    )
+
+    class Meta:
+        verbose_name = "Реакция на пост"
+        verbose_name_plural = "Реакции на пост"
+        unique_together = ("post", "emoji")
