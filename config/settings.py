@@ -10,11 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
 from typing import cast
-
-from .logging import LOGGING
 import os
+from pathlib import Path
 from celery.schedules import crontab
 from dotenv import load_dotenv
 import dj_database_url
@@ -22,6 +20,8 @@ import dj_database_url
 from .utils import env_bool
 
 load_dotenv()
+
+from .logging import LOGGING
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -264,30 +264,4 @@ DJANGO_VITE = {
         "dev_server_port": 5173,
         "manifest_path": os.path.join(STATIC_ROOT, "manifest.json"),
     }
-}
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
-            "style": "{",
-        },
-        "simple": {
-            "format": "{levelname} {asctime} {message}",
-            "style": "{",
-        },
-    },
-    "handlers": {
-        "console": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
-            "formatter": "simple",
-        },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "DEBUG",
-    },
 }
