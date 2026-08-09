@@ -8,7 +8,7 @@ interface HeaderProps {
     showSearchBar?: boolean;
 }
 
-export function Header({ opened, onToggle, showSearchBar = true }: HeaderProps) {
+const Header = ({ opened, onToggle, showSearchBar = true }: HeaderProps) => {
     const navigate = useNavigate();
 
     return (
@@ -44,3 +44,5 @@ export function Header({ opened, onToggle, showSearchBar = true }: HeaderProps) 
     )
 
 }
+
+export default Header;
