@@ -44,5 +44,3 @@ const Header = ({ opened, onToggle, showSearchBar = true }: HeaderProps) => {
     )
 
 }
-
-export default Header;

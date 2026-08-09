@@ -2,7 +2,8 @@ from django.contrib import messages
 from django.contrib.auth.mixins import AccessMixin
 from django.contrib.messages import add_message
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from guardian.utils import get_anonymous_user
 
 
@@ -53,7 +54,9 @@ class RoleRequiredMixin(AccessMixin):
     Наследуем от AccessMixin для стандартного поведения Django.
     """
 
-    allowed_roles = None  # Обязательно переопределить в дочерних классах
+    allowed_roles: list[str] | None = (
+        None  # Обязательно переопределить в дочерних классах
+    )
     permission_denied_message = "У вас нет прав для доступа к этой странице"
     url_redirect = None  # Обязательно переопределить в дочерних классах при
 

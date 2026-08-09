@@ -1,4 +1,4 @@
-from django.db.models import Avg, OuterRef, Subquery
+from django.db.models import Avg, OuterRef, QuerySet, Subquery
 
 from apps.group_channels.models import Group
 from apps.homepage.dto.dashboard_dto import (
@@ -37,7 +37,7 @@ class DashboardService:
     # QuerySet
     # ------------------------
 
-    def _get_channels_queryset(self):
+    def _get_channels_queryset(self) -> QuerySet[TelegramChannel]:
         latest_stats = ChannelStats.objects.filter(
             channel=OuterRef("pk")
         ).order_by("-parsed_at")
@@ -54,7 +54,7 @@ class DashboardService:
     # Stats
     # ------------------------
 
-    def _build_stats(self, qs):
+    def _build_stats(self, qs) -> StatsDTO:
         channels_count = qs.count()
 
         posts_count = sum(len(c.last_messages or []) for c in qs)
@@ -72,7 +72,7 @@ class DashboardService:
     # Channels
     # ------------------------
 
-    def _build_channels(self, qs):
+    def _build_channels(self, qs) -> list[ChannelDTO]:
         result = []
 
         for c in qs[:5]:
@@ -106,7 +106,7 @@ class DashboardService:
     # AI insights
     # ------------------------
 
-    def _build_insights(self, qs):
+    def _build_insights(self, qs) -> list[InsightDTO]:
         insights_qs = AIInsight.objects.filter(
             user=self.user, is_read=False
         ).order_by("-created_at")[:5]
@@ -149,7 +149,7 @@ class DashboardService:
     # Collections
     # ------------------------
 
-    def _build_collections(self):
+    def _build_collections(self) -> list[CollectionDTO]:
         groups = Group.objects.filter(owner=self.user)
 
         result = [
@@ -182,7 +182,7 @@ class DashboardService:
     # Utils
     # ------------------------
 
-    def _get_subscription_days_left(self):
+    def _get_subscription_days_left(self) -> int:
         profile = getattr(self.user, "partner_profile", None)
         if profile and profile.status == "active":
             return 30
