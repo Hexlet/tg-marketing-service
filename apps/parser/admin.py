@@ -3,7 +3,14 @@ from django.db.models import QuerySet
 from django.http import HttpRequest
 from guardian.admin import GuardedModelAdmin
 
-from apps.parser.models import ChannelModerator, ChannelStats, TelegramChannel
+from apps.parser.models import (
+    ChannelModerator,
+    ChannelStats,
+    Post,
+    PostReaction,
+    TelegramChannel,
+)
+from apps.parser.serializers import PostSerializer
 
 
 @admin.register(TelegramChannel)
@@ -128,6 +135,33 @@ class ChannelModeratorAdmin(GuardedModelAdmin):
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[ChannelModerator]:
         return super().get_queryset(request).select_related("user", "channel")  # type: ignore[no-untyped-call]
+
+
+class PostReactionInline(admin.TabularInline):
+    model = PostReaction
+    extra = 0
+    fields = ["emoji", "count"]
+
+
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
+    list_display = PostSerializer.get_admin_list_display()
+    list_filter = PostSerializer.get_admin_list_filter()
+    search_fields = PostSerializer.get_admin_search_fields()
+    inlines = [PostReactionInline]
+
+    def text_preview(self, obj):
+        return obj.text[:50] + "..." if len(obj.text) > 50 else obj.text
+
+    text_preview.short_description = "Текст"  # type: ignore
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("channel")
+            .prefetch_related("reactions")
+        )
 
 
 # Добавляем inline для модераторов в админку каналов

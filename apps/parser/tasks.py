@@ -12,7 +12,10 @@ from telethon.sessions import StringSession
 
 from apps.parser.models import ChannelStats, TelegramChannel
 from apps.parser.parser import tg_parser
-from apps.parser.types import ParsedChannelData
+from apps.parser.types import (
+    ParsedChannelData,
+    normalize_channel_data,
+)
 from apps.parser.utils import get_telegram_credentials
 
 log = logging.getLogger(__name__)
@@ -43,19 +46,26 @@ def parse_channel(channel_id: int) -> None:
             try:
                 # make connection with Telegram
                 await client.connect()
-                identifier = channel_obj.username or channel_obj.channel_id
+                identifier = str(channel_obj.username or channel_obj.channel_id)
                 data = await tg_parser(identifier, client)
                 if data is None:
                     log.warning(
                         "No data parsed for channel %s", channel_obj.channel_id
                     )
                     return
+                channel_data = normalize_channel_data(data)
                 # using sync_to_async to avoid Django ORM errors
                 # (cause ORM is sync)
                 # using sync_to_async to avoid Django ORM errors
                 # (cause ORM is sync)
-                await sync_to_async(save_channel_data)(channel_obj, data)
-                await sync_to_async(save_channel_stats)(channel_obj, data)
+                await sync_to_async(save_channel_data)(
+                    channel_obj,
+                    channel_data,
+                )
+                await sync_to_async(save_channel_stats)(
+                    channel_obj,
+                    channel_data,
+                )
             except (DatabaseError, IntegrityError) as e:
                 log.error(
                     f"Database safe error for {channel_obj.username} - {e}"
@@ -70,7 +80,8 @@ def parse_channel(channel_id: int) -> None:
 
 
 def save_channel_data(
-    channel: TelegramChannel, data: ParsedChannelData
+    channel: TelegramChannel,
+    data: ParsedChannelData,
 ) -> None:
     """Save channels data"""
     channel.username = data.get("username")

@@ -15,7 +15,11 @@ from apps.parser.dto.channel_dto import ChannelDTO, ChannelListDTO
 from apps.parser.forms import ChannelParseForm
 from apps.parser.models import ChannelStats, TelegramChannel
 from apps.parser.parser import tg_parser
-from apps.parser.types import ChannelDataForSave, ParsedChannelData
+from apps.parser.types import (
+    ChannelDataForSave,
+    ParsedChannelResult,
+    normalize_channel_data,
+)
 from apps.parser.utils import get_telegram_credentials
 from config.mixins import UserAuthenticationCheckMixin
 from config.renderers import render_inertia_from_dto
@@ -41,7 +45,7 @@ class ParserView(UserAuthenticationCheckMixin, FormView):
 
     async def async_tg_parser(
         self, url: str, limit: int = 10
-    ) -> ParsedChannelData | None:
+    ) -> ParsedChannelResult:
         """Parser wrapper"""
         client = self.get_telegram_client()
         await client.connect()
@@ -129,19 +133,21 @@ class ParserView(UserAuthenticationCheckMixin, FormView):
             if parsed_data is None:
                 form.add_error(None, "Не удалось получить данные канала")
                 return self.form_invalid(form)
-            parsed_data = ChannelDataForSave(**parsed_data)
-            parsed_data.update(
+            channel_data = ChannelDataForSave(
+                **normalize_channel_data(parsed_data)
+            )
+            channel_data.update(
                 {"language": language, "country": country, "category": category}
             )
 
             log.info(
                 f"Парсинг завершен для канала: "
-                f"{parsed_data['title']} ({parsed_data['channel_id']})"
+                f"{channel_data['title']} ({channel_data['channel_id']})"
             )
 
             # Saving data
-            channel, created = self.save_channel(parsed_data)
-            self.save_stats(channel, parsed_data)
+            channel, created = self.save_channel(channel_data)
+            self.save_stats(channel, channel_data)
 
             # Generating user message
             message = (
