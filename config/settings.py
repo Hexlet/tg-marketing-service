@@ -91,6 +91,7 @@ INSTALLED_APPS = [
     "apps.parser",
     "apps.homepage",
     "apps.ai",
+    "apps.blog",
 ]
 
 AUTHENTICATION_BACKENDS = [
