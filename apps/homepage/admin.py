@@ -1,11 +1,11 @@
 from django.contrib import admin
-from guardian.admin import GuardedModelAdminMixin
+from guardian.admin import GuardedModelAdmin
 
 from apps.homepage.models import HomePageComponent
 
 
 @admin.register(HomePageComponent)
-class HomePageComponentAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
+class HomePageComponentAdmin(GuardedModelAdmin):
     list_display = [
         "title",
         "component_type",

@@ -11,4 +11,3 @@ url for images - tests/fixtures/urls.json - [
 CharField - config/users/tests.py - [
     https://github.com/django/django/blob/stable/5.2.x/django/db/models/fields/__init__.py#L1292
 ]
-

@@ -16,15 +16,17 @@ from telethon.tl.functions.channels import GetFullChannelRequest
 log = logging.getLogger(__name__)
 
 
-async def tg_parser(url: str, client: TelegramClient, limit: int = 10) -> dict:
+async def tg_parser(
+    url: str | int, client: TelegramClient, limit: int = 10
+) -> dict:
     """
     Telegram channel parser function. Retrieves channel data including:
     name, ID, description, subscriber count, pinned message, and recent posts.
 
     Parameters:
-        url (str): URL of the Telegram channel in any valid format
-                   (e.g., `https://t.me/example`, `t.me/example`,
-                   `@example`, `example`)
+        url (str | int): URL, username, or numeric ID of the Telegram channel
+                         in any valid format (e.g., `https://t.me/example`,
+                         `t.me/example`, `@example`, `example`)
         client (TelegramClient): A Telegram client instance from the
                                  `telethon` library
         limit (int): Number of messages to parse (default: 10)
@@ -47,9 +49,7 @@ async def tg_parser(url: str, client: TelegramClient, limit: int = 10) -> dict:
 
         data["title"] = channel.title  # Channel title
         data["channel_id"] = channel.id  # Channel id
-        data["username"] = (
-            channel.username if channel.username else "-"
-        )  # Channel username
+        data["username"] = channel.username  # Channel username
         data["verified"] = channel.verified  # Is channel verified? (boolean)
         # Channel creation date
         data["creation_date"] = (

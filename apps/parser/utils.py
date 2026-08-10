@@ -42,7 +42,7 @@ def get_telegram_credentials(
         )
 
     try:
-        api_id = int(api_id)
+        api_id_int = int(api_id)
     except (TypeError, ValueError) as exc:
         raise ImproperlyConfigured(
             f"TELEGRAM_API_ID должен быть целым числом, получено: {api_id!r}"
@@ -54,4 +54,4 @@ def get_telegram_credentials(
             "Запусти `uv run python manage.py start_telegram_session`"
         )
 
-    return api_id, api_hash, session_string
+    return api_id_int, api_hash, session_string

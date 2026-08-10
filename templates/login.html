@@ -8,7 +8,7 @@
     <h1 class="my-4">Вход</h1>
     <form action="{% url 'users:login' %}" method="post">
         {% csrf_token %}
-    
+
         {% comment %}
         {% for item in form %}
         <div class="mb-3">
