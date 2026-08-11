@@ -1,4 +1,7 @@
+from typing import Any
+
 from django import forms
+from django.db.models import QuerySet
 
 # from config.channel.models import Channel
 from apps.group_channels.models import Group
@@ -121,15 +124,22 @@ class AddChannelForm(forms.ModelForm):
         model = Group
         fields = ("channels",)
 
-    def __init__(self, *args, channel_qs=None, **kwargs):
+    def __init__(
+        self,
+        *args: Any,
+        channel_qs: QuerySet[TelegramChannel] | None = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(*args, **kwargs)
-        self.fields["channels"].queryset = (
-            channel_qs
-            if channel_qs is not None
-            else TelegramChannel.objects.all()
-        )
+        channels_field = self.fields["channels"]
+        if isinstance(channels_field, forms.ModelMultipleChoiceField):
+            channels_field.queryset = (
+                channel_qs
+                if channel_qs is not None
+                else TelegramChannel.objects.all()
+            )
 
-    def clean_channels(self):
+    def clean_channels(self) -> QuerySet[TelegramChannel]:
         data = self.cleaned_data["channels"]
         if not data:
             raise forms.ValidationError("Нужно выбрать минимум один канал.")

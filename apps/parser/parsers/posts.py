@@ -1,9 +1,10 @@
-from typing import Dict, List
+from typing import List
 
 from telethon import TelegramClient
 from telethon.tl.types import Channel, Message
 
 from apps.parser.models import Post, PostReaction, TelegramChannel
+from apps.parser.types import ParsedPostsData
 
 
 class PostsParser:
@@ -17,9 +18,9 @@ class PostsParser:
         channel_entity: "Channel",
         channel_model: TelegramChannel,
         limit: int = 10,
-    ) -> Dict:
+    ) -> ParsedPostsData:
         """Парсинг постов и реакций."""
-        last_messages: List[Message] = await self.client.get_messages(
+        messages: List[Message] = await self.client.get_messages(
             channel_entity, limit=limit * 3
         )
         total_views = 0
@@ -27,7 +28,7 @@ class PostsParser:
         total_reposts = 0
         post_count = 0
 
-        for message in last_messages[:limit]:
+        for message in messages[:limit]:
             if message.service:
                 continue
 

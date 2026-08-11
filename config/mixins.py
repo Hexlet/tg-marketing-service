@@ -1,7 +1,10 @@
+from typing import Any, cast
+
 from django.contrib import messages
 from django.contrib.auth.mixins import AccessMixin
 from django.contrib.messages import add_message
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.http import HttpRequest, HttpResponseBase, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from guardian.utils import get_anonymous_user
@@ -15,7 +18,9 @@ class CheckingUserRolesMixin:
     ананимность, но только после долгого тестирования миделвары)
     """
 
-    def is_anonymous(self):
+    request: HttpRequest
+
+    def is_anonymous(self) -> bool:
         # Получаем специальный анонимный экземпляр Guardian
         anonymous_guardian_user = get_anonymous_user()
 
@@ -37,7 +42,7 @@ class UserAuthenticationCheckMixin(CheckingUserRolesMixin):
     отображением страницы
     """
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> Any:
         if self.is_anonymous():
             add_message(
                 request,
@@ -45,7 +50,9 @@ class UserAuthenticationCheckMixin(CheckingUserRolesMixin):
                 "Вы не авторизованы! Пожалуйста, выполните вход.",
             )
             return redirect(reverse("users:login"))
-        return super().dispatch(request, *args, **kwargs)
+        return super().dispatch(  # type: ignore[misc]
+            request, *args, **kwargs
+        )
 
 
 class RoleRequiredMixin(AccessMixin):
@@ -59,22 +66,28 @@ class RoleRequiredMixin(AccessMixin):
     )
     permission_denied_message = "У вас нет прав для доступа к этой странице"
     url_redirect = None  # Обязательно переопределить в дочерних классах при
+    request: HttpRequest
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
         if not self._test_role(request):
             return self.handle_no_permission()
 
-        return super().dispatch(request, *args, **kwargs)
+        return cast(
+            HttpResponseBase,
+            super().dispatch(request, *args, **kwargs),  # type: ignore[misc]
+        )
 
-    def _test_role(self, request):
+    def _test_role(self, request: HttpRequest) -> bool:
         """Проверяем соответствие роли"""
         if self.allowed_roles is None:
             raise ImproperlyConfigured(
                 f"{self.__class__.__name__} требует определения allowed_roles"
             )
-        return request.role in self.allowed_roles
+        return getattr(request, "role", None) in self.allowed_roles
 
-    def handle_no_permission(self):
+    def handle_no_permission(self) -> HttpResponseRedirect:
         """Обработка отказа в доступе"""
         # Показываем сообщение об ошибке
         messages.error(self.request, self.permission_denied_message)
@@ -116,7 +129,7 @@ class PartnerRequiredMixin(RoleRequiredMixin):
     allowed_roles = ["partner"]
     permission_denied_message = "Доступ только для партнеров"
 
-    def _test_role(self, request):
+    def _test_role(self, request: HttpRequest) -> bool:
         """Дополнительная проверка активного статуса партнера"""
         return (
             super()._test_role(request)
@@ -131,7 +144,7 @@ class ChannelModeratorRequiredMixin(RoleRequiredMixin):
     allowed_roles = ["channel_moderator"]
     permission_denied_message = "Доступ только для модераторов каналов"
 
-    def _test_role(self, request):
+    def _test_role(self, request: HttpRequest) -> bool:
         """Дополнительная проверка статуса модератора канала"""
         return (
             super()._test_role(request)

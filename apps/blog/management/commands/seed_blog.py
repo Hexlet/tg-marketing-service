@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -13,7 +15,7 @@ class Command(BaseCommand):
         "Повторный запуск не создаёт дубли, а обновляет существующие."
     )
 
-    def handle(self, *args, **options):
+    def handle(self, *args: Any, **options: Any) -> None:
         author = get_user_model().objects.filter(is_superuser=True).first()
         created = 0
         updated = 0
@@ -24,7 +26,7 @@ class Command(BaseCommand):
                 defaults.pop("slug")
                 defaults["author"] = author
                 defaults["published_at"] = parse_datetime(
-                    defaults["published_at"]
+                    str(defaults["published_at"])
                 )
                 _, was_created = BlogArticle.objects.update_or_create(
                     slug=data["slug"],

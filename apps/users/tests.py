@@ -1,3 +1,4 @@
+from typing import Any
 from unittest.mock import patch
 
 from django.contrib.auth import get_user
@@ -17,7 +18,7 @@ def inertia_json_response(request, component, props=None, **kwargs):
 
 
 class UserRegisterTest(TestCase):
-    def valid_payload(self, **overrides):
+    def valid_payload(self, **overrides: Any) -> dict[str, str]:
         payload = {
             "first_name": "Ada",
             "last_name": "Lovelace",
@@ -30,7 +31,9 @@ class UserRegisterTest(TestCase):
         payload.update(overrides)
         return payload
 
-    def test_successful_registration_logs_in_and_redirects_to_dashboard(self):
+    def test_successful_registration_logs_in_and_redirects_to_dashboard(
+        self,
+    ) -> None:
         response = self.client.post(
             reverse("users:user_create"),
             data=self.valid_payload(),
@@ -49,7 +52,9 @@ class UserRegisterTest(TestCase):
         self.assertEqual(get_user(self.client).pk, user.pk)
 
     @patch("apps.users.views.inertia_render", side_effect=inertia_json_response)
-    def test_registration_errors_are_returned_as_field_errors(self, _render):
+    def test_registration_errors_are_returned_as_field_errors(
+        self, _render: Any
+    ) -> None:
         User.objects.create_user(
             username="existing",
             email="taken@example.com",

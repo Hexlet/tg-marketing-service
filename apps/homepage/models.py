@@ -34,5 +34,5 @@ class HomePageComponent(models.Model):
         verbose_name_plural = "Компоненты главной страницы"
         ordering = ["order", "created_at"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.get_component_type_display()}: {self.title}"

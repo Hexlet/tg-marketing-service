@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.core.validators import URLValidator
 from django.db import models
 from django.utils.text import slugify
@@ -60,22 +62,22 @@ class Group(models.Model):
         verbose_name = "Группа"
         verbose_name_plural = "Группы"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def save(self, *args, **kwargs):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         if not self.slug or not self.slug.strip():
             self.slug = slugify(unidecode(self.name))
         super().save(*args, **kwargs)
 
     @property
-    def saves_count(self):
+    def saves_count(self) -> int:
         if hasattr(self, "annotated_saves_count"):
             return self.annotated_saves_count
 
         return self.saves.count()
 
-    def get_data(self):
+    def get_data(self) -> dict[str, Any]:
         """
         Метод возвращает представление данных группы в виде словаря,
         пригодного для передачи на фронтенд (Inertia.js).
@@ -120,7 +122,7 @@ class SavedCollection(models.Model):
             ),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.user} -> {self.group}"
 
 
@@ -144,5 +146,5 @@ class AutoGroupRule(models.Model):
         verbose_name = "Правило автоподборки"
         verbose_name_plural = "Правила автоподборок"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'AutoRule[{self.group.name}] category="{self.category}"'
