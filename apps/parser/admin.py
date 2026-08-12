@@ -5,6 +5,7 @@ from apps.parser.models import (
     ChannelModerator,
     ChannelStats,
     Post,
+    PostAIBreakdown,
     PostReaction,
     TelegramChannel,
 )
@@ -141,12 +142,29 @@ class PostReactionInline(admin.TabularInline):
     fields = ["emoji", "count"]
 
 
+class PostAIBreakdownInline(admin.StackedInline):
+    model = PostAIBreakdown
+    can_delete = False
+    verbose_name = "AI Анализ"
+    verbose_name_plural = "AI Анализ"
+    extra = 0
+    fields = [
+        "summary",
+        "sentiment",
+        "key_topics",
+        "audience_insight",
+        "recommendations",
+        "model_version",
+        "generated_at",
+    ]
+
+
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = PostSerializer.get_admin_list_display()
     list_filter = PostSerializer.get_admin_list_filter()
     search_fields = PostSerializer.get_admin_search_fields()
-    inlines = [PostReactionInline]
+    inlines = [PostReactionInline, PostAIBreakdownInline]
 
     def text_preview(self, obj):
         return obj.text[:50] + "..." if len(obj.text) > 50 else obj.text

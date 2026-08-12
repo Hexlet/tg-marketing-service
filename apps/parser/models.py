@@ -357,3 +357,55 @@ class PostReaction(models.Model):
         verbose_name = "Реакция на пост"
         verbose_name_plural = "Реакции на пост"
         unique_together = ("post", "emoji")
+
+
+class PostAIBreakdown(models.Model):
+    """
+    Хранит результат глубокого AI-анализа поста.
+    Используется для мгновенного отображения блоков «Почему зашёл»,
+    «Что улучшить» и «Похожие идеи».
+    """
+
+    post = models.OneToOneField(
+        "Post",
+        on_delete=models.CASCADE,
+        related_name="ai_breakdown",
+        verbose_name="Пост",
+    )
+    summary = models.TextField(
+        verbose_name="Краткое резюме (Summary)",
+    )
+    sentiment = models.CharField(
+        max_length=50,
+        verbose_name="Тон/Sentiment",
+    )
+    key_topics = models.JSONField(
+        default=list,
+        verbose_name="Ключевые темы (JSON)",
+        help_text="Список тем в формате ['тема1', 'тема2']",
+    )
+    audience_insight = models.TextField(
+        verbose_name="Инсайт аудитории",
+    )
+    recommendations = models.JSONField(
+        default=dict,
+        verbose_name="Рекомендации (JSON)",
+        help_text="Объект с рекомендациями, например {'tone': '...'}",
+    )
+    generated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Дата генерации",
+    )
+    model_version = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="Версия модели AI",
+    )
+
+    class Meta:
+        verbose_name = "AI разбор поста"
+        verbose_name_plural = "AI разборы постов"
+
+    def __str__(self):
+        return f"AI Breakdown for Post #{self.post.telegram_message_id}"

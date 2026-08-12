@@ -13,6 +13,30 @@ class PostSerializer:
     def get_post_data(cls, post: Post) -> dict:
         breakdown = post.get_reactions_breakdown()
 
+        ai_data = {}
+
+        """
+        Словарь пропсов для фронтенда (Inertia.js).
+        Формат соответствует требованиям UI:
+        - summary: краткое описание
+        - sentiment: тон
+        - why_visited: (извлекается из audience_insight или summary)
+        - improvements: (из recommendations)
+        - similar_ideas: (из key_topics или доп. поля)
+        """
+
+        if hasattr(post, "ai_breakdown"):
+            ai = post.ai_breakdown
+            ai_data = {
+                "summary": ai.summary,
+                "sentiment": ai.sentiment,
+                "key_topics": ai.key_topics,
+                "audience_insight": ai.audience_insight,
+                "recommendations": ai.recommendations,
+                "generated_at": ai.generated_at.isoformat(),
+                "model_version": ai.model_version,
+            }
+
         return {
             "id": post.id,
             "telegram_message_id": post.telegram_message_id,
@@ -30,7 +54,17 @@ class PostSerializer:
                 "total": breakdown["total"],
                 "details": breakdown["details"],
             },
+            "ai_breakdown": ai_data,
         }
+
+    @classmethod
+    def get_serialized_post_for_inertia(cls, post_id: int) -> dict:
+        try:
+            # select_related, чтобы подтянуть AI данные одним запросом
+            post = Post.objects.select_related("ai_breakdown").get(id=post_id)
+            return cls.get_post_data(post)
+        except Post.DoesNotExist:
+            raise Post.DoesNotExist(f"Post with id {post_id} does not exist")
 
     @classmethod
     def get_posts_list_data(cls, queryset) -> list[dict]:
@@ -81,15 +115,3 @@ class PostSerializer:
             "channel__title",
             "channel__username",
         )
-
-    @classmethod
-    def get_serialized_post_for_inertia(cls, post_id: int) -> dict:
-        """
-        Получает пост по ID и возвращает его в формате, пригодном для Inertia
-
-        """
-        try:
-            post = Post.objects.get(id=post_id)
-            return cls.get_post_data(post)
-        except Post.DoesNotExist:
-            raise Post.DoesNotExist(f"Post with id {post_id} does not exist")
