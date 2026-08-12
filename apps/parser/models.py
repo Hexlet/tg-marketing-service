@@ -390,7 +390,6 @@ class PostAIBreakdown(models.Model):
     recommendations = models.JSONField(
         default=dict,
         verbose_name="Рекомендации (JSON)",
-        help_text="Объект с рекомендациями, например {'tone': '...'}",
     )
     generated_at = models.DateTimeField(
         auto_now=True,
