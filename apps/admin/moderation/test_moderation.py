@@ -319,7 +319,7 @@ class ModerationRequestTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["props"]["pagination"]["page"], 1)
 
-    def test_moderation_view_approve_uses_checkbox_value_and_redirects(
+    def test_moderation_view_approve_uses_checkbox_value_and_returns_no_content(
         self,
     ) -> None:
         admin = self.create_admin()
@@ -336,16 +336,16 @@ class ModerationRequestTests(TestCase):
             },
         )
 
-        self.assertEqual(response.status_code, 409)
-        self.assertEqual(
-            response["X-Inertia-Location"],
-            reverse("admin_moderation:list"),
-        )
+        self.assertEqual(response.status_code, 204)
+        self.assertNotIn("X-Inertia-Location", response)
+        self.assertEqual(response.content, b"")
         self.channel.refresh_from_db()
         self.assertTrue(self.channel.verified)
         self.assertTrue(self.channel.is_published)
 
-    def test_moderation_view_returns_redirect_with_service_error(self) -> None:
+    def test_moderation_view_returns_no_content_with_service_error(
+        self,
+    ) -> None:
         admin = self.create_admin()
         self.client.force_login(admin)
         moderation_request = self.create_request(channel_by=self.channel)
@@ -359,10 +359,8 @@ class ModerationRequestTests(TestCase):
             },
         )
 
-        self.assertEqual(response.status_code, 409)
-        self.assertEqual(
-            response["X-Inertia-Location"],
-            reverse("admin_moderation:list"),
-        )
+        self.assertEqual(response.status_code, 204)
+        self.assertNotIn("X-Inertia-Location", response)
+        self.assertEqual(response.content, b"")
         moderation_request.refresh_from_db()
         self.assertEqual(moderation_request.status, "pending")

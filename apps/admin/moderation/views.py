@@ -2,9 +2,8 @@ from typing import Any
 
 from django.core.paginator import Paginator
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
-from django.urls import reverse
 from django.views import View
-from inertia import InertiaResponse, location
+from inertia import InertiaResponse
 from inertia import render as inertia_render
 
 from apps.admin.moderation.services.moderation import (
@@ -86,4 +85,4 @@ class ModerationRequestListView(AdminRequiredMixin, View):
         except ModerationError as error:
             flash = {"error": str(error)}
         request.session["flash"] = flash
-        return location(reverse("admin_moderation:list"))
+        return HttpResponse(status=204)
