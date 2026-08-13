@@ -28,6 +28,10 @@ urlpatterns = [
     path("group/", include("apps.group_channels.urls")),
     path("accounts/", include("allauth.urls")),
     path("parser/", include("apps.parser.urls")),
+    path(
+        "admin/moderation/",
+        include("apps.admin.moderation.urls"),
+    ),
     path("admin/", admin.site.urls),
     path(
         "robots.txt",
