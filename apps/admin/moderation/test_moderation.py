@@ -176,7 +176,7 @@ class ModerationRequestTests(TestCase):
             moderation_request.id,
             moderator,
             category="business",
-            verified=True,
+            is_verified=True,
         )
 
         result.refresh_from_db()
@@ -185,8 +185,7 @@ class ModerationRequestTests(TestCase):
         self.assertEqual(result.category, "business")
         self.assertEqual(result.moderator, moderator)
         self.assertIsNotNone(result.resolved_at)
-        self.assertTrue(self.channel.is_published)
-        self.assertTrue(self.channel.verified)
+        self.assertTrue(self.channel.is_verified)
         self.assertEqual(self.channel.category, "business")
 
     def test_approve_marks_request_as_duplicate_by_username(self) -> None:
@@ -207,7 +206,7 @@ class ModerationRequestTests(TestCase):
             moderation_request.id,
             moderator,
             category="technology",
-            verified=False,
+            is_verified=False,
         )
 
         result.refresh_from_db()
@@ -215,7 +214,7 @@ class ModerationRequestTests(TestCase):
         self.assertEqual(result.moderator, moderator)
         self.assertIsNotNone(result.resolved_at)
         duplicate_channel.refresh_from_db()
-        self.assertFalse(duplicate_channel.is_published)
+        self.assertFalse(duplicate_channel.is_verified)
 
     def test_reject_records_reason_moderator_and_time(self) -> None:
         moderation_request = self.create_request(channel_by=self.channel)
@@ -252,7 +251,7 @@ class ModerationRequestTests(TestCase):
                 moderation_request.id,
                 moderator,
                 category=" ",
-                verified=False,
+                is_verified=False,
             )
         with self.assertRaises(ModerationError):
             ModerationService.reject(
@@ -332,16 +331,15 @@ class ModerationRequestTests(TestCase):
                 "action": "approve",
                 "request_id": moderation_request.id,
                 "category": "business",
-                "verified": "true",
+                "is_verified": "true",
             },
         )
 
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
         self.assertNotIn("X-Inertia-Location", response)
         self.assertEqual(response.content, b"")
         self.channel.refresh_from_db()
-        self.assertTrue(self.channel.verified)
-        self.assertTrue(self.channel.is_published)
+        self.assertTrue(self.channel.is_verified)
 
     def test_moderation_view_returns_no_content_with_service_error(
         self,
@@ -358,9 +356,7 @@ class ModerationRequestTests(TestCase):
                 "category": "",
             },
         )
-
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 302)
         self.assertNotIn("X-Inertia-Location", response)
-        self.assertEqual(response.content, b"")
         moderation_request.refresh_from_db()
         self.assertEqual(moderation_request.status, "pending")

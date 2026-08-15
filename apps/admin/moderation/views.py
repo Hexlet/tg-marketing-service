@@ -2,6 +2,7 @@ from typing import Any
 
 from django.core.paginator import Paginator
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
+from django.shortcuts import redirect
 from django.views import View
 from inertia import InertiaResponse
 from inertia import render as inertia_render
@@ -64,12 +65,12 @@ class ModerationRequestListView(AdminRequiredMixin, View):
         try:
             if action == "approve":
                 category = request.POST.get("category", "")
-                verified = request.POST.get("verified", "") == "true"
+                is_verified = request.POST.get("is_verified", "") == "true"
                 ModerationService.approve(
                     request_id=request_id,
                     moderator=moderator,
                     category=category,
-                    verified=verified,
+                    is_verified=is_verified,
                 )
                 flash = {"success": "Заявка одобрена"}
             elif action == "reject":
@@ -85,4 +86,6 @@ class ModerationRequestListView(AdminRequiredMixin, View):
         except ModerationError as error:
             flash = {"error": str(error)}
         request.session["flash"] = flash
-        return HttpResponse(status=204)
+
+        url = request.get_full_path()
+        return redirect(url)

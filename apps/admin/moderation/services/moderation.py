@@ -22,7 +22,7 @@ class ModerationService:
         moderator: User,
         *,
         category: str,
-        verified: bool,
+        is_verified: bool,
     ) -> ModerationRequest:
         category = category.strip()
         if not category:
@@ -47,10 +47,10 @@ class ModerationService:
                     return cls._mark_duplicate(moderation_request, moderator)
 
                 channel.category = category
-                channel.is_published = True
-                channel.verified = verified
+                channel.is_verified = is_verified
+                channel.verified_at = resolved_at if is_verified else None
                 channel.save(
-                    update_fields=["category", "is_published", "verified"]
+                    update_fields=["category", "is_verified", "verified_at"]
                 )
 
                 moderation_request.status = "approved"
