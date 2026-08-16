@@ -1,7 +1,5 @@
 from django.db import models
 
-from typing import Any 
-
 from apps.users.models import User
 
 
@@ -388,7 +386,7 @@ class PostAnalysis(models.Model):
         related_name="similar_to",
         blank=True,
         verbose_name="Похожие идеи",
-    ) # type: Any
+    )  # type: ignore
 
     created_at = models.DateTimeField(
         auto_now_add=True,
