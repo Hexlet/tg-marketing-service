@@ -359,42 +359,40 @@ class PostReaction(models.Model):
         unique_together = ("post", "emoji")
 
 
-class PostAIBreakdown(models.Model):
+class PostAnalysis(models.Model):
     """
-    Хранит результат глубокого AI-анализа поста.
-    Используется для мгновенного отображения блоков «Почему зашёл»,
-    «Что улучшить» и «Похожие идеи».
+    НОВАЯ МОДЕЛЬ: Хранит AI-разбор поста
+    в соответствии с дизайном страницы (§4)
+    Соответствует трем колонкам: «Почему зашёл», «Что улучшить», «Похожие идеи»
     """
 
     post = models.OneToOneField(
         "Post",
         on_delete=models.CASCADE,
-        related_name="ai_breakdown",
+        related_name="post_analysis",
         verbose_name="Пост",
     )
-    summary = models.TextField(
-        verbose_name="Краткое резюме (Summary)",
+
+    why_worked = models.TextField(
+        verbose_name="Почему зашёл",
     )
-    sentiment = models.CharField(
-        max_length=50,
-        verbose_name="Тон/Sentiment",
+
+    how_to_improve = models.TextField(
+        verbose_name="Что улучшить",
     )
-    key_topics = models.JSONField(
-        default=list,
-        verbose_name="Ключевые темы (JSON)",
-        help_text="Список тем в формате ['тема1', 'тема2']",
+
+    similar_posts = models.ManyToManyField(
+        "Post",
+        related_name="similar_to",
+        blank=True,
+        verbose_name="Похожие идеи",
     )
-    audience_insight = models.TextField(
-        verbose_name="Инсайт аудитории",
-    )
-    recommendations = models.JSONField(
-        default=dict,
-        verbose_name="Рекомендации (JSON)",
-    )
-    generated_at = models.DateTimeField(
-        auto_now=True,
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
         verbose_name="Дата генерации",
     )
+
     model_version = models.CharField(
         max_length=100,
         blank=True,
@@ -403,8 +401,8 @@ class PostAIBreakdown(models.Model):
     )
 
     class Meta:
-        verbose_name = "AI разбор поста"
-        verbose_name_plural = "AI разборы постов"
+        verbose_name = "AI анализ поста"
+        verbose_name_plural = "AI анализы постов"
 
     def __str__(self):
-        return f"AI Breakdown for Post #{self.post.telegram_message_id}"
+        return f"AI Analysis for Post #{self.post.telegram_message_id}"

@@ -13,28 +13,50 @@ class PostSerializer:
     def get_post_data(cls, post: Post) -> dict:
         breakdown = post.get_reactions_breakdown()
 
-        ai_data = {}
-
         """
-        Словарь пропсов для фронтенда (Inertia.js).
-        Формат соответствует требованиям UI:
-        - summary: краткое описание
-        - sentiment: тон
-        - why_visited: (извлекается из audience_insight или summary)
-        - improvements: (из recommendations)
-        - similar_ideas: (из key_topics или доп. поля)
+        Словарь пропсов для фронтенда (Inertia.js):
+       
+        {
+            "id": int,
+            "telegram_message_id": int,
+            "channel_id": int,
+            "text": str,
+            "published_at": str,
+            "views": int,
+            "forwards": int,
+            "comments_count": int,
+            "reposts": int,
+            "is_pinned": bool,
+            "media_type": str,
+            "permalink": str,
+            "reactions": {
+                "total": int,
+                "details": dict
+            },
+            "post_analysis": {
+                "why_worked": list[str],
+                "how_to_improve": list[str],
+                "similar_posts": list[dict],
+                "model_version": str
+            }
+        }
         """
 
-        if hasattr(post, "ai_breakdown"):
-            ai = post.ai_breakdown
-            ai_data = {
-                "summary": ai.summary,
-                "sentiment": ai.sentiment,
-                "key_topics": ai.key_topics,
-                "audience_insight": ai.audience_insight,
-                "recommendations": ai.recommendations,
-                "generated_at": ai.generated_at.isoformat(),
-                "model_version": ai.model_version,
+        post_analysis_data = {}
+        if hasattr(post, "post_analysis"):
+            analysis = post.post_analysis
+            post_analysis_data = {
+                "why_worked": analysis.why_worked.split("\n"),
+                "how_to_improve": analysis.how_to_improve.split("\n"),
+                "similar_posts": [
+                    {
+                        "telegram_message_id": p.telegram_message_id,
+                        "text": p.text,
+                        "permalink": p.permalink,
+                    }
+                    for p in analysis.similar_posts.all()
+                ],
+                "model_version": analysis.model_version,
             }
 
         return {
@@ -54,14 +76,14 @@ class PostSerializer:
                 "total": breakdown["total"],
                 "details": breakdown["details"],
             },
-            "ai_breakdown": ai_data,
+            "post_analysis": post_analysis_data,
         }
 
     @classmethod
     def get_serialized_post_for_inertia(cls, post_id: int) -> dict:
         try:
             # select_related, чтобы подтянуть AI данные одним запросом
-            post = Post.objects.select_related("ai_breakdown").get(id=post_id)
+            post = Post.objects.select_related("post_analysis").get(id=post_id)
             return cls.get_post_data(post)
         except Post.DoesNotExist:
             raise Post.DoesNotExist(f"Post with id {post_id} does not exist")
