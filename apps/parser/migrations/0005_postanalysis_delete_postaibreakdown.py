@@ -5,29 +5,68 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('parser', '0004_postaibreakdown'),
+        ("parser", "0004_postaibreakdown"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PostAnalysis',
+            name="PostAnalysis",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('why_worked', models.TextField(verbose_name='Почему зашёл')),
-                ('how_to_improve', models.TextField(verbose_name='Что улучшить')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата генерации')),
-                ('model_version', models.CharField(blank=True, max_length=100, null=True, verbose_name='Версия модели AI')),
-                ('post', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='post_analysis', to='parser.post', verbose_name='Пост')),
-                ('similar_posts', models.ManyToManyField(blank=True, related_name='similar_to', to='parser.post', verbose_name='Похожие идеи')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("why_worked", models.TextField(verbose_name="Почему зашёл")),
+                (
+                    "how_to_improve",
+                    models.TextField(verbose_name="Что улучшить"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Дата генерации"
+                    ),
+                ),
+                (
+                    "model_version",
+                    models.CharField(
+                        blank=True,
+                        max_length=100,
+                        null=True,
+                        verbose_name="Версия модели AI",
+                    ),
+                ),
+                (
+                    "post",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="post_analysis",
+                        to="parser.post",
+                        verbose_name="Пост",
+                    ),
+                ),
+                (
+                    "similar_posts",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="similar_to",
+                        to="parser.post",
+                        verbose_name="Похожие идеи",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'AI анализ поста',
-                'verbose_name_plural': 'AI анализы постов',
+                "verbose_name": "AI анализ поста",
+                "verbose_name_plural": "AI анализы постов",
             },
         ),
         migrations.DeleteModel(
-            name='PostAIBreakdown',
+            name="PostAIBreakdown",
         ),
     ]
