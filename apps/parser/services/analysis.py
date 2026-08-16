@@ -1,6 +1,6 @@
 from typing import Optional
 
-from models import Post, PostAnalysis
+from apps.parser.models import Post, PostAnalysis
 
 from .ai_provider import (
     AIAnalysisResult,
