@@ -318,7 +318,7 @@ class ModerationRequestTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["props"]["pagination"]["page"], 1)
 
-    def test_moderation_view_approve_uses_checkbox_value_and_returns_no_content(
+    def test_moderation_view_approve_sets_is_verified_and_redirects(
         self,
     ) -> None:
         admin = self.create_admin()
@@ -335,9 +335,7 @@ class ModerationRequestTests(TestCase):
             },
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertNotIn("X-Inertia-Location", response)
-        self.assertEqual(response.content, b"")
+        self.assertEqual(response.status_code, 302)
         self.channel.refresh_from_db()
         self.assertTrue(self.channel.is_verified)
 
