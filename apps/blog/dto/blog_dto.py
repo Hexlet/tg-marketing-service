@@ -21,7 +21,8 @@ class ArticleCardDTO(BaseModel):
 
 
 class BlogListDTO(BaseModel):
-    """Props для Inertia-страницы 'Blog' (/blog/).
+    """
+    Props для Inertia-страницы 'Blog' (/blog/).
 
     - featured: выделенная статья (последняя is_featured & is_published);
     - articles: остальные статьи, упорядоченные по published_at desc.
