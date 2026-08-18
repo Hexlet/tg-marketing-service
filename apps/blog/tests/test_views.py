@@ -49,6 +49,15 @@ class BlogListViewTest(TestCase):
             views_count=120,
         )
 
+        cls.featured_older = BlogArticle.objects.create(
+            title="Старая featured",
+            slug="staraya-featured",
+            excerpt="Тоже в избранном, но опубликована раньше.",
+            is_featured=True,
+            is_published=True,
+            published_at=datetime(2026, 7, 20, 10, 0, tzinfo=timezone.utc),
+        )
+
         cls.article_recent = BlogArticle.objects.create(
             title="Свежая статья",
             slug="svezhaya-statya",
@@ -143,7 +152,7 @@ class BlogListViewTest(TestCase):
 
         featured = props["featured"]
         self.assertIsNotNone(featured)
-        # Не подхватываем неопубликованную featured-статью
+        # Выбирается самая свежая
         self.assertEqual(featured["slug"], self.featured.slug)
 
     def test_featured_card_contains_all_fields(self) -> None:
@@ -177,6 +186,7 @@ class BlogListViewTest(TestCase):
             slugs,
             [
                 self.article_recent.slug,
+                self.featured_older.slug,
                 self.article_middle.slug,
                 self.article_old.slug,
             ],

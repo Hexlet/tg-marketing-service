@@ -19,6 +19,15 @@ class BlogListServiceTest(TestCase):
             published_at=datetime(2026, 8, 4, 8, 0, tzinfo=timezone.utc),
         )
 
+        cls.featured_older = BlogArticle.objects.create(
+            title="Старая featured",
+            slug="staraya-featured",
+            excerpt="Тоже в избранном, но опубликована раньше.",
+            is_featured=True,
+            is_published=True,
+            published_at=datetime(2026, 7, 20, 10, 0, tzinfo=timezone.utc),
+        )
+
         cls.article = BlogArticle.objects.create(
             title="Обычная статья",
             slug="obychnaya-statya",
@@ -48,5 +57,7 @@ class BlogListServiceTest(TestCase):
         self.assertEqual(dto.featured.slug, self.featured.slug)
 
         articles_slugs = [article.slug for article in dto.articles]
-        self.assertEqual(articles_slugs, [self.article.slug])
+        self.assertEqual(
+            articles_slugs, [self.featured_older.slug, self.article.slug]
+        )
         self.assertNotIn(self.unpublished.slug, articles_slugs)
