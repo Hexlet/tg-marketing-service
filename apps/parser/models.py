@@ -77,14 +77,10 @@ class TelegramChannel(models.Model):
         verbose_name="Язык канала",
     )
     is_verified = models.BooleanField(
-        default=False,
-        db_index=True,
-        verbose_name="Прошел верификацию"
+        default=False, db_index=True, verbose_name="Прошел верификацию"
     )
     verified_at = models.DateTimeField(
-        null=True,
-        blank=True,
-        verbose_name="Дата верификации"
+        null=True, blank=True, verbose_name="Дата верификации"
     )
 
     class Meta:

@@ -4,20 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('parser', '0003_post_postreaction_and_more'),
+        ("parser", "0003_post_postreaction_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='telegramchannel',
-            name='is_verified',
-            field=models.BooleanField(db_index=True, default=False, verbose_name='Прошел верификацию'),
+            model_name="telegramchannel",
+            name="is_verified",
+            field=models.BooleanField(
+                db_index=True, default=False, verbose_name="Прошел верификацию"
+            ),
         ),
         migrations.AddField(
-            model_name='telegramchannel',
-            name='verified_at',
-            field=models.DateTimeField(blank=True, null=True, verbose_name='Дата верификации'),
+            model_name="telegramchannel",
+            name="verified_at",
+            field=models.DateTimeField(
+                blank=True, null=True, verbose_name="Дата верификации"
+            ),
         ),
     ]

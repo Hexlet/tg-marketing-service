@@ -23,7 +23,7 @@ class TelegramChannelAdmin(GuardedModelAdmin):
         "average_views",
         "parsed_at",
         "is_verified",
-        "verified_at"
+        "verified_at",
     ]
     list_filter = ["parsed_at", "creation_date", "is_verified", "verified_at"]
     search_fields = ["title", "username", "description"]
