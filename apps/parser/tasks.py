@@ -135,7 +135,7 @@ def parse_all_channels() -> None:
 def run_post_analysis_task(post_id: int):
     try:
         post = Post.objects.get(id=post_id)
-        # Создаем экземпляр сервиса и запускаем тяжелый метод
+        # Создаем экземпляр сервиса, запускаем тяжелый метод
         service = PostAnalysisService()
         service.get_analysis(post)
         log.info(f"Analysis completed for post {post_id}")
