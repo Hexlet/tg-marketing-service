@@ -1,5 +1,6 @@
 from django.contrib import admin
-from guardian.admin import GuardedModelAdminMixin
+from django.http import HttpRequest
+from guardian.admin import GuardedModelAdmin
 
 from apps.parser.models import ChannelModerator
 from apps.users.models import PartnerProfile, User
@@ -29,7 +30,7 @@ class PartnerProfileInline(admin.StackedInline):
 
 
 @admin.register(User)
-class CustomUserAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
+class CustomUserAdmin(GuardedModelAdmin):
     list_display = (
         "username",
         "email",
@@ -83,24 +84,20 @@ class CustomUserAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
         ),
     )
 
+    @admin.display(boolean=True, description="Партнер")
     def is_partner(self, obj):
         return (
             hasattr(obj, "partner_profile")
             and obj.partner_profile.status == "active"
         )
 
-    is_partner.boolean = True
-    is_partner.short_description = "Партнер"
-
+    @admin.display(boolean=True, description="Модератор канала")
     def is_channel_moderator(self, obj):
         return obj.moderated_channels.exists()
 
-    is_channel_moderator.boolean = True
-    is_channel_moderator.short_description = "Модератор канала"
-
 
 @admin.register(PartnerProfile)
-class PartnerProfileAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
+class PartnerProfileAdmin(GuardedModelAdmin):
     list_display = (
         "user",
         "status",
@@ -136,15 +133,13 @@ class PartnerProfileAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
         ),
     )
 
+    @admin.display(description="Баланс")
     def formatted_balance(self, obj):
         return f"{obj.balance:.2f}" if obj.balance else "0.00"
 
-    formatted_balance.short_description = "Баланс"
-
+    @admin.display(description="Реквизиты")
     def truncated_payment_details(self, obj):
         return obj.payment_details[:50] + "..." if obj.payment_details else ""
-
-    truncated_payment_details.short_description = "Реквизиты"
 
     @admin.action(description="Активировать выбранных партнеров")
     def activate_selected(self, request, queryset):
@@ -160,5 +155,5 @@ class PartnerProfileAdmin(GuardedModelAdminMixin, admin.ModelAdmin):
             request, f"Деактивировано {updated} партнерских профилей"
         )
 
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related("user")
+    def get_queryset(self, request: HttpRequest):
+        return super().get_queryset(request).select_related("user")  # type: ignore[no-untyped-call]

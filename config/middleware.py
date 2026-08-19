@@ -1,3 +1,6 @@
+from typing import Any, Callable
+
+from django.http import HttpRequest, HttpResponse
 from django.middleware.csrf import get_token
 from inertia.share import share
 
@@ -16,10 +19,12 @@ class SharedInertiaPropsMiddleware:
         "channel_moderator",
     }
 
-    def __init__(self, get_response):
+    def __init__(
+        self, get_response: Callable[[HttpRequest], HttpResponse]
+    ) -> None:
         self.get_response = get_response
 
-    def _get_role(self, request):
+    def _get_role(self, request: HttpRequest) -> str:
         if not request.user.is_authenticated:
             return "guest"
 
@@ -34,7 +39,7 @@ class SharedInertiaPropsMiddleware:
 
         return "user"
 
-    def _is_admin(self, request):
+    def _is_admin(self, request: HttpRequest) -> bool:
         if not request.user.is_authenticated:
             return False
 
@@ -45,7 +50,7 @@ class SharedInertiaPropsMiddleware:
             or getattr(request.user, "is_superuser", False)
         )
 
-    def _get_auth_payload(self, request):
+    def _get_auth_payload(self, request: HttpRequest) -> dict[str, Any] | None:
         if not request.user.is_authenticated:
             return None
 
@@ -60,7 +65,7 @@ class SharedInertiaPropsMiddleware:
             "role": role,
         }
 
-    def __call__(self, request):
+    def __call__(self, request: HttpRequest) -> HttpResponse:
         flash = request.session.pop("flash", None)
         if not isinstance(flash, dict) or not flash:
             flash = None

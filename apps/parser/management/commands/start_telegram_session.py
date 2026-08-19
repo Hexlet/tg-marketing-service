@@ -25,7 +25,7 @@ import asyncio
 from operator import itemgetter
 from os import getenv
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any, Optional, Type
 
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 from dotenv import find_dotenv, load_dotenv, set_key
@@ -75,7 +75,7 @@ class Command(BaseCommand):
     when: u r tired and want to receive argparse.ArgumentError
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize command state:
         1. init super (required for backward compatibility with BaseCommand)
         2. create fields
@@ -83,12 +83,12 @@ class Command(BaseCommand):
 
         super().__init__(*args, **kwargs)
         # I didnt know about this so added it
-        self.string_session: Optional[str] = None
+        self.string_session: str = ""
         self.api_id: Optional[int] = None
         self.api_hash: Optional[str] = None
         self.phone: Optional[str] = None
         self.password: Optional[str] = None
-        self.env_path: Optional[str] = None
+        self.env_path: str = ""
 
     # argparse arguments
     def add_arguments(self, parser: CommandParser) -> None:
@@ -146,7 +146,7 @@ class Command(BaseCommand):
 
         # **options instead of **kwargs because of legacy
 
-    def handle(self, *args, **options: dict[str, str]) -> None:
+    def handle(self, *args: Any, **options: Any) -> None:
         """Entrypoint: resolve input, authenticate in Telegram, save it.
 
         Structure:
@@ -240,7 +240,7 @@ class Command(BaseCommand):
         att_name: str,
         env_key: str,
         value: Any,
-        to_type: Callable[[Any], Any] = str,
+        to_type: Type[Any] = str,
         force: bool = False,
         remove_whitespace: bool = True,
     ) -> None:

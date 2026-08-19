@@ -1,11 +1,23 @@
+from collections.abc import Callable, Sequence
 from functools import wraps
+from typing import Any
 
 from django.contrib import messages
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.http import (
+    HttpRequest,
+    HttpResponseForbidden,
+    HttpResponseRedirect,
+)
 from django.urls import reverse
 
+View = Callable[..., Any]
 
-def role_required(allowed_roles, login_url=None, message=None):
+
+def role_required(
+    allowed_roles: Sequence[str],
+    login_url: str | None = None,
+    message: str | None = None,
+) -> Callable[[View], View]:
     """
     Основной декоратор для проверки ролей.
 
@@ -16,20 +28,23 @@ def role_required(allowed_roles, login_url=None, message=None):
     :param message: Сообщение об ошибке (по умолчанию None)
     """
 
-    def decorator(view_func):
+    def decorator(view_func: View) -> View:
         @wraps(view_func)
-        def _wrapped_view(request, *args, **kwargs):
+        def _wrapped_view(
+            request: HttpRequest, *args: Any, **kwargs: Any
+        ) -> Any:
             # Определяем роль пользователя
             if not hasattr(request, "role"):
-                request.role = get_user_role(request)
+                setattr(request, "role", get_user_role(request))
 
             # Проверяем доступ
-            if request.role in allowed_roles:
+            role = getattr(request, "role", "guest")
+            if role in allowed_roles:
                 return view_func(request, *args, **kwargs)
 
             # Обработка отказа в доступе
             return handle_access_denied(
-                request, request.role, allowed_roles, login_url, message
+                request, role, allowed_roles, login_url, message
             )
 
         return _wrapped_view
@@ -37,7 +52,7 @@ def role_required(allowed_roles, login_url=None, message=None):
     return decorator
 
 
-def get_user_role(request):
+def get_user_role(request: HttpRequest) -> str:
     """Динамически определяем роль пользователя"""
     if not request.user.is_authenticated:
         return "guest"
@@ -52,8 +67,12 @@ def get_user_role(request):
 
 
 def handle_access_denied(
-    request, current_role, allowed_roles, login_url=None, message=None
-):
+    request: HttpRequest,
+    current_role: str,
+    allowed_roles: Sequence[str],
+    login_url: str | None = None,
+    message: str | None = None,
+) -> HttpResponseForbidden | HttpResponseRedirect:
     """
     Обработка отказа в доступе с учетом разных сценариев
     """
@@ -80,7 +99,11 @@ def handle_access_denied(
 
 
 # Специализированные декораторы
-def guest_required(view_func=None, login_url=None, message=None):
+def guest_required(
+    view_func: View | None = None,
+    login_url: str | None = None,
+    message: str | None = None,
+) -> Callable[..., Any]:
     """
     Только для неавторизованных пользователей.
     Авторизованных перенаправляет на главную.
@@ -95,7 +118,11 @@ def guest_required(view_func=None, login_url=None, message=None):
     return actual_decorator
 
 
-def user_required(view_func=None, login_url=None, message=None):
+def user_required(
+    view_func: View | None = None,
+    login_url: str | None = None,
+    message: str | None = None,
+) -> Callable[..., Any]:
     """
     Для всех авторизованных пользователей.
     Гостей перенаправляет на страницу входа.
@@ -110,15 +137,21 @@ def user_required(view_func=None, login_url=None, message=None):
     return actual_decorator
 
 
-def partner_required(view_func=None, login_url=None, message=None):
+def partner_required(
+    view_func: View | None = None,
+    login_url: str | None = None,
+    message: str | None = None,
+) -> Callable[..., Any]:
     """
     Только для активных партнеров.
     Всех остальных перенаправляет или показывает 403.
     """
 
-    def decorator(view_func):
+    def decorator(view_func: View) -> View:
         @wraps(view_func)
-        def _wrapped_view(request, *args, **kwargs):
+        def _wrapped_view(
+            request: HttpRequest, *args: Any, **kwargs: Any
+        ) -> Any:
             # Сначала проверяем авторизацию
             if not request.user.is_authenticated:
                 messages.warning(request, message or "Требуется авторизация")
@@ -140,15 +173,21 @@ def partner_required(view_func=None, login_url=None, message=None):
     return decorator
 
 
-def channel_moderator_required(view_func=None, login_url=None, message=None):
+def channel_moderator_required(
+    view_func: View | None = None,
+    login_url: str | None = None,
+    message: str | None = None,
+) -> Callable[..., Any]:
     """
     Только для модераторов каналов.
     Всех остальных перенаправляет или показывает 403.
     """
 
-    def decorator(view_func):
+    def decorator(view_func: View) -> View:
         @wraps(view_func)
-        def _wrapped_view(request, *args, **kwargs):
+        def _wrapped_view(
+            request: HttpRequest, *args: Any, **kwargs: Any
+        ) -> Any:
             # Сначала проверяем авторизацию
             if not request.user.is_authenticated:
                 messages.warning(request, message or "Требуется авторизация")

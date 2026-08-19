@@ -1,7 +1,10 @@
+from typing import Any
+
 from django.conf import settings
+from django.http import HttpRequest
 
 
-def user_role(request):
+def user_role(request: HttpRequest) -> dict[str, Any]:
     """
     Контекстный процессор, добавляющий информацию о роли пользователя в шаблоны.
     Возвращает:
@@ -18,7 +21,7 @@ def user_role(request):
         else:
             is_partner = getattr(request.user, "is_partner", False)
             role = "partner" if is_partner else "user"
-        request.role = role  # Кэшируем роль в запросе
+        setattr(request, "role", role)  # Кэшируем роль в запросе
 
     context = {
         "user_role": role,

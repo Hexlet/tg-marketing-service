@@ -1,14 +1,19 @@
 # config/group_channels/management/commands/sync_categories.py
+from argparse import ArgumentParser
+from typing import Any, Iterable, List
+
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.db.models import Q
+from django.forms import ChoiceField
 
 from apps.group_channels.models import AutoGroupRule, Group
 from apps.parser.models import TelegramChannel
+from apps.users.models import User
 
 
-def _flatten_choices(choices):
+def _flatten_choices(choices: Any) -> Iterable[str]:
     """
     Поддержка как плоских choices [(val, label), ...],
     так и сгруппированных [('Группа', [(val, label), ...]), ...]
@@ -30,7 +35,7 @@ class Command(BaseCommand):
         "категории из БД (--source=db)."
     )
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: ArgumentParser) -> None:
         parser.add_argument(
             "--source",
             choices=["choices", "db"],
@@ -44,7 +49,12 @@ class Command(BaseCommand):
         parser.add_argument("--order-step", type=int, default=10)
         parser.add_argument("--dry-run", action="store_true")
 
-    def _resolve_owner(self, owner_id, owner_username, owner_email):
+    def _resolve_owner(
+        self,
+        owner_id: int | None,
+        owner_username: str | None,
+        owner_email: str | None,
+    ) -> User:
         User = get_user_model()
         user = None
         if owner_id is not None:
@@ -75,17 +85,24 @@ class Command(BaseCommand):
             )
         return user
 
-    def _load_categories_from_choices(self):
+    def _load_categories_from_choices(self) -> List[str]:
         try:
             # берём choices прямо из формы парсера
-            from config.parser.forms import ChannelParseForm
+            from apps.parser.forms import ChannelParseForm
 
             field = ChannelParseForm.base_fields["category"]
+            if not isinstance(field, ChoiceField):
+                raise CommandError("Поле category должно быть ChoiceField")
             raw = list(_flatten_choices(field.choices))
+        except CommandError:
+            raise
         except Exception as e:
-            raise CommandError(f"Не удалось получить категории из формы: {e}")
+            raise CommandError(
+                f"Не удалось получить категории из формы: {e}"
+            ) from e
 
-        out, seen = [], set()
+        out: List[str] = []
+        seen: set[str] = set()
         for val in raw:
             val = (val or "").strip()
             if val and val not in seen:
@@ -93,7 +110,7 @@ class Command(BaseCommand):
                 out.append(val)
         return out
 
-    def _load_categories_from_db(self):
+    def _load_categories_from_db(self) -> List[str]:
         raw = (
             TelegramChannel.objects.filter(
                 ~Q(category__isnull=True) & ~Q(category__exact="")
@@ -101,7 +118,8 @@ class Command(BaseCommand):
             .values_list("category", flat=True)
             .distinct()
         )
-        out, seen = [], set()
+        out: List[str] = []
+        seen: set[str] = set()
         for val in raw:
             val = (val or "").strip()
             if val and val not in seen:
@@ -109,8 +127,8 @@ class Command(BaseCommand):
                 out.append(val)
         return out
 
-    def handle(self, *args, **options):
-        owner = self._resolve_owner(
+    def handle(self, *args: Any, **options: Any) -> None:
+        owner: Any = self._resolve_owner(
             options["owner_id"],
             options["owner_username"],
             options["owner_email"],
