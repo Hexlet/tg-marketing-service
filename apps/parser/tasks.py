@@ -13,6 +13,10 @@ from telethon.sessions import StringSession
 from apps.parser.models import ChannelStats, Post, TelegramChannel
 from apps.parser.parser import tg_parser
 from apps.parser.services.analysis import PostAnalysisService
+from apps.parser.types import (
+    ParsedChannelData,
+    normalize_channel_data,
+)
 from apps.parser.utils import get_telegram_credentials
 
 log = logging.getLogger(__name__)
@@ -151,7 +155,7 @@ def parse_all_channels() -> None:
 def run_post_analysis_task(post_id: int):
     try:
         post = Post.objects.get(id=post_id)
-        # Создаем экземпляр сервиса, запускаем тяжелый метод
+        # Создаем экземпляр сервиса и запускаем тяжелый метод
         service = PostAnalysisService()
         service.get_analysis(post)
         log.info(f"Analysis completed for post {post_id}")
