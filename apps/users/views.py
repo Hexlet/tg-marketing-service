@@ -1,4 +1,3 @@
-from collections.abc import Callable
 from typing import Any, cast
 
 from django.contrib import auth, messages
@@ -13,7 +12,9 @@ from django.shortcuts import redirect
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.utils.http import urlsafe_base64_decode
+from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic.base import View
 from inertia import InertiaResponse
 from inertia import render as inertia_render
@@ -51,6 +52,10 @@ class LogoutView(UserAuthenticationCheckMixin, View):
         return redirect(reverse("main_index"))
 
 
+@method_decorator(
+    sensitive_post_parameters("password"),
+    name="post",
+)
 class LoginView(View):
     def get(
         self,
@@ -133,10 +138,7 @@ class UserProfileView(UserAuthenticationCheckMixin, View):
             "is_active": user.is_active,
         }
 
-        groups_data = [
-            cast(Callable[[], dict[str, Any]], group.get_data)()
-            for group in groups
-        ]
+        groups_data = [group.get_data() for group in groups]
 
         create_form_data = {"name": "", "description": "", "image_url": ""}
 
@@ -252,6 +254,10 @@ class UserCabinetView(UserAuthenticationCheckMixin, View):
         return redirect(reverse("users:user_cabinet"))
 
 
+@method_decorator(
+    sensitive_post_parameters("password1", "password2"),
+    name="post",
+)
 class UserRegister(View):
     form_fields = (
         "first_name",
@@ -502,6 +508,13 @@ class RestorePasswordRequestView(View):
         )
 
 
+@method_decorator(
+    sensitive_post_parameters(
+        "new_password1",
+        "new_password2",
+    ),
+    name="post",
+)
 class RestorePasswordView(View):
     """
     Метод get возвращает props

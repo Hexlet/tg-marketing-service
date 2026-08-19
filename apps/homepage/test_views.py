@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.test import TestCase
 from django.urls import reverse
 
@@ -6,6 +8,8 @@ from apps.users.models import User
 
 
 class IndexViewTest(TestCase):
+    component: HomePageComponent
+
     @classmethod
     def setUpTestData(cls):
         cls.component = HomePageComponent.objects.create(
@@ -47,7 +51,10 @@ class IndexViewTest(TestCase):
         )
         self.assertEqual(first_component["order"], self.component.order)
 
-    def _get_inertia_props(self, url_name="main_index"):
+    def _get_inertia_props(
+        self,
+        url_name: str = "main_index",
+    ) -> dict[str, Any]:
         response = self.client.get(
             reverse(url_name),
             HTTP_ACCEPT="application/json",
@@ -56,7 +63,7 @@ class IndexViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         return response.json()["props"]
 
-    def test_guest_inertia_props_include_shared_auth_state(self):
+    def test_guest_inertia_props_include_shared_auth_state(self) -> None:
         props = self._get_inertia_props()
 
         self.assertIsNone(props["auth"])
@@ -66,7 +73,9 @@ class IndexViewTest(TestCase):
         self.assertTrue(props["csrfToken"])
         self.assertIsNone(props["flash"])
 
-    def test_authenticated_user_inertia_props_include_shared_auth_state(self):
+    def test_authenticated_user_inertia_props_include_shared_auth_state(
+        self,
+    ) -> None:
         user = User.objects.create_user(
             username="testuser",
             email="test@example.com",
@@ -84,7 +93,7 @@ class IndexViewTest(TestCase):
         self.assertFalse(props["is_admin"])
         self.assertIn("csrfToken", props)
 
-    def test_admin_user_shared_props(self):
+    def test_admin_user_shared_props(self) -> None:
         user = User.objects.create_user(
             username="adminuser",
             email="admin@example.com",
@@ -100,7 +109,7 @@ class IndexViewTest(TestCase):
         self.assertEqual(props["auth"]["role"], "admin")
         self.assertTrue(props["is_admin"])
 
-    def test_channel_moderator_user_shared_props(self):
+    def test_channel_moderator_user_shared_props(self) -> None:
         user = User.objects.create_user(
             username="moderator",
             email="moderator@example.com",
@@ -115,7 +124,7 @@ class IndexViewTest(TestCase):
         self.assertEqual(props["auth"]["role"], "channel_moderator")
         self.assertFalse(props["is_admin"])
 
-    def test_flash_message_persists_after_redirect(self):
+    def test_flash_message_persists_after_redirect(self) -> None:
         session = self.client.session
         session["flash"] = {"success": "Пользователь успешно зарегистрирован"}
         session.save()
@@ -137,7 +146,7 @@ class IndexViewTest(TestCase):
         # Flash должен быть извлечён из сессии однократно
         self.assertIsNone(self.client.session.get("flash"))
 
-    def test_flash_survives_chain_of_redirects(self):
+    def test_flash_survives_chain_of_redirects(self) -> None:
         """Flash не теряется на промежуточном редиректе."""
         user = User.objects.create_user(
             username="redirectuser",
@@ -167,7 +176,7 @@ class IndexViewTest(TestCase):
             props["flash"], {"success": "Сообщение через redirect"}
         )
 
-    def test_unknown_role_fallback_to_user(self):
+    def test_unknown_role_fallback_to_user(self) -> None:
         user = User.objects.create_user(
             username="unknownrole",
             email="unknown@example.com",
@@ -182,7 +191,7 @@ class IndexViewTest(TestCase):
         self.assertEqual(props["auth"]["role"], "user")
         self.assertFalse(props["is_admin"])
 
-    def test_is_admin_true_for_superuser(self):
+    def test_is_admin_true_for_superuser(self) -> None:
         user = User.objects.create_user(
             username="superuser",
             email="super@example.com",
@@ -197,7 +206,7 @@ class IndexViewTest(TestCase):
         self.assertEqual(props["role"], "user")
         self.assertTrue(props["is_admin"])
 
-    def test_invalid_flash_values_normalized_to_none(self):
+    def test_invalid_flash_values_normalized_to_none(self) -> None:
         for invalid_flash in ["", "plain string", {}, []]:
             with self.subTest(flash=invalid_flash):
                 session = self.client.session
@@ -208,7 +217,7 @@ class IndexViewTest(TestCase):
                 self.assertIsNone(props["flash"])
                 self.assertIsNone(self.client.session.get("flash"))
 
-    def test_registration_flash_survives_redirect_chain(self):
+    def test_registration_flash_survives_redirect_chain(self) -> None:
         """Регистрация устанавливает flash и редиректит на главную."""
         response = self.client.post(
             reverse("users:user_create"),

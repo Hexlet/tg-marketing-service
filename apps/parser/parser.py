@@ -14,6 +14,10 @@ from telethon.errors import (
 from apps.parser.models import TelegramChannel
 from apps.parser.parsers.channel import ChannelParser
 from apps.parser.parsers.posts import PostsParser
+from apps.parser.types import (
+    ParsedChannelResult,
+    build_parsed_channel_result,
+)
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +26,7 @@ async def tg_parser(
     url: str,
     client: TelegramClient,  # Теперь принимаем готовый клиент
     limit: int = 10,
-) -> Dict[str, Any]:
+) -> ParsedChannelResult:
     """Основная функция парсинга Telegram-канала.
 
     Args:
@@ -70,7 +74,7 @@ async def tg_parser(
                 f"Successfully parsed channel {channel_data['title']} "
                 f"({channel_data['username']})"
             )
-            return data
+            return build_parsed_channel_result(data)
 
         except FloodWaitError as e:
             wait_time = e.seconds + uniform(1.0, 2.0)
