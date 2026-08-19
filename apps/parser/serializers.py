@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from apps.parser.models import Post
+from apps.parser.services.analysis import PostAnalysisService
 
 
 class PostSerializer:
@@ -43,9 +44,11 @@ class PostSerializer:
         """
 
         post_analysis_data = {}
+
         if hasattr(post, "post_analysis"):
             analysis = post.post_analysis
             post_analysis_data = {
+                "status": "completed",
                 "why_worked": analysis.why_worked.split("\n"),
                 "how_to_improve": analysis.how_to_improve.split("\n"),
                 "similar_posts": [
@@ -53,10 +56,26 @@ class PostSerializer:
                         "telegram_message_id": p.telegram_message_id,
                         "text": p.text,
                         "permalink": p.permalink,
+                        "views": p.views,
+                        "forwards": p.forwards,
+                        "comments_count": p.comments_count,
+                        "reposts": p.reposts,
+                        "total_reactions": p.total_reactions(),
                     }
                     for p in analysis.similar_posts.all()
                 ],
                 "model_version": analysis.model_version,
+            }
+        else:
+            # метод, который мгновенно возвращает управление
+            PostAnalysisService.trigger_analysis_if_needed(post)
+
+            post_analysis_data = {
+                "status": "processing",
+                "why_worked": [],
+                "how_to_improve": [],
+                "similar_posts": [],
+                "model_version": None,
             }
 
         return {

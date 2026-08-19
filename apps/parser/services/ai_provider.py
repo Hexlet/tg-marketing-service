@@ -8,16 +8,29 @@ class AIAnalysisResult(TypedDict):
     similar_posts_ids: List[int]  # ID постов для связи в БД
 
 
+class CandidatePost(TypedDict):
+    id: int
+    text: str
+    views: int
+    forwards: int
+    comments_count: int
+    reposts: int
+
+
 class BaseAIProvider(ABC):
     @abstractmethod
-    def analyze(self, post_text: str, metrics: dict) -> AIAnalysisResult:
+    def analyze(
+        self, post_text: str, metrics: dict, candidates: List[CandidatePost]
+    ) -> AIAnalysisResult:
         pass
 
 
 class DeterministicFallbackProvider(BaseAIProvider):
     """Детерминированная заглушка без ключа LLM"""
 
-    def analyze(self, post_text: str, metrics: dict) -> AIAnalysisResult:
+    def analyze(
+        self, post_text: str, metrics: dict, candidates: List[CandidatePost]
+    ) -> AIAnalysisResult:
         return {
             "why_worked": [
                 "High engagement due to topic",
@@ -27,5 +40,5 @@ class DeterministicFallbackProvider(BaseAIProvider):
                 "Add more visual elements",
                 "Shorten the introduction",
             ],
-            "similar_posts_ids": [],
+            "similar_posts_ids": [candidates[0]["id"]] if candidates else [],
         }

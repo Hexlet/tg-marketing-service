@@ -160,6 +160,7 @@ class PostAnalysisInline(admin.StackedInline):
         "model_version",
         "created_at",
     ]
+    readonly_fields = ["created_at"]
 
 
 @admin.register(Post)
