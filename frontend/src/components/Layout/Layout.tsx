@@ -3,7 +3,7 @@ import { useDisclosure } from '@mantine/hooks';
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { Footer } from './Footer';
-import { Header } from './Header';
+import  Header from './Header';
 import { NavBar } from './NavBar';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {

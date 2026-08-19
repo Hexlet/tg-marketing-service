@@ -1,3 +1,5 @@
+from typing import Any, Optional
+
 from django.db import models
 
 from apps.users.models import User
@@ -79,14 +81,14 @@ class TelegramChannel(models.Model):
         verbose_name = "Telegram канал"
         verbose_name_plural = "Telegram каналы"
 
-    def last_stat(self):
+    def last_stat(self) -> Optional["ChannelStats"]:
         """Получение последней статистики канала"""
         return self.channelstats_set.order_by("-parsed_at").first()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.channel_id} канал {self.title}"
 
-    def get_data(self):
+    def get_data(self) -> dict[str, Any]:
         """
         Метод возвращает представление данных канала в виде словаря,
         пригодного для передачи на фронтенд (Inertia.js).
@@ -146,7 +148,7 @@ class ChannelModerator(models.Model):
         unique_together = ["user", "channel"]
         db_table = "channel_moderators"
 
-    def __str__(self):
+    def __str__(self) -> str:
         role = "Владелец" if self.is_owner else "Модератор"
         return f"{self.user} - {role} канала {self.channel.title}"
 
@@ -172,7 +174,7 @@ class ChannelStats(models.Model):
         get_latest_by = "parsed_at"
         ordering = ["-parsed_at"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.channel} - {self.parsed_at}"
 
 

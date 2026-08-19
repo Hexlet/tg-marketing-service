@@ -1,3 +1,6 @@
+from typing import Any
+
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.views import View
 from inertia import render as inertia_render
@@ -86,7 +89,9 @@ class DashboardView(View):
     - is_auto: признак автоматической/ручной коллекции
     """
 
-    def get(self, request, *args, **kwargs):
+    def get(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponse:
         if not request.user.is_authenticated:
             return redirect("main_index")
 

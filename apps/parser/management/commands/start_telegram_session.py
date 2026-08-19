@@ -75,7 +75,7 @@ class Command(BaseCommand):
     when: u r tired and want to receive argparse.ArgumentError
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize command state:
         1. init super (required for backward compatibility with BaseCommand)
         2. create fields
@@ -146,7 +146,7 @@ class Command(BaseCommand):
 
         # **options instead of **kwargs because of legacy
 
-    def handle(self, *args, **options: dict[str, str]) -> None:
+    def handle(self, *args: Any, **options: Any) -> None:
         """Entrypoint: resolve input, authenticate in Telegram, save it.
 
         Structure:

@@ -8,7 +8,7 @@ dependencies = [
     "asyncio>=4.0.0",
     "celery>=5.5.3",
     "dj-database-url>=3.0.1",
-    "django>=6.0.6",
+    "django>=6.0.7",
     "django-allauth>=65.14.1",
     "django-bootstrap5>=25.1",
     "django-widget-tweaks>=1.5.0",
@@ -53,7 +53,7 @@ python_version = "3.12"
 
 plugins = ["mypy_django_plugin.main"]
 
-check_untyped_defs = false
+check_untyped_defs = true
 disallow_untyped_defs = false
 disallow_untyped_calls = true
 

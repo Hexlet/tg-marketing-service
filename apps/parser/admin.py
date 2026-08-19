@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.db.models import QuerySet
+from django.http import HttpRequest
 from guardian.admin import GuardedModelAdmin
 
 from apps.parser.models import (
@@ -132,8 +134,8 @@ class ChannelModeratorAdmin(GuardedModelAdmin):
         ("Метаданные", {"fields": ("created_at",), "classes": ("collapse",)}),
     )
 
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related("user", "channel")
+    def get_queryset(self, request: HttpRequest) -> QuerySet[ChannelModerator]:
+        return super().get_queryset(request).select_related("user", "channel")  # type: ignore[no-untyped-call]
 
 
 class PostReactionInline(admin.TabularInline):
