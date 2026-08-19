@@ -180,4 +180,15 @@ def with_ai_fallback(
         return get_ai_response(topic, **prompt_vars)
     except AIUnavailable as error:
         log.warning("AI fallback сработал для темы %r: %s", topic, error)
-        return fallback_factory()
+        fallback_result = fallback_factory()
+        return _ensure_response_type(topic, fallback_result)
+
+
+def _ensure_response_type(topic: str, value: Any) -> BaseModel:
+    """
+    Проверяет, что fallback_factory вернул тот же DTO, что и AI-ответ
+    для этой темы, чтобы код фичи всегда получал один и тот же тип
+    независимо от того, ответил AI или сработал fallback.
+    """
+    model_cls = RESPONSE_MODELS[topic]
+    return model_cls.model_validate(value)
