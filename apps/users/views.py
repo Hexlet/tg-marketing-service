@@ -531,8 +531,7 @@ class RestorePasswordView(View):
         try:
             uid_decoded = urlsafe_base64_decode(uid).decode()
         except TypeError:
-            request.session["flash"] = {
-                "error": "Некорректный id пользователя"}
+            request.session["flash"] = {"error": "Некорректный id пользователя"}
             return redirect("users:login")
         try:
             user = User.objects.get(pk=uid_decoded)
@@ -581,8 +580,7 @@ class RestorePasswordView(View):
         try:
             uid_decoded = urlsafe_base64_decode(uid).decode()
         except TypeError:
-            request.session["flash"] = {
-                "error": "Некорректный id пользователя"}
+            request.session["flash"] = {"error": "Некорректный id пользователя"}
             return redirect("users:login")
         try:
             user = User.objects.get(pk=uid_decoded)
