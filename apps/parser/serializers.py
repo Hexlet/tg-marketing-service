@@ -26,7 +26,6 @@ class PostSerializer:
             "views": int,
             "forwards": int,
             "comments_count": int,
-            "reposts": int,
             "is_pinned": bool,
             "media_type": str,
             "permalink": str,
@@ -53,13 +52,14 @@ class PostSerializer:
                 "how_to_improve": analysis.how_to_improve.split("\n"),
                 "similar_posts": [
                     {
+                        "id": p.id,
                         "telegram_message_id": p.telegram_message_id,
                         "text": p.text,
+                        "published_at": p.published_at.isoformat(),
                         "permalink": p.permalink,
                         "views": p.views,
                         "forwards": p.forwards,
                         "comments_count": p.comments_count,
-                        "reposts": p.reposts,
                         "total_reactions": p.total_reactions(),
                     }
                     for p in analysis.similar_posts.all()
@@ -87,7 +87,6 @@ class PostSerializer:
             "views": post.views,
             "forwards": post.forwards,
             "comments_count": post.comments_count,
-            "reposts": post.reposts,
             "is_pinned": post.is_pinned,
             "media_type": post.media_type,
             "permalink": post.permalink,
@@ -126,7 +125,6 @@ class PostSerializer:
             "views",
             "forwards",
             "comments_count",
-            "reposts",
             "is_pinned",
             "media_type",
             "permalink",

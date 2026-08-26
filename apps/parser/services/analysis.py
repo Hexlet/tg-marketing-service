@@ -42,7 +42,6 @@ class PostAnalysisService:
                 "views": c.views,
                 "forwards": c.forwards,
                 "comments_count": c.comments_count,
-                "reposts": c.reposts,
             }
             for c in candidates_qs
         ]
