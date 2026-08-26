@@ -5,6 +5,7 @@ from asgiref.sync import async_to_sync
 from django.contrib import messages
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import DetailView, FormView, ListView, View
@@ -13,8 +14,9 @@ from telethon.sessions import StringSession
 
 from apps.parser.dto.channel_dto import ChannelDTO, ChannelListDTO
 from apps.parser.forms import ChannelParseForm
-from apps.parser.models import ChannelStats, TelegramChannel
+from apps.parser.models import ChannelStats, Post, TelegramChannel
 from apps.parser.parser import tg_parser
+from apps.parser.services.analysis import PostAnalysisService
 from apps.parser.types import (
     ChannelDataForSave,
     ParsedChannelResult,
@@ -238,6 +240,43 @@ class ChannelLookupView(View):
         )
 
         return JsonResponse(result, safe=False)
+
+
+class PostAIAnalysisView(View):
+    """
+    Endpoint: /ai/channels/<channel_id>/posts/<post_id>/analysis
+    Возвращает трехчастную структуру анализа поста.
+    """
+
+    def get(self, request, channel_id, post_id):
+        post = get_object_or_404(
+            Post, channel_id=channel_id, telegram_message_id=post_id
+        )
+
+        # Используем сервис. Он сам проверит наличие в БД (кеш)
+        # или вызовет провайдера/fallback.
+        analysis = PostAnalysisService().get_analysis(post)
+
+        return JsonResponse(
+            {
+                "why_worked": analysis.why_worked.split("\n"),
+                "how_to_improve": analysis.how_to_improve.split("\n"),
+                "similar_posts": [
+                    {
+                        "id": p.id,
+                        "telegram_message_id": p.telegram_message_id,
+                        "text": p.text,
+                        "published_at": p.published_at.isoformat(),
+                        "permalink": p.permalink,
+                        "views": p.views,
+                        "forwards": p.forwards,
+                        "comments_count": p.comments_count,
+                        "total_reactions": p.total_reactions(),
+                    }
+                    for p in analysis.similar_posts.all()
+                ],
+            }
+        )
 
 
 # Create your views here.
