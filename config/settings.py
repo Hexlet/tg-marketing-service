@@ -90,6 +90,7 @@ INSTALLED_APPS = [
     "apps.group_channels",
     "apps.parser",
     "apps.homepage",
+    "apps.legal",
     "apps.ai",
 ]
 

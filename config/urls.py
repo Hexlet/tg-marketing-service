@@ -28,6 +28,7 @@ urlpatterns = [
     path("group/", include("apps.group_channels.urls")),
     path("accounts/", include("allauth.urls")),
     path("parser/", include("apps.parser.urls")),
+    path("legal/", include("apps.legal.urls")),
     path("admin/", admin.site.urls),
     path(
         "robots.txt",
