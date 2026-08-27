@@ -27,6 +27,6 @@ def test_documents_view(client):
 
 class LegalViewTestCase(InertiaTestCase):
     def test_show_assertions(self):
-        self.client.get('/legal/')
+        self.client.get("/legal/")
 
-        self.assertComponentUsed('Legal')
+        self.assertComponentUsed("Legal")
