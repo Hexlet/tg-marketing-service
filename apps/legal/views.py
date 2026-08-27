@@ -2,7 +2,6 @@ from django.http import HttpRequest, HttpResponse
 from django.views.generic.base import View
 from inertia import render as inertia_render
 
-
 LEGAL_DOCUMENTS = {
     "privacy": {
         "title": "Политика конфиденциальности",

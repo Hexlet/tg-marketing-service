@@ -1,7 +1,5 @@
 import pytest
-from apps.legal.views import LegalView
 from inertia.test import InertiaTestCase
-
 
 DOCUMENTS_FIXTURE = {
     "privacy": {
@@ -17,6 +15,7 @@ DOCUMENTS_FIXTURE = {
         "updated_at": "2026-07-01",
     },
 }
+
 
 @pytest.mark.django_db
 def test_documents_view(client):
