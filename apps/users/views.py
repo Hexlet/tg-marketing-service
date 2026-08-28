@@ -152,21 +152,8 @@ class UserCabinetView(UserAuthenticationCheckMixin, View):
                 "role": user.role,
                 "bio": user.bio,
             },
-            "subscription": {
-                "plan": "Pro",
-                "price": "$29",
-                "period": "в месяц",
-                "channels_used": 47,
-                "channels_limit": 100,
-                "ai_requests_used": 234,
-                "ai_requests_limit": 1000,
-            },
-            "notifications": {
-                "weekly_reports": True,
-                "trend_notifications": True,
-                "limit_exceeded": False,
-                "new_features": True,
-            },
+            "subscription": None,
+            "notifications": None,
             "usage_stats": usage_stats,
             "user_role": cast(RoleRequest, request).role,
         }

@@ -123,6 +123,8 @@ class UserCabinetViewTest(TestCase):
         )
         self.assertEqual(user["role"], "user")
         self.assertEqual(user["bio"], "Old bio")
+        self.assertIsNone(data["props"]["subscription"])
+        self.assertIsNone(data["props"]["notifications"])
 
     def test_post_updates_user_profile(self) -> None:
         response = self.client.post(
