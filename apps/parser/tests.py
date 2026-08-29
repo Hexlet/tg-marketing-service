@@ -1,8 +1,10 @@
+from datetime import timedelta
 from unittest.mock import MagicMock, patch
 
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
+from freezegun import freeze_time  # type: ignore
 
 from apps.parser.models import Post, PostAnalysis, TelegramChannel
 from apps.parser.services.analysis import PostAnalysisService
@@ -51,11 +53,7 @@ class PostAIAnalysisAPITestCase(TestCase):
         )
 
     def test_endpoint_cache_miss_and_llm_call(self):
-        """
-        Если анализа нет, вызывается провайдер (LLM) и данные сохраняются.
-        Здесь мы внедряем (inject) мок прямо в сервис.
-        """
-        # 1. Создаем мок провайдера
+        """Проверка: нет анализа -> вызываем LLM -> сохраняем"""
         mock_provider = MagicMock()
         mock_provider.analyze.return_value = {
             "why_worked": ["AI Reason"],
@@ -63,9 +61,9 @@ class PostAIAnalysisAPITestCase(TestCase):
             "similar_posts_ids": [],
         }
 
-        # 2. Инициализируем сервис с моком
         service = PostAnalysisService(provider=mock_provider)
 
+        # Патчим создание сервиса внутри view, чтобы подставить наш мок
         with patch(
             "apps.parser.views.PostAnalysisService", return_value=service
         ):
@@ -75,17 +73,53 @@ class PostAIAnalysisAPITestCase(TestCase):
             )
 
             response = self.client.get(url)
-
-            # Проверки
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json()["why_worked"], ["AI Reason"])
 
-            # Проверка, что данные сохранились в БД
-            self.assertTrue(
-                PostAnalysis.objects.filter(post=self.post).exists()
+            # Проверка, что при втором запросе провайдер НЕ вызывается
+            self.client.get(url)
+            self.assertEqual(mock_provider.analyze.call_count, 1)
+
+    @freeze_time("2024-01-01 12:00:00")
+    def test_endpoint_regenerates_after_ttl_expired(self):
+        """
+        Если анализ старый, сервис должен вызвать провайдера снова.
+        """
+        # 1. Создаем "старый" анализ (например, 10 дней назад)
+        old_date = timezone.now() - timedelta(days=10)
+        analysis = PostAnalysis.objects.create(
+            post=self.post,
+            why_worked="Old Reason",
+            how_to_improve="Old Improvement",
+        )
+        # Вручную подменяем дату создания
+        analysis.created_at = old_date
+        analysis.save()
+
+        # 2. Настраиваем мок провайдера на возврат НОВЫХ данных
+        mock_provider = MagicMock()
+        mock_provider.analyze.return_value = {
+            "why_worked": ["New Reason"],
+            "how_to_improve": ["New Improvement"],
+            "similar_posts_ids": [],
+        }
+        service = PostAnalysisService(provider=mock_provider)
+
+        # 3. Патчим сервис во вьюхе
+        with patch(
+            "apps.parser.views.PostAnalysisService", return_value=service
+        ):
+            url = reverse(
+                "parser:post_ai_analysis",
+                kwargs={"channel_id": self.channel.id, "post_id": 12345},
             )
 
-            # Проверка повторного вызова (должен быть кеш)
-            response_second = self.client.get(url)
-            self.assertEqual(response_second.status_code, 200)
+            # 4. Выполняем запрос
+            response = self.client.get(url)
+
+            # 5. ПРОВЕРКИ
+            self.assertEqual(response.status_code, 200)
+            # Данные должны быть НОВЫМИ, а не "Old Reason"
+            self.assertEqual(response.json()["why_worked"], ["New Reason"])
+            # Провайдер ДОЛЖЕН был быть вызван, несмотря на наличие записи в БД
             self.assertEqual(mock_provider.analyze.call_count, 1)
