@@ -19,6 +19,7 @@ from django.views.generic.base import View
 from inertia import InertiaResponse
 from inertia import render as inertia_render
 
+from apps.billing.models import Plan
 from apps.users.forms import (
     AvatarChange,
     RestorePasswordForm,
@@ -178,21 +179,14 @@ class UserCabinetView(UserAuthenticationCheckMixin, View):
             ),
             "total_time": f"{total_hours:.0f} часов",
         }
+        plans = Plan.objects.all().order_by("ordering", "id")
 
         return {
             "user": {
                 "first_name": user.first_name,
                 "email": user.email,
             },
-            "subscription": {
-                "plan": "Pro",
-                "price": "$29",
-                "period": "в месяц",
-                "channels_used": 47,
-                "channels_limit": 100,
-                "ai_requests_used": 234,
-                "ai_requests_limit": 1000,
-            },
+            "subscription": [plan.get_data() for plan in plans],
             "notifications": {
                 "weekly_reports": True,
                 "trend_notifications": True,
