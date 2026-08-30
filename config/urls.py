@@ -26,6 +26,7 @@ urlpatterns = [
     path("dashboard/", include("apps.homepage.urls")),
     path("auth/", include("apps.users.urls")),
     path("group/", include("apps.group_channels.urls")),
+    path("blog/", include("apps.blog.urls")),
     path("accounts/", include("allauth.urls")),
     path("parser/", include("apps.parser.urls")),
     path(
