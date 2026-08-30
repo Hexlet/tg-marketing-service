@@ -1,3 +1,4 @@
+import re
 from typing import List
 
 from telethon import TelegramClient
@@ -43,6 +44,20 @@ class PostsParser:
             current_comments = message.replies.replies if message.replies else 0
             current_views = message.views or 0
 
+            fwd_from = None
+            if message.fwd_from:
+                # Проверяем, является ли источник каналом
+                if hasattr(message.fwd_from, "channel_id"):
+                    fwd_from = message.fwd_from.channel_id
+                elif hasattr(message.fwd_from, "sender_id"):
+                    fwd_from = message.fwd_from.sender_id
+
+            mentions = []
+            if message.text:
+                # Ищем паттерны упоминаний каналов
+                found_mentions = re.findall(r"@(\w+)", message.text)
+                mentions = list(set(found_mentions))
+
             # 1. Создание или получение поста
             post, created = await Post.objects.aget_or_create(
                 channel=channel_model,
@@ -54,6 +69,8 @@ class PostsParser:
                     "permalink": permalink,
                     "forwards": current_forwards,
                     "comments_count": current_comments,
+                    "fwd_from": fwd_from,
+                    "mentions": mentions,
                 },
             )
 
@@ -73,16 +90,30 @@ class PostsParser:
                     post.comments_count = current_comments
                     update_fields.append("comments_count")
 
+                if fwd_from != post.fwd_from:
+                    post.fwd_from = fwd_from
+                    update_fields.append("fwd_from")
+
+                if mentions != post.mentions:
+                    post.mentions = mentions
+                    update_fields.append("mentions")
+
                 if update_fields:
                     await post.asave(update_fields=update_fields)
 
             # 3. Обработка реакций
+            await PostReaction.objects.filter(post=post).adelete()
+
             if message.reactions:
                 for reaction in message.reactions.results:
-                    await PostReaction.objects.aupdate_or_create(
+                    # reaction.reaction — это объект типа ReactionEmoji
+                    emoji = getattr(
+                        reaction, "emoticon", str(reaction.reaction)
+                    )
+                    await PostReaction.objects.acreate(
                         post=post,
-                        emoji=reaction.reaction,
-                        defaults={"count": reaction.count},
+                        emoji=emoji,
+                        count=reaction.count,
                     )
 
             # Сбор статистики для возвращаемого агрегата
