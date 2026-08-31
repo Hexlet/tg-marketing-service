@@ -29,6 +29,7 @@ urlpatterns = [
     path("blog/", include("apps.blog.urls")),
     path("accounts/", include("allauth.urls")),
     path("parser/", include("apps.parser.urls")),
+    path("legal/", include("apps.legal.urls")),
     path("admin/", admin.site.urls),
     path(
         "robots.txt",
