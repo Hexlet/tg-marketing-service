@@ -14,7 +14,6 @@ class CandidatePost(TypedDict):
     views: int
     forwards: int
     comments_count: int
-    reposts: int
 
 
 class BaseAIProvider(ABC):

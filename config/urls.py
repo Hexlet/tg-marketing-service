@@ -33,6 +33,7 @@ urlpatterns = [
         "admin/moderation/",
         include("apps.admin.moderation.urls"),
     ),
+    path("legal/", include("apps.legal.urls")),
     path("admin/", admin.site.urls),
     path(
         "robots.txt",
