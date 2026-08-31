@@ -93,7 +93,7 @@ INSTALLED_APPS = [
     "apps.legal",
     "apps.ai",
     "apps.blog",
-    "apps.moderation",
+    "apps.admin.moderation",
 ]
 
 AUTHENTICATION_BACKENDS = [
