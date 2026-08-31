@@ -1,4 +1,7 @@
+from datetime import timedelta
 from typing import Optional
+
+from django.utils import timezone
 
 from apps.parser.models import Post, PostAnalysis
 
@@ -11,6 +14,8 @@ from .ai_provider import (
 
 
 class PostAnalysisService:
+    ANALYSIS_TTL_DAYS = 7
+
     def __init__(self, provider: Optional[BaseAIProvider] = None):
         self.provider = provider or DeterministicFallbackProvider()
 
@@ -21,13 +26,17 @@ class PostAnalysisService:
         if not force_regenerate:
             existing = PostAnalysis.objects.filter(post=post).first()
             if existing:
-                return existing
+                expiration_date = existing.created_at + timedelta(
+                    days=self.ANALYSIS_TTL_DAYS
+                )
+                if timezone.now() < expiration_date:
+                    return existing
 
         # 2. Генерация через провайдера
         metrics = {
             "views": post.views,
             "forwards": post.forwards,
-            "comments": post.comments_count,
+            "comments_count": post.comments_count,
         }
 
         candidates_qs = (
@@ -42,7 +51,6 @@ class PostAnalysisService:
                 "views": c.views,
                 "forwards": c.forwards,
                 "comments_count": c.comments_count,
-                "reposts": c.reposts,
             }
             for c in candidates_qs
         ]
