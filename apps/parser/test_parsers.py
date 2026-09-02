@@ -108,18 +108,12 @@ class TestPostsParser:
         assert post.text == current_text
         assert post.views == data["views"]
 
-        expected_mentions = [
-            m.replace("@", "").strip()
-            for m in data["mentions"]
-            if m.strip() and not all(c in " !\"'() ,.-" for c in m)
-        ]
+        expected_mentions = [m.replace("@", "") for m in data["mentions"]]
 
-        actual_mentions = [
-            m.replace("@", "").strip() for m in post.mentions if m.strip()
-        ]
+        # То, что реально записалось в базу
+        actual_mentions = post.mentions
 
         assert sorted(actual_mentions) == sorted(expected_mentions)
-        # ------------------------------------------
 
         # Проверка реакций
         reaction = await PostReaction.objects.aget(

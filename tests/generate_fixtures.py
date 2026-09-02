@@ -1,4 +1,5 @@
 import logging
+import re
 from typing import Any, Dict, List, Tuple
 
 # Avoid importing Django app modules
@@ -161,6 +162,7 @@ class ModelAndFormFixtureGenerator:
         """
         fixtures for parser.Post model
         """
+
         msg_ids = self.gen.generate_int(max_len=10, ensure_unique=True)
         views = self.gen.generate_int(max_len=7)
         forwards = self.gen.generate_int(max_len=5)
@@ -169,26 +171,56 @@ class ModelAndFormFixtureGenerator:
         dates = self.gen.generate_datetime(rule=None)
         permalinks = self.gen.generate_urls(rule=None)
 
-        mentions_list: List[str] = [
-            f"@{self.gen.generate_text(max_len=10, ensure_unique=True)}"
-            for _ in range(2)
-        ]
+        # Генерируем кортежи данных заранее
+        all_raw_names_1 = self.gen.generate_text(max_len=10, ensure_unique=True)
+        all_raw_names_2 = self.gen.generate_text(max_len=10, ensure_unique=True)
 
-        texts: List[str] = []
-        for m in mentions_list:
-            texts.append(f"Important news from {m} for everyone!")
+        all_mentions = []
+        all_texts = []
+
+        for i in range(self.size):
+            # Берем i-й элемент из кортежей, чтобы получить строку
+            raw_m1 = all_raw_names_1[i]
+            raw_m2 = all_raw_names_2[i]
+
+            # На случай если генератор вернул не строку, а что-то еще
+            if not isinstance(raw_m1, str):
+                raw_m1 = str(raw_m1)
+            if not isinstance(raw_m2, str):
+                raw_m2 = str(raw_m2)
+
+            # Очищаем, чтобы регулярка @([\w\.]+) сработала
+            m1_clean_text = re.sub(r"[^\w.]", "", raw_m1)
+            m2_clean_text = re.sub(r"[^\w.]", "", raw_m2)
+
+            if not m1_clean_text:
+                m1_clean_text = "user1"
+            if not m2_clean_text:
+                m2_clean_text = "user2"
+
+            # Для текста с @
+            m1_with_at = f"@{m1_clean_text}"
+            m2_with_at = f"@{m2_clean_text}"
+
+            # Для базы без @
+            current_mentions = [m1_clean_text, m2_clean_text]
+
+            all_mentions.append(current_mentions)
+            all_texts.append(
+                f"Important news from {m1_with_at} and {m2_with_at}!"
+            )
 
         valid = self._compose(
             {
                 "telegram_message_id": msg_ids,
-                "text": tuple(texts),
+                "text": tuple(all_texts),
                 "published_at": dates,
                 "views": views,
                 "permalink": permalinks,
                 "forwards": forwards,
                 "comments_count": comments,
                 "fwd_from": fwd_froms,
-                "mentions": tuple(mentions_list),
+                "mentions": tuple(all_mentions),
             }
         )
 

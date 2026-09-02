@@ -343,3 +343,12 @@ class DataGenerator:
         full_path = f"{fixture_path}/{fixture_name}.json"
         with open(full_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2, default=str)
+
+
+if __name__ == "__main__":
+    from tests.generate_fixtures import ModelAndFormFixtureGenerator
+
+    print("Начинаю генерацию фикстур...")
+    generator = ModelAndFormFixtureGenerator()
+    generator.generate_all()
+    print("Готово! Проверь папку tests/fixtures")
