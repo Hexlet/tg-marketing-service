@@ -75,7 +75,12 @@ class TestPostsParser:
         mock_message.replies = mock_replies
 
         if data["fwd_from"]:
-            mock_message.fwd_from = MagicMock(channel_id=data["fwd_from"])
+            mock_fwd_from = MagicMock()
+            mock_from_id = MagicMock()
+            mock_from_id.channel_id = data["fwd_from"]
+
+            mock_fwd_from.from_id = mock_from_id
+            mock_message.fwd_from = mock_fwd_from
         else:
             mock_message.fwd_from = None
 
@@ -84,7 +89,10 @@ class TestPostsParser:
         reaction_data = load_fixture("post_reaction")[0]
 
         mock_reaction_item = MagicMock()
-        mock_reaction_item.emoticon = reaction_data["emoji"]
+        mock_inner_reaction = MagicMock()
+        mock_inner_reaction.emoticon = reaction_data["emoji"]
+
+        mock_reaction_item.reaction = mock_inner_reaction
         mock_reaction_item.count = reaction_data["count"]
 
         mock_reactions_container = MagicMock()

@@ -46,11 +46,11 @@ class PostsParser:
 
             fwd_from = None
             if message.fwd_from:
-                # Проверяем, является ли источник каналом
-                if hasattr(message.fwd_from, "channel_id"):
-                    fwd_from = message.fwd_from.channel_id
-                elif hasattr(message.fwd_from, "sender_id"):
-                    fwd_from = message.fwd_from.sender_id
+                from_id = message.fwd_from.from_id
+                if hasattr(from_id, "channel_id"):
+                    fwd_from = from_id.channel_id
+                elif hasattr(from_id, "user_id"):
+                    fwd_from = from_id.user_id
 
             mentions = []
             if message.text:
@@ -106,10 +106,16 @@ class PostsParser:
 
             if message.reactions:
                 for reaction in message.reactions.results:
-                    # reaction.reaction — это объект типа ReactionEmoji
-                    emoji = getattr(
-                        reaction, "emoticon", str(reaction.reaction)
-                    )
+                    # Извлечение эмоджи из вложенного объекта
+                    inner_reaction = getattr(reaction, "reaction", None)
+
+                    if inner_reaction and hasattr(inner_reaction, "emoticon"):
+                        emoji = inner_reaction.emoticon
+                    else:
+                        emoji = (
+                            str(inner_reaction)[:10] if inner_reaction else "❓"
+                        )
+
                     await PostReaction.objects.acreate(
                         post=post,
                         emoji=emoji,
