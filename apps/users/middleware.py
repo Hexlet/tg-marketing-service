@@ -5,7 +5,6 @@ from typing import cast
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest, HttpResponse
 
-
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
