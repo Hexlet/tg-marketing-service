@@ -86,7 +86,7 @@ class PostsParser:
                     post.forwards = current_forwards
                     update_fields.append("forwards")
 
-                if current_comments > post.comments_count:
+                if current_comments != post.comments_count:
                     post.comments_count = current_comments
                     update_fields.append("comments_count")
 
