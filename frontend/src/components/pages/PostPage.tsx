@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
  Badge,
  Button,
@@ -15,14 +15,10 @@ import {
  List,
  Alert,
  Skeleton,
- Loader
+ Loader,
 } from "@mantine/core";
 import { InsightCard } from "@/components/ui/InsightCard";
-import {
- IconArrowLeft,
- IconSparkles,
- IconBrain,
-} from "@tabler/icons-react";
+import { IconArrowLeft, IconSparkles, IconBrain } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 
 const reactions = [
@@ -50,6 +46,10 @@ type PostAnalysis = {
  similar_posts: SimilarPost[];
  model_version: string | null;
 };
+
+interface PostPageProps {
+ analysis?: PostAnalysis | null;
+}
 
 const MOCK_ANALYSIS_DATA: PostAnalysis = {
  status: "processing",
@@ -87,25 +87,26 @@ const MOCK_ANALYSIS_DATA: PostAnalysis = {
  ],
 };
 
-const PostPage = () => {
+const PostPage: React.FC<PostPageProps> = ({
+ analysis: propAnalysis = MOCK_ANALYSIS_DATA,
+}) => {
  const navigate = useNavigate();
 
- const [analysis, setAnalysis] = useState<PostAnalysis | null>(
-  null
- );
+ const [analysis, setAnalysis] = useState<PostAnalysis | null>(null);
 
-const handleStartAnalysis = () => {
+ const handleStartAnalysis = () => {
+  const baseData = propAnalysis || MOCK_ANALYSIS_DATA;
   setAnalysis({
-    ...MOCK_ANALYSIS_DATA,
-    status: "processing",
+   ...baseData,
+   status: "processing",
   });
   setTimeout(() => {
-    setAnalysis({
-      ...MOCK_ANALYSIS_DATA,
-      status: "completed",
-    });
+   setAnalysis({
+    ...baseData,
+    status: "completed",
+   });
   }, 3000);
-};
+ };
 
  return (
   <Container>
