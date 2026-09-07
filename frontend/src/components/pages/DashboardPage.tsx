@@ -1,6 +1,7 @@
 import { BrandAvatar } from "@/components/ui/BrandAvatar";
 import { InsightCard } from "@/components/ui/InsightCard";
 import channelsCol from "@/fixtures/channelsCollection";
+import getErBadgeColor from "@/utils/getErBadgeColor";
 import { AreaChart } from "@mantine/charts";
 import {
  Badge,
@@ -209,12 +210,7 @@ const DashboardPage: React.FC = () => {
          </Table.Td>
          <Table.Td ta="right">{post.forwards}</Table.Td>
          <Table.Td ta="right">
-          <Badge
-           size="sm"
-           color={
-            post.er >= 25 ? "tggreen" : post.er >= 15 ? "tgorange" : "tgred"
-           }
-          >
+          <Badge size="sm" color={getErBadgeColor(post.er)}>
            {post.er}%
           </Badge>
          </Table.Td>
