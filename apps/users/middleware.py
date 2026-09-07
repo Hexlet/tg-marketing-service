@@ -28,9 +28,9 @@ class RoleMiddleware:
         role_request = cast(RoleRequest, request)
 
         if request.user.is_authenticated:
-            request.role = request.user.role
+            role_request.role = request.user.role
         else:
-            request.role = "guest"
+            role_request.role = "guest"
 
         # logging-сообщение
         logger.debug(
