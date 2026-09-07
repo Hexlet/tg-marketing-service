@@ -93,6 +93,7 @@ INSTALLED_APPS = [
     "apps.legal",
     "apps.ai",
     "apps.blog",
+    "apps.billing",
     "apps.admin.moderation",
 ]
 
